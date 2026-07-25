@@ -17,7 +17,8 @@ import java.util.UUID
 @Service
 class ActivityService(
     private val activityRepository: ActivityRepository,
-    private val slotRepository: SlotRepository
+    private val slotRepository: SlotRepository,
+    private val priceCalculator: com.peakconnect.pricing.PriceCalculator
 ) {
     @Transactional
     fun createActivity(request: ActivityRequest): ActivityResponse {
@@ -48,11 +49,13 @@ class ActivityService(
         activityRepository.deleteById(id)
     }
 
+    @Transactional(readOnly = true)
     fun getActivity(id: UUID): ActivityResponse {
         val activity = activityRepository.findById(id).orElseThrow { IllegalArgumentException("Activity not found") }
         return toActivityResponse(activity)
     }
 
+    @Transactional(readOnly = true)
     fun getAllActivities(): List<ActivityResponse> {
         return activityRepository.findAll().map { toActivityResponse(it) }
     }
@@ -102,10 +105,14 @@ class ActivityService(
     }
 
     private fun toActivityResponse(a: Activity): ActivityResponse {
-        return ActivityResponse(a.id!!, a.title, a.description, a.location, a.difficultyLevel, a.basePrice)
+        return ActivityResponse(
+            a.id!!, a.title, a.description, a.location, a.difficultyLevel, a.basePrice,
+            a.slots.map { toSlotResponse(it) }
+        )
     }
 
     private fun toSlotResponse(s: Slot): SlotResponse {
-        return SlotResponse(s.id!!, s.activity.id!!, s.date, s.capacity, s.currentOccupancy, s.season)
+        val computedPrice = priceCalculator.calculateFinalPrice(s.activity.basePrice, s)
+        return SlotResponse(s.id!!, s.activity.id!!, s.date, s.capacity, s.currentOccupancy, s.season, computedPrice)
     }
 }

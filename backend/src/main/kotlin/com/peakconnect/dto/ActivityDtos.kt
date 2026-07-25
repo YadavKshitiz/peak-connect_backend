@@ -21,5 +21,6 @@ data class ActivityResponse(
     val description: String?,
     val location: String,
     val difficultyLevel: DifficultyLevel,
-    val basePrice: BigDecimal
+    val basePrice: BigDecimal,
+    val slots: List<SlotResponse> = emptyList()
 )
