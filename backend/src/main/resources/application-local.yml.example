@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/peakconnect_dev
+    username: dev_user
+    password: dev_password
+
+jwt:
+  secret: cGVha2Nvbm5lY3Rfc2VjcmV0X2tleV9leGFtcGxlX3doYXRldmVyX2l0X3Nob3VsZF9iZV8yNTZfYml0cw==
+  expiration-ms: 86400000
