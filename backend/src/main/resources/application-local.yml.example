@@ -10,3 +10,5 @@ spring:
 jwt:
   secret: cGVha2Nvbm5lY3Rfc2VjcmV0X2tleV9leGFtcGxlX3doYXRldmVyX2l0X3Nob3VsZF9iZV8yNTZfYml0cw==
   expiration-ms: 86400000
+openweathermap:
+  api-key: your_api_key_here

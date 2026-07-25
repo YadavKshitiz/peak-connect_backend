@@ -19,5 +19,6 @@ data class SlotResponse(
     val capacity: Int,
     val currentOccupancy: Int,
     val season: Season,
-    val currentPrice: java.math.BigDecimal
+    val currentPrice: java.math.BigDecimal,
+    val riskLevel: String? = null
 )

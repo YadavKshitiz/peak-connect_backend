@@ -18,7 +18,9 @@ import java.util.UUID
 class ActivityService(
     private val activityRepository: ActivityRepository,
     private val slotRepository: SlotRepository,
-    private val priceCalculator: com.peakconnect.pricing.PriceCalculator
+    private val priceCalculator: com.peakconnect.pricing.PriceCalculator,
+    private val weatherClient: com.peakconnect.risk.WeatherClient,
+    private val riskCalculator: com.peakconnect.risk.RiskCalculator
 ) {
     @Transactional
     fun createActivity(request: ActivityRequest): ActivityResponse {
@@ -113,6 +115,8 @@ class ActivityService(
 
     private fun toSlotResponse(s: Slot): SlotResponse {
         val computedPrice = priceCalculator.calculateFinalPrice(s.activity.basePrice, s)
-        return SlotResponse(s.id!!, s.activity.id!!, s.date, s.capacity, s.currentOccupancy, s.season, computedPrice)
+        val weather = weatherClient.getWeather(s.activity.location)
+        val risk = riskCalculator.calculateRisk(weather)
+        return SlotResponse(s.id!!, s.activity.id!!, s.date, s.capacity, s.currentOccupancy, s.season, computedPrice, risk)
     }
 }
