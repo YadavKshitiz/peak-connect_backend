@@ -7,5 +7,6 @@ import java.util.UUID
 
 interface BookingRepository : JpaRepository<Booking, UUID> {
     fun findByTrekkerId(trekkerId: UUID): List<Booking>
+    fun findByGuideId(guideId: UUID): List<Booking>
     fun findByStatus(status: BookingStatus): List<Booking>
 }

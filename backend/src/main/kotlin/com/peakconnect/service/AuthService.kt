@@ -33,7 +33,7 @@ class AuthService(
         }
         
         if (userRepository.findByEmail(request.email) != null) {
-            throw IllegalArgumentException("Email is already taken")
+            throw com.peakconnect.exception.ConflictException("Email is already taken")
         }
 
         val user = User(

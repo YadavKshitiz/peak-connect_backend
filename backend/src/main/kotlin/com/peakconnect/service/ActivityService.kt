@@ -36,7 +36,7 @@ class ActivityService(
 
     @Transactional
     fun updateActivity(id: UUID, request: ActivityRequest): ActivityResponse {
-        val activity = activityRepository.findById(id).orElseThrow { IllegalArgumentException("Activity not found") }
+        val activity = activityRepository.findById(id).orElseThrow { com.peakconnect.exception.ResourceNotFoundException("Activity not found") }
         activity.title = request.title
         activity.description = request.description
         activity.location = request.location
@@ -47,13 +47,13 @@ class ActivityService(
 
     @Transactional
     fun deleteActivity(id: UUID) {
-        if (!activityRepository.existsById(id)) throw IllegalArgumentException("Activity not found")
+        if (!activityRepository.existsById(id)) throw com.peakconnect.exception.ResourceNotFoundException("Activity not found")
         activityRepository.deleteById(id)
     }
 
     @Transactional(readOnly = true)
     fun getActivity(id: UUID): ActivityResponse {
-        val activity = activityRepository.findById(id).orElseThrow { IllegalArgumentException("Activity not found") }
+        val activity = activityRepository.findById(id).orElseThrow { com.peakconnect.exception.ResourceNotFoundException("Activity not found") }
         return toActivityResponse(activity)
     }
 
@@ -75,7 +75,7 @@ class ActivityService(
 
     @Transactional
     fun createSlot(activityId: UUID, request: SlotRequest): SlotResponse {
-        val activity = activityRepository.findById(activityId).orElseThrow { IllegalArgumentException("Activity not found") }
+        val activity = activityRepository.findById(activityId).orElseThrow { com.peakconnect.exception.ResourceNotFoundException("Activity not found") }
         val slot = Slot(
             activity = activity,
             date = request.date,
@@ -91,7 +91,7 @@ class ActivityService(
 
     @Transactional
     fun updateSlot(activityId: UUID, slotId: UUID, request: SlotRequest): SlotResponse {
-        val slot = slotRepository.findById(slotId).orElseThrow { IllegalArgumentException("Slot not found") }
+        val slot = slotRepository.findById(slotId).orElseThrow { com.peakconnect.exception.ResourceNotFoundException("Slot not found") }
         if (slot.activity.id != activityId) throw IllegalArgumentException("Slot does not belong to activity")
         slot.date = request.date
         slot.capacity = request.capacity
@@ -101,7 +101,7 @@ class ActivityService(
 
     @Transactional
     fun deleteSlot(activityId: UUID, slotId: UUID) {
-        val slot = slotRepository.findById(slotId).orElseThrow { IllegalArgumentException("Slot not found") }
+        val slot = slotRepository.findById(slotId).orElseThrow { com.peakconnect.exception.ResourceNotFoundException("Slot not found") }
         if (slot.activity.id != activityId) throw IllegalArgumentException("Slot does not belong to activity")
         slotRepository.delete(slot)
     }

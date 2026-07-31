@@ -14,7 +14,10 @@ import java.util.UUID
 @RestController
 @RequestMapping("/api/guides/me")
 @PreAuthorize("hasRole('GUIDE')")
-class GuideProfileController(private val guideService: GuideService) {
+class GuideProfileController(
+    private val guideService: GuideService,
+    private val bookingService: com.peakconnect.service.BookingService
+) {
 
     private fun getCurrentGuideId(): UUID {
         val userDetails = SecurityContextHolder.getContext().authentication.principal as CustomUserDetails
@@ -28,4 +31,8 @@ class GuideProfileController(private val guideService: GuideService) {
     @PutMapping
     fun updateMyProfile(@Valid @RequestBody request: GuideProfileUpdateRequest): ResponseEntity<GuideResponse> =
         ResponseEntity.ok(guideService.updateMyProfile(getCurrentGuideId(), request))
+
+    @GetMapping("/bookings")
+    fun getMyBookings(principal: java.security.Principal): ResponseEntity<List<com.peakconnect.dto.BookingResponse>> =
+        ResponseEntity.ok(bookingService.getGuideBookings(principal.name))
 }

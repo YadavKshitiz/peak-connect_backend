@@ -14,7 +14,7 @@ class GuideService(
 ) {
     @Transactional
     fun updateMyProfile(guideId: UUID, request: GuideProfileUpdateRequest): GuideResponse {
-        val guide = guideRepository.findById(guideId).orElseThrow { IllegalArgumentException("Guide profile not found") }
+        val guide = guideRepository.findById(guideId).orElseThrow { com.peakconnect.exception.ResourceNotFoundException("Guide profile not found") }
         request.skills?.let { guide.skills = it.toMutableList() }
         request.languages?.let { guide.languages = it.toMutableList() }
         request.location?.let { guide.location = it }
@@ -24,20 +24,20 @@ class GuideService(
 
     @Transactional(readOnly = true)
     fun getMyProfile(guideId: UUID): GuideResponse {
-        val guide = guideRepository.findById(guideId).orElseThrow { IllegalArgumentException("Guide profile not found") }
+        val guide = guideRepository.findById(guideId).orElseThrow { com.peakconnect.exception.ResourceNotFoundException("Guide profile not found") }
         return toGuideResponse(guide)
     }
 
     @Transactional
     fun approveGuide(guideId: UUID): GuideResponse {
-        val guide = guideRepository.findById(guideId).orElseThrow { IllegalArgumentException("Guide profile not found") }
+        val guide = guideRepository.findById(guideId).orElseThrow { com.peakconnect.exception.ResourceNotFoundException("Guide profile not found") }
         guide.isVerified = true
         return toGuideResponse(guideRepository.save(guide))
     }
 
     @Transactional
     fun rejectGuide(guideId: UUID): GuideResponse {
-        val guide = guideRepository.findById(guideId).orElseThrow { IllegalArgumentException("Guide profile not found") }
+        val guide = guideRepository.findById(guideId).orElseThrow { com.peakconnect.exception.ResourceNotFoundException("Guide profile not found") }
         guide.isVerified = false
         return toGuideResponse(guideRepository.save(guide))
     }

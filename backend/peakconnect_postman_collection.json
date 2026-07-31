@@ -1,0 +1,437 @@
+{
+  "info": {
+    "name": "PeakConnect",
+    "description": "API collection for PeakConnect V1 backend.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Trekker",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"secret123\",\n  \"role\": \"TREKKER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register Guide",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Guide\",\n  \"email\": \"john@example.com\",\n  \"password\": \"secret123\",\n  \"role\": \"GUIDE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "pm.collectionVariables.set(\"jwt_token\", jsonData.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jane@example.com\",\n  \"password\": \"secret123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Activities",
+      "item": [
+        {
+          "name": "Create Activity",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Everest Base Camp Trek\",\n  \"description\": \"A 14-day scenic trek to the base of Mt. Everest.\",\n  \"location\": \"Nepal\",\n  \"difficultyLevel\": \"EXPERT\",\n  \"basePrice\": 1500.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/activities",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "activities"]
+            }
+          }
+        },
+        {
+          "name": "List Admin Activities",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/activities",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "activities"]
+            }
+          }
+        },
+        {
+          "name": "Get Admin Activity",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/activities/ACTIVITY_ID",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "activities", "ACTIVITY_ID"]
+            }
+          }
+        },
+        {
+          "name": "Update Activity",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Everest Base Camp Trek\",\n  \"description\": \"Updated description.\",\n  \"location\": \"Nepal\",\n  \"difficultyLevel\": \"EXPERT\",\n  \"basePrice\": 1600.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/activities/ACTIVITY_ID",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "activities", "ACTIVITY_ID"]
+            }
+          }
+        },
+        {
+          "name": "Delete Activity",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/activities/ACTIVITY_ID",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "activities", "ACTIVITY_ID"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Slots",
+      "item": [
+        {
+          "name": "Create Slot",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2024-10-15T10:00:00\",\n  \"capacity\": 10,\n  \"season\": \"PEAK\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/activities/ACTIVITY_ID/slots",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "activities", "ACTIVITY_ID", "slots"]
+            }
+          }
+        },
+        {
+          "name": "List Admin Slots",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/activities/ACTIVITY_ID/slots",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "activities", "ACTIVITY_ID", "slots"]
+            }
+          }
+        },
+        {
+          "name": "Update Slot",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2024-10-16T10:00:00\",\n  \"capacity\": 15,\n  \"season\": \"PEAK\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/activities/ACTIVITY_ID/slots/SLOT_ID",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "activities", "ACTIVITY_ID", "slots", "SLOT_ID"]
+            }
+          }
+        },
+        {
+          "name": "Delete Slot",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/activities/ACTIVITY_ID/slots/SLOT_ID",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "activities", "ACTIVITY_ID", "slots", "SLOT_ID"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Guides",
+      "item": [
+        {
+          "name": "Approve Guide",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/guides/GUIDE_ID/approve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "guides", "GUIDE_ID", "approve"]
+            }
+          }
+        },
+        {
+          "name": "Reject Guide",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/guides/GUIDE_ID/reject",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "guides", "GUIDE_ID", "reject"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public Activities",
+      "item": [
+        {
+          "name": "Browse Activities",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/activities",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "activities"]
+            }
+          }
+        },
+        {
+          "name": "Get Activity Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/activities/ACTIVITY_ID",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "activities", "ACTIVITY_ID"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Guides",
+      "item": [
+        {
+          "name": "Get My Guide Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/guides/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "guides", "me"]
+            }
+          }
+        },
+        {
+          "name": "Update My Guide Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"skills\": [\"Rock Climbing\", \"First Aid\"],\n  \"languages\": [\"English\", \"Nepali\"],\n  \"location\": \"Nepal\",\n  \"experienceLevel\": \"EXPERT\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/guides/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "guides", "me"]
+            }
+          }
+        },
+        {
+          "name": "View Assigned Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/guides/me/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "guides", "me", "bookings"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "Request Booking (Find Guides)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slotId\": \"SLOT_ID\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/request",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "request"]
+            }
+          }
+        },
+        {
+          "name": "Confirm Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slotId\": \"SLOT_ID\",\n  \"guideId\": \"GUIDE_ID\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "confirm"]
+            }
+          }
+        },
+        {
+          "name": "Get My Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "my"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/BOOKING_ID/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "BOOKING_ID", "cancel"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
