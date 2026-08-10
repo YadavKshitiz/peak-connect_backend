@@ -37,3 +37,4 @@ build/
 
 ### PeakConnect ###
 application-local.yml
+.env
