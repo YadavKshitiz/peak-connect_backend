@@ -2,6 +2,7 @@ package com.peakconnect.pricing
 
 import com.peakconnect.entity.Slot
 import org.springframework.stereotype.Component
+import org.springframework.cache.annotation.Cacheable
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -19,7 +20,9 @@ class PriceCalculator(
      * 1. SeasonStrategy (@Order 1) - base seasonal adjustment
      * 2. OccupancyStrategy (@Order 2) - dynamic markup on top of the seasonal price
      */
+    @Cacheable(value = ["priceCache"], key = "#slot.id.toString()")
     fun calculateFinalPrice(basePrice: BigDecimal, slot: Slot): BigDecimal {
+        println("COMPUTING PRICE FOR SLOT ${slot.id} (This should not print on cache hit)")
         var currentPrice = basePrice
 
         for (strategy in strategies) {

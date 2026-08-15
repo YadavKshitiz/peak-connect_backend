@@ -1,9 +1,19 @@
 package com.peakconnect.risk
 
 import org.springframework.stereotype.Component
+import org.springframework.cache.annotation.Cacheable
+import java.util.UUID
 
 @Component
-class RiskCalculator {
+class RiskCalculator(private val weatherClient: WeatherClient) {
+
+    @Cacheable(value = ["riskCache"], key = "#slotId.toString() + '-' + #location")
+    fun calculateRiskForSlot(slotId: UUID, location: String): String {
+        println("COMPUTING RISK FOR SLOT $slotId (This should not print on cache hit)")
+        val weather = weatherClient.getWeather(location)
+        return calculateRisk(weather)
+    }
+
     /**
      * Maps weather data to LOW, MODERATE, or HIGH risk.
      * Thresholds:

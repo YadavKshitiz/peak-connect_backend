@@ -90,6 +90,7 @@ class ActivityService(
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = ["priceCache", "guideAvailabilityCache"], key = "#slotId.toString()")
     fun updateSlot(activityId: UUID, slotId: UUID, request: SlotRequest): SlotResponse {
         val slot = slotRepository.findById(slotId).orElseThrow { com.peakconnect.exception.ResourceNotFoundException("Slot not found") }
         if (slot.activity.id != activityId) throw IllegalArgumentException("Slot does not belong to activity")
@@ -115,8 +116,7 @@ class ActivityService(
 
     private fun toSlotResponse(s: Slot): SlotResponse {
         val computedPrice = priceCalculator.calculateFinalPrice(s.activity.basePrice, s)
-        val weather = weatherClient.getWeather(s.activity.location)
-        val risk = riskCalculator.calculateRisk(weather)
+        val risk = riskCalculator.calculateRiskForSlot(s.id!!, s.activity.location)
         return SlotResponse(s.id!!, s.activity.id!!, s.date, s.capacity, s.currentOccupancy, s.season, computedPrice, risk)
     }
 }

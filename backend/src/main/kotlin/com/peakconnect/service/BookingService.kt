@@ -33,6 +33,7 @@ class BookingService(
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = ["guideAvailabilityCache"], key = "#dto.slotId.toString()")
     fun confirmBooking(dto: BookingConfirmDto, trekkerEmail: String): BookingResponse {
         val trekker = userRepository.findByEmail(trekkerEmail)
             ?: throw com.peakconnect.exception.ResourceNotFoundException("Trekker not found")
@@ -71,6 +72,7 @@ class BookingService(
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = ["guideAvailabilityCache"], key = "#result.slotId.toString()")
     fun cancelBooking(bookingId: UUID, email: String): BookingResponse {
         val user = userRepository.findByEmail(email)
             ?: throw com.peakconnect.exception.ResourceNotFoundException("User not found")

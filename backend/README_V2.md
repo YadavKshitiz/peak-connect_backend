@@ -37,7 +37,7 @@ mvn spring-boot:run
 
 ## V2 Part 1 Progress Checklist
 - [x] Task 1: Environment, Infrastructure & Project Setup
-- [ ] Task 2: Redis Caching Setup
+- [x] Task 2: Redis Caching Setup
 - [ ] Task 3: Razorpay Payment Integration (Stub)
 - [ ] Task 4: Google Maps API Integration
 - [ ] Task 5: Resiliency Patterns (Circuit Breaker / Retry)
@@ -50,3 +50,21 @@ mvn spring-boot:run
 - [ ] Task 12: Analytics & Metrics Setup
 - [ ] Task 13: End-to-End Testing & QA
 - [ ] Task 14: Containerization & Deployment Setup
+
+---
+
+## Caching Strategy (Two-Level Cache)
+
+PeakConnect V2 employs a dual-layer caching strategy:
+1. **L1 Cache (Caffeine):** A fast, local, in-memory cache with a short TTL (30 seconds) to avoid network trips to Redis for heavily accessed, recently computed values.
+2. **L2 Cache (Redis):** A distributed cache that ensures consistency across multiple app instances and handles slightly longer TTLs.
+
+### Configured Caches
+- **`priceCache`**: Caches computed final slot prices. Keyed by Slot ID. (L2 TTL: 5 minutes)
+- **`riskCache`**: Caches computed weather risk levels. Keyed by Slot ID + Location. (L2 TTL: 15 minutes)
+- **`guideAvailabilityCache`**: Caches ranked available guides for a slot. Keyed by Slot ID. (L2 TTL: 2 minutes)
+
+### Task 2 Bug Fixes
+During manual verification, two bugs were found and resolved:
+- **Bug 1 (Serialization):** Reconfigured `RedisCacheConfiguration` in `CacheConfig.kt` to explicitly use `GenericJackson2JsonRedisSerializer` with a custom `ObjectMapper` (including `KotlinModule`) as the default cache serializer, replacing Java's default serialization.
+- **Bug 2 (Lazy Initialization):** Fixed a `JsonMappingException` by explicitly materializing lazy collections (`guide.skills.toList()`, `guide.languages.toList()`) inside the transactional boundary of `GuideMatchingService.matchGuidesForSlot` before mapping to `MatchedGuideResponse`.

@@ -5,6 +5,7 @@ import com.peakconnect.entity.Guide
 import com.peakconnect.entity.Slot
 import com.peakconnect.repository.GuideRepository
 import org.springframework.stereotype.Service
+import org.springframework.cache.annotation.Cacheable
 
 @Service
 class GuideMatchingService(
@@ -17,7 +18,9 @@ class GuideMatchingService(
      * - Skill: 60%
      * - Location: 40%
      */
+    @Cacheable(value = ["guideAvailabilityCache"], key = "#slot.id.toString()")
     fun matchGuidesForSlot(slot: Slot): List<MatchedGuideResponse> {
+        println("COMPUTING GUIDE AVAILABILITY FOR SLOT ${slot.id} (This should not print on cache hit)")
         val verifiedGuides = guideRepository.findByIsVerified(true)
         
         val matchedGuides = verifiedGuides.map { guide ->
@@ -36,8 +39,8 @@ class GuideMatchingService(
             MatchedGuideResponse(
                 guideId = guide.id!!,
                 name = guide.user.name,
-                skills = guide.skills,
-                languages = guide.languages,
+                skills = guide.skills.toList(),
+                languages = guide.languages.toList(),
                 location = guide.location,
                 experienceLevel = guide.experienceLevel,
                 score = totalScore
