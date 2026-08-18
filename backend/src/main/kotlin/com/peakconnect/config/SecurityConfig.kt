@@ -48,7 +48,7 @@ class SecurityConfig(
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests {
-                it.requestMatchers("/api/auth/**", "/error").permitAll()
+                it.requestMatchers("/api/auth/**", "/error", "/actuator/**").permitAll()
                   .anyRequest().authenticated()
                   // TODO: add specific role-based access per endpoint later
             }

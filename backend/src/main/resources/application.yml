@@ -31,3 +31,42 @@ scheduler:
 
 booking:
   payment-timeout-minutes: 15
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j.circuitbreaker:
+  instances:
+    weatherApi:
+      slidingWindowSize: 10
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10s
+      permittedNumberOfCallsInHalfOpenState: 3
+    osrmApi:
+      slidingWindowSize: 10
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10s
+      permittedNumberOfCallsInHalfOpenState: 3
+    paymentApi:
+      slidingWindowSize: 10
+      failureRateThreshold: 50
+      waitDurationInOpenState: 10s
+      permittedNumberOfCallsInHalfOpenState: 3
+
+resilience4j.retry:
+  instances:
+    weatherApi:
+      maxAttempts: 3
+      waitDuration: 500ms
+    osrmApi:
+      maxAttempts: 3
+      waitDuration: 500ms
+    paymentApi:
+      maxAttempts: 3
+      waitDuration: 500ms

@@ -39,8 +39,8 @@ mvn spring-boot:run
 - [x] Task 1: Environment, Infrastructure & Project Setup
 - [x] Task 2: Redis Caching Setup
 - [x] Task 3: Scheduled Jobs (Weather Refresh & Cleanup)
-- [ ] Task 4: Google Maps API Integration
-- [ ] Task 5: Resiliency Patterns (Circuit Breaker / Retry)
+- [x] Task 4: Google Maps API Integration (OSRM Routing Placeholder Added)
+- [x] Task 5: Resiliency Patterns (Circuit Breaker / Retry)
 - [ ] Task 6: Payment Processing Implementation
 - [ ] Task 7: Activity Discovery & Caching Implementation
 - [ ] Task 8: Notification Service (Stub)
@@ -83,3 +83,22 @@ PeakConnect V2 uses Spring `@Scheduled` background jobs to proactively manage ca
 
 ## Known Limitations
 - **Database Migrations:** Currently, the project relies on Hibernate's `ddl-auto=update` for schema management and lacks a dedicated migration tool like Flyway or Liquibase. While `ddl-auto` adds new columns, it does **not** automatically update existing `CHECK` constraints (e.g., when adding `AWAITING_PAYMENT` to `BookingStatus`). Schema-level constraint updates require manual `ALTER TABLE` intervention on existing databases. We plan to integrate Flyway before production deployment (Task 14) to properly address this.
+
+---
+
+## Resilience Layer (Resilience4j)
+We use Resilience4j with AOP (`@CircuitBreaker`, `@Retry`) to wrap all external dependencies, preventing cascading failures.
+Each API is configured with:
+- **Circuit Breaker:** Sliding Window Size of 10, Failure Rate Threshold of 50%, Wait Duration of 10s, and 3 permitted calls in half-open state.
+- **Retry:** Maximum of 3 attempts with 500ms wait duration.
+
+### Configured Clients & Fallbacks
+1. **`weatherApi` (`RiskCalculator.kt`)**: On OpenWeatherMap failure, falls back to the last-known cached value from `riskCache`. If no cached value exists, returns `"UNKNOWN (Degraded Mode)"`.
+2. **`osrmApi` (`OsrmRoutingClient.kt` - Task 9 Placeholder)**: On routing failure, falls back to returning `-1.0` distance to indicate unavailability safely.
+3. **`paymentApi` (`PaymentApiClient.kt` - Task 5 Placeholder)**: On Razorpay failure, falls back to returning `"UNAVAILABLE_DEGRADED"`.
+
+### Manual Testing
+To verify the circuit breaker behavior manually:
+1. Edit `.env` and set `OPENWEATHER_API_KEY=invalid_key`.
+2. Hit any slot-detail endpoint (or run `WeatherRefreshJob`).
+3. You will see the fallback returning `"UNKNOWN (Degraded Mode)"` instead of returning a 500 server error. Actuator metrics at `/actuator/metrics` and `/actuator/health` will also reflect the degraded state and circuit breaker transitions.

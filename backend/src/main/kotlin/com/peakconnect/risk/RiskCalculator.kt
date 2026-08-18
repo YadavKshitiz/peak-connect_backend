@@ -2,16 +2,31 @@ package com.peakconnect.risk
 
 import org.springframework.stereotype.Component
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.CacheManager
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker
+import io.github.resilience4j.retry.annotation.Retry
 import java.util.UUID
 
 @Component
-class RiskCalculator(private val weatherClient: WeatherClient) {
+class RiskCalculator(
+    private val weatherClient: WeatherClient,
+    private val cacheManager: CacheManager
+) {
 
     @Cacheable(value = ["riskCache"], key = "#slotId.toString() + '-' + #location")
+    @CircuitBreaker(name = "weatherApi", fallbackMethod = "weatherApiFallback")
+    @Retry(name = "weatherApi")
     fun calculateRiskForSlot(slotId: UUID, location: String): String {
         println("COMPUTING RISK FOR SLOT $slotId (This should not print on cache hit)")
         val weather = weatherClient.getWeather(location)
         return calculateRisk(weather)
+    }
+
+    fun weatherApiFallback(slotId: UUID, location: String, t: Throwable): String {
+        println("Weather API fallback triggered for slot $slotId due to: ${t.message}")
+        val cache = cacheManager.getCache("riskCache")
+        val cachedValue = cache?.get("$slotId-$location", String::class.java)
+        return cachedValue ?: "UNKNOWN (Degraded Mode)"
     }
 
     /**
@@ -22,7 +37,9 @@ class RiskCalculator(private val weatherClient: WeatherClient) {
      * - LOW: Otherwise
      */
     fun calculateRisk(weather: WeatherData?): String {
-        if (weather == null) return "UNKNOWN"
+        if (weather == null) {
+            throw RuntimeException("Weather data unavailable")
+        }
 
         val windSpeed = weather.wind?.speed ?: 0.0
         val temp = weather.main?.temp
