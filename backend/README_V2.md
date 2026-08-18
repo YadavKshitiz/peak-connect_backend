@@ -38,7 +38,7 @@ mvn spring-boot:run
 ## V2 Part 1 Progress Checklist
 - [x] Task 1: Environment, Infrastructure & Project Setup
 - [x] Task 2: Redis Caching Setup
-- [ ] Task 3: Razorpay Payment Integration (Stub)
+- [x] Task 3: Scheduled Jobs (Weather Refresh & Cleanup)
 - [ ] Task 4: Google Maps API Integration
 - [ ] Task 5: Resiliency Patterns (Circuit Breaker / Retry)
 - [ ] Task 6: Payment Processing Implementation
@@ -68,3 +68,18 @@ PeakConnect V2 employs a dual-layer caching strategy:
 During manual verification, two bugs were found and resolved:
 - **Bug 1 (Serialization):** Reconfigured `RedisCacheConfiguration` in `CacheConfig.kt` to explicitly use `GenericJackson2JsonRedisSerializer` with a custom `ObjectMapper` (including `KotlinModule`) as the default cache serializer, replacing Java's default serialization.
 - **Bug 2 (Lazy Initialization):** Fixed a `JsonMappingException` by explicitly materializing lazy collections (`guide.skills.toList()`, `guide.languages.toList()`) inside the transactional boundary of `GuideMatchingService.matchGuidesForSlot` before mapping to `MatchedGuideResponse`.
+
+---
+
+## Scheduled Jobs
+PeakConnect V2 uses Spring `@Scheduled` background jobs to proactively manage caching and orchestrate delayed booking actions.
+
+- **`WeatherRefreshJob` (Every 30 minutes):** Proactively fetches OpenWeatherMap risk levels for all upcoming slots and directly repopulates `riskCache`. This provides a consistent "warm" cache without user-induced latency.
+- **`AutoCancelUnpaidBookingsJob` (Every 5 minutes):** Scans for bookings in the newly introduced `AWAITING_PAYMENT` state that are older than 15 minutes. It auto-cancels them, restores slot capacity, and evicts `guideAvailabilityCache` for the slot to ensure fresh guide matching metrics.
+
+*Note on Cache Expiry:* No standalone cron job is implemented to manually "clear" expired cache entries. We rely safely on Caffeine and Redis TTL configurations (e.g., 5 min/15 min) which automatically evict old data. Explicit jobs like `WeatherRefreshJob` simply overwrite keys, making a manual expiry job redundant.
+
+---
+
+## Known Limitations
+- **Database Migrations:** Currently, the project relies on Hibernate's `ddl-auto=update` for schema management and lacks a dedicated migration tool like Flyway or Liquibase. While `ddl-auto` adds new columns, it does **not** automatically update existing `CHECK` constraints (e.g., when adding `AWAITING_PAYMENT` to `BookingStatus`). Schema-level constraint updates require manual `ALTER TABLE` intervention on existing databases. We plan to integrate Flyway before production deployment (Task 14) to properly address this.

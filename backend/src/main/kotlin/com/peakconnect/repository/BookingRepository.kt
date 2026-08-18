@@ -9,4 +9,5 @@ interface BookingRepository : JpaRepository<Booking, UUID> {
     fun findByTrekkerId(trekkerId: UUID): List<Booking>
     fun findByGuideId(guideId: UUID): List<Booking>
     fun findByStatus(status: BookingStatus): List<Booking>
+    fun findByStatusAndCreatedAtBefore(status: BookingStatus, cutoff: java.time.LocalDateTime): List<Booking>
 }

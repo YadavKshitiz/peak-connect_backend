@@ -12,6 +12,7 @@ import java.util.Optional
 
 interface SlotRepository : JpaRepository<Slot, UUID> {
     fun findByActivityId(activityId: UUID): List<Slot>
+    fun findByDateAfter(date: java.time.LocalDateTime): List<Slot>
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT s FROM Slot s WHERE s.id = :id")
