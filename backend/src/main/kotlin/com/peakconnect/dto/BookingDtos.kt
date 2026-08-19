@@ -22,5 +22,7 @@ data class BookingResponse(
     val guideId: UUID?,
     val guideName: String?,
     val status: BookingStatus,
-    val date: LocalDateTime
+    val date: LocalDateTime,
+    val paymentOrderId: String? = null,
+    val depositAmount: Double? = null
 )

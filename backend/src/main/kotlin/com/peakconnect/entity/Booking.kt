@@ -31,5 +31,8 @@ class Booking(
     var status: BookingStatus = BookingStatus.PENDING,
 
     @Column(nullable = false, updatable = false)
-    var createdAt: LocalDateTime = LocalDateTime.now()
+    var createdAt: LocalDateTime = LocalDateTime.now(),
+
+    @Column(name = "payment_order_id")
+    var paymentOrderId: String? = null
 )

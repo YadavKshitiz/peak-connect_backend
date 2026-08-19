@@ -55,4 +55,10 @@ class GlobalExceptionHandler {
         ex.printStackTrace()
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(mapOf("error" to "An unexpected error occurred. Please try again later."))
     }
+
+    @ExceptionHandler(com.razorpay.RazorpayException::class)
+    fun handleRazorpayException(ex: com.razorpay.RazorpayException): ResponseEntity<Map<String, String>> {
+        ex.printStackTrace()
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(mapOf("error" to "Payment gateway error: ${ex.message}"))
+    }
 }

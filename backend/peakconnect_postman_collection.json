@@ -25,7 +25,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -33,8 +36,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             }
           }
         },
@@ -43,7 +52,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -51,8 +63,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             }
           }
         },
@@ -73,7 +91,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -81,8 +102,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             }
           }
         }
@@ -96,8 +123,14 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -105,8 +138,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/admin/activities",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "activities"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "activities"
+              ]
             }
           }
         },
@@ -115,12 +154,21 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/admin/activities",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "activities"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "activities"
+              ]
             }
           }
         },
@@ -129,12 +177,22 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/admin/activities/ACTIVITY_ID",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "activities", "ACTIVITY_ID"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "activities",
+                "ACTIVITY_ID"
+              ]
             }
           }
         },
@@ -143,8 +201,14 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -152,8 +216,15 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/admin/activities/ACTIVITY_ID",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "activities", "ACTIVITY_ID"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "activities",
+                "ACTIVITY_ID"
+              ]
             }
           }
         },
@@ -162,12 +233,22 @@
           "request": {
             "method": "DELETE",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/admin/activities/ACTIVITY_ID",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "activities", "ACTIVITY_ID"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "activities",
+                "ACTIVITY_ID"
+              ]
             }
           }
         }
@@ -181,8 +262,14 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -190,8 +277,16 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/admin/activities/ACTIVITY_ID/slots",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "activities", "ACTIVITY_ID", "slots"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "activities",
+                "ACTIVITY_ID",
+                "slots"
+              ]
             }
           }
         },
@@ -200,12 +295,23 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/admin/activities/ACTIVITY_ID/slots",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "activities", "ACTIVITY_ID", "slots"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "activities",
+                "ACTIVITY_ID",
+                "slots"
+              ]
             }
           }
         },
@@ -214,8 +320,14 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -223,8 +335,17 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/admin/activities/ACTIVITY_ID/slots/SLOT_ID",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "activities", "ACTIVITY_ID", "slots", "SLOT_ID"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "activities",
+                "ACTIVITY_ID",
+                "slots",
+                "SLOT_ID"
+              ]
             }
           }
         },
@@ -233,12 +354,24 @@
           "request": {
             "method": "DELETE",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/admin/activities/ACTIVITY_ID/slots/SLOT_ID",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "activities", "ACTIVITY_ID", "slots", "SLOT_ID"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "activities",
+                "ACTIVITY_ID",
+                "slots",
+                "SLOT_ID"
+              ]
             }
           }
         }
@@ -252,12 +385,23 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/admin/guides/GUIDE_ID/approve",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "guides", "GUIDE_ID", "approve"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "guides",
+                "GUIDE_ID",
+                "approve"
+              ]
             }
           }
         },
@@ -266,12 +410,23 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/admin/guides/GUIDE_ID/reject",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "admin", "guides", "GUIDE_ID", "reject"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "guides",
+                "GUIDE_ID",
+                "reject"
+              ]
             }
           }
         }
@@ -285,12 +440,20 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/activities",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "activities"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "activities"
+              ]
             }
           }
         },
@@ -299,12 +462,21 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/activities/ACTIVITY_ID",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "activities", "ACTIVITY_ID"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "activities",
+                "ACTIVITY_ID"
+              ]
             }
           }
         }
@@ -318,12 +490,21 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/guides/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "guides", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "guides",
+                "me"
+              ]
             }
           }
         },
@@ -332,8 +513,14 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -341,8 +528,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/guides/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "guides", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "guides",
+                "me"
+              ]
             }
           }
         },
@@ -351,12 +544,22 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/guides/me/bookings",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "guides", "me", "bookings"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "guides",
+                "me",
+                "bookings"
+              ]
             }
           }
         }
@@ -370,8 +573,14 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -379,8 +588,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/bookings/request",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "bookings", "request"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "request"
+              ]
             }
           }
         },
@@ -389,8 +604,14 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -398,8 +619,14 @@
             },
             "url": {
               "raw": "{{baseUrl}}/api/bookings/confirm",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "bookings", "confirm"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "confirm"
+              ]
             }
           }
         },
@@ -408,12 +635,21 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/bookings/my",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "bookings", "my"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "my"
+              ]
             }
           }
         },
@@ -422,12 +658,89 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{jwt_token}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/api/bookings/BOOKING_ID/cancel",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "bookings", "BOOKING_ID", "cancel"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "BOOKING_ID",
+                "cancel"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Simulate Webhook Success",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Razorpay-Signature",
+                "value": "dummy_signature_for_testing_only"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"order.paid\",\n  \"payload\": {\n    \"payment\": {\n      \"entity\": {\n        \"order_id\": \"order_123456789\"\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/webhook",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "webhook"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Simulate Webhook Failure",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Razorpay-Signature",
+                "value": "dummy_signature_for_testing_only"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event\": \"payment.failed\",\n  \"payload\": {\n    \"payment\": {\n      \"entity\": {\n        \"order_id\": \"order_123456789\"\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/webhook",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "webhook"
+              ]
             }
           }
         }

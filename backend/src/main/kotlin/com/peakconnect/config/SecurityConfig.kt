@@ -49,6 +49,8 @@ class SecurityConfig(
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests {
                 it.requestMatchers("/api/auth/**", "/error", "/actuator/**").permitAll()
+                  // Webhook is server-to-server and doesn't use JWTs; it's authenticated via X-Razorpay-Signature at the controller level
+                  .requestMatchers("/api/payments/webhook").permitAll()
                   .anyRequest().authenticated()
                   // TODO: add specific role-based access per endpoint later
             }

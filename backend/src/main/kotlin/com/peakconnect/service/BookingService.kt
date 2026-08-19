@@ -11,8 +11,12 @@ import com.peakconnect.repository.BookingRepository
 import com.peakconnect.repository.GuideRepository
 import com.peakconnect.repository.SlotRepository
 import com.peakconnect.repository.UserRepository
+import com.peakconnect.payment.DepositCalculator
+import com.peakconnect.payment.PaymentApiClient
+import com.peakconnect.pricing.PriceCalculator
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.cache.annotation.CacheEvict
 import java.util.UUID
 
 @Service
@@ -21,7 +25,10 @@ class BookingService(
     private val guideRepository: GuideRepository,
     private val userRepository: UserRepository,
     private val bookingRepository: BookingRepository,
-    private val guideMatchingService: GuideMatchingService
+    private val guideMatchingService: GuideMatchingService,
+    private val priceCalculator: PriceCalculator,
+    private val depositCalculator: DepositCalculator,
+    private val paymentApiClient: PaymentApiClient
 ) {
 
     @Transactional(readOnly = true)
@@ -33,7 +40,7 @@ class BookingService(
     }
 
     @Transactional
-    @org.springframework.cache.annotation.CacheEvict(value = ["guideAvailabilityCache"], key = "#dto.slotId.toString()")
+    @CacheEvict(value = ["guideAvailabilityCache"], key = "#dto.slotId.toString()")
     fun confirmBooking(dto: BookingConfirmDto, trekkerEmail: String): BookingResponse {
         val trekker = userRepository.findByEmail(trekkerEmail)
             ?: throw com.peakconnect.exception.ResourceNotFoundException("Trekker not found")
@@ -52,15 +59,59 @@ class BookingService(
         slot.currentOccupancy++
         slotRepository.save(slot)
 
+        // Calculate price and deposit
+        val slotPrice = priceCalculator.calculateFinalPrice(slot.activity.basePrice, slot)
+        val depositAmount = depositCalculator.calculateDeposit(slotPrice.toDouble())
+
+        // Create Razorpay order
+        val orderId = paymentApiClient.createOrder(depositAmount)
+
         val booking = Booking(
             slot = slot,
             trekker = trekker,
             guide = guide,
-            status = BookingStatus.CONFIRMED
+            status = BookingStatus.AWAITING_PAYMENT,
+            paymentOrderId = orderId
         )
         val savedBooking = bookingRepository.save(booking)
 
-        return toBookingResponse(savedBooking)
+        val response = toBookingResponse(savedBooking)
+        return response.copy(depositAmount = depositAmount)
+    }
+
+    @Transactional
+    @CacheEvict(value = ["guideAvailabilityCache"], key = "#result.slotId.toString()")
+    fun markBookingConfirmed(paymentOrderId: String): BookingResponse {
+        val booking = bookingRepository.findByPaymentOrderId(paymentOrderId)
+            ?: throw com.peakconnect.exception.ResourceNotFoundException("Booking with payment order ID not found")
+            
+        if (booking.status != BookingStatus.AWAITING_PAYMENT) {
+            return toBookingResponse(booking) // already processed
+        }
+        
+        booking.status = BookingStatus.CONFIRMED
+        return toBookingResponse(bookingRepository.save(booking))
+    }
+
+    @Transactional
+    @CacheEvict(value = ["guideAvailabilityCache"], key = "#result.slotId.toString()")
+    fun markBookingCancelled(paymentOrderId: String): BookingResponse {
+        val booking = bookingRepository.findByPaymentOrderId(paymentOrderId)
+            ?: throw com.peakconnect.exception.ResourceNotFoundException("Booking with payment order ID not found")
+            
+        if (booking.status == BookingStatus.CANCELLED) {
+            return toBookingResponse(booking) // already cancelled
+        }
+        
+        booking.status = BookingStatus.CANCELLED
+        
+        val slot = booking.slot
+        if (slot.currentOccupancy > 0) {
+            slot.currentOccupancy--
+            slotRepository.save(slot)
+        }
+        
+        return toBookingResponse(bookingRepository.save(booking))
     }
 
     @Transactional(readOnly = true)
@@ -117,7 +168,8 @@ class BookingService(
             guideId = b.guide?.id,
             guideName = b.guide?.user?.name,
             status = b.status,
-            date = b.slot.date
+            date = b.slot.date,
+            paymentOrderId = b.paymentOrderId
         )
     }
 }

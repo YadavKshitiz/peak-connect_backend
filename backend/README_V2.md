@@ -41,7 +41,7 @@ mvn spring-boot:run
 - [x] Task 3: Scheduled Jobs (Weather Refresh & Cleanup)
 - [x] Task 4: Google Maps API Integration (OSRM Routing Placeholder Added)
 - [x] Task 5: Resiliency Patterns (Circuit Breaker / Retry)
-- [ ] Task 6: Payment Processing Implementation
+- [x] Task 6: Payment Processing Implementation (Razorpay)
 - [ ] Task 7: Activity Discovery & Caching Implementation
 - [ ] Task 8: Notification Service (Stub)
 - [ ] Task 9: Real-time Updates (WebSockets / SSE)
@@ -102,3 +102,21 @@ To verify the circuit breaker behavior manually:
 1. Edit `.env` and set `OPENWEATHER_API_KEY=invalid_key`.
 2. Hit any slot-detail endpoint (or run `WeatherRefreshJob`).
 3. You will see the fallback returning `"UNKNOWN (Degraded Mode)"` instead of returning a 500 server error. Actuator metrics at `/actuator/metrics` and `/actuator/health` will also reflect the degraded state and circuit breaker transitions.
+
+---
+
+## Payment Integration (Razorpay)
+We integrate with Razorpay to collect a non-refundable deposit to secure a guide booking.
+
+### Booking Flow
+1. Trekker confirms a booking.
+2. The slot's live price is calculated, and a `DepositCalculator` determines the required non-refundable deposit (default: 20%, configurable via `payment.deposit-percentage`).
+3. The server communicates with Razorpay to create an Order and stores the order ID. The booking is saved with status `AWAITING_PAYMENT`.
+4. The client uses the Razorpay frontend widget to complete the payment.
+5. Razorpay sends a webhook event (`order.paid` / `payment.captured` or `payment.failed`) to our server.
+6. The `PaymentWebhookController` receives the event, **verifies the cryptographic signature**, and updates the booking status to `CONFIRMED` or `CANCELLED`. If cancelled, slot capacity is freed.
+
+### Webhook & Testing
+- Endpoint: `POST /api/payments/webhook`
+- Requires `X-Razorpay-Signature` header.
+- You can test this manually using the provided `PeakConnect.postman_collection.json`, which includes requests for "Simulate Webhook Success" and "Simulate Webhook Failure" using dummy signatures. Note: Since signature verification is active, passing a dummy signature will result in a `400 Bad Request`. For end-to-end testing, use the actual Razorpay test dashboard to dispatch webhooks to an exposed local URL (e.g. ngrok).
