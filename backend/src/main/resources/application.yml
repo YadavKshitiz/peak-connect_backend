@@ -35,6 +35,16 @@ booking:
 payment:
   deposit-percentage: 0.2
 
+cancellation:
+  flexible:
+    full-refund-hours: 48
+    partial-refund-hours: 12
+  moderate:
+    full-refund-hours: 168
+    partial-refund-hours: 48
+  strict:
+    partial-refund-hours: 336
+
 razorpay:
   key-id: ${RAZORPAY_KEY_ID:dummy_key_id}
   key-secret: ${RAZORPAY_KEY_SECRET:dummy_key_secret}

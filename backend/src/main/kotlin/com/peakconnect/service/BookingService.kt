@@ -28,7 +28,8 @@ class BookingService(
     private val guideMatchingService: GuideMatchingService,
     private val priceCalculator: PriceCalculator,
     private val depositCalculator: DepositCalculator,
-    private val paymentApiClient: PaymentApiClient
+    private val paymentApiClient: PaymentApiClient,
+    private val cancellationPolicyFactory: com.peakconnect.cancellation.CancellationPolicyFactory
 ) {
 
     @Transactional(readOnly = true)
@@ -139,6 +140,26 @@ class BookingService(
             throw com.peakconnect.exception.ConflictException("Booking is already cancelled")
         }
 
+        if (booking.status == BookingStatus.CONFIRMED) {
+            // Refund logic
+            val policy = cancellationPolicyFactory.getPolicy(booking.slot.activity.cancellationPolicy)
+            val refundPercentage = policy.calculateRefundPercentage(booking, java.time.LocalDateTime.now())
+            
+            // Calculate non-deposit amount which is refundable
+            val slotPrice = priceCalculator.calculateFinalPrice(booking.slot.activity.basePrice, booking.slot).toDouble()
+            val depositAmount = depositCalculator.calculateDeposit(slotPrice)
+            val refundableBase = slotPrice - depositAmount
+            
+            val refundAmount = refundableBase * refundPercentage
+            
+            booking.refundPercentage = refundPercentage
+            booking.refundAmount = refundAmount
+            
+            // TODO: Real gateway refund call goes here if available (e.g. Razorpay refunds API).
+            // Currently recorded as calculated, gateway refund pending.
+            println("Refund calculated and recorded for booking ${booking.id}: Amount=$refundAmount ($refundPercentage%), gateway refund call pending.")
+        }
+
         booking.status = BookingStatus.CANCELLED
         
         val slot = booking.slot
@@ -147,6 +168,35 @@ class BookingService(
             slotRepository.save(slot)
         }
 
+        return toBookingResponse(bookingRepository.save(booking))
+    }
+
+    @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = ["guideAvailabilityCache"], key = "#result.slotId.toString()")
+    fun markNoShow(bookingId: UUID, email: String): BookingResponse {
+        val guideUser = userRepository.findByEmail(email)
+            ?: throw com.peakconnect.exception.ResourceNotFoundException("User not found")
+            
+        val booking = bookingRepository.findById(bookingId)
+            .orElseThrow { com.peakconnect.exception.ResourceNotFoundException("Booking not found") }
+            
+        if (booking.guide?.user?.id != guideUser.id) {
+            throw org.springframework.security.access.AccessDeniedException("You can only mark no-show for your assigned bookings")
+        }
+
+        if (booking.status != BookingStatus.CONFIRMED) {
+            throw IllegalArgumentException("Only confirmed bookings can be marked as no-show")
+        }
+
+        if (java.time.LocalDateTime.now().isBefore(booking.slot.date)) {
+            throw IllegalArgumentException("Cannot mark no-show before the activity date")
+        }
+
+        booking.status = BookingStatus.NO_SHOW
+        booking.refundPercentage = 0.0
+        booking.refundAmount = 0.0
+
+        // In a NO_SHOW, the slot capacity remains consumed as the trekker didn't cancel in time.
         return toBookingResponse(bookingRepository.save(booking))
     }
 
@@ -169,7 +219,9 @@ class BookingService(
             guideName = b.guide?.user?.name,
             status = b.status,
             date = b.slot.date,
-            paymentOrderId = b.paymentOrderId
+            paymentOrderId = b.paymentOrderId,
+            refundAmount = b.refundAmount,
+            refundPercentage = b.refundPercentage
         )
     }
 }

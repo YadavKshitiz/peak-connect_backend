@@ -29,7 +29,8 @@ class ActivityService(
             description = request.description,
             location = request.location,
             difficultyLevel = request.difficultyLevel,
-            basePrice = request.basePrice
+            basePrice = request.basePrice,
+            cancellationPolicy = request.cancellationPolicy
         )
         return toActivityResponse(activityRepository.save(activity))
     }
@@ -42,6 +43,7 @@ class ActivityService(
         activity.location = request.location
         activity.difficultyLevel = request.difficultyLevel
         activity.basePrice = request.basePrice
+        activity.cancellationPolicy = request.cancellationPolicy
         return toActivityResponse(activityRepository.save(activity))
     }
 
@@ -109,7 +111,7 @@ class ActivityService(
 
     private fun toActivityResponse(a: Activity): ActivityResponse {
         return ActivityResponse(
-            a.id!!, a.title, a.description, a.location, a.difficultyLevel, a.basePrice,
+            a.id!!, a.title, a.description, a.location, a.difficultyLevel, a.basePrice, a.cancellationPolicy,
             a.slots.map { toSlotResponse(it) }
         )
     }

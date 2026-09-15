@@ -24,5 +24,7 @@ data class BookingResponse(
     val status: BookingStatus,
     val date: LocalDateTime,
     val paymentOrderId: String? = null,
-    val depositAmount: Double? = null
+    val depositAmount: Double? = null,
+    val refundAmount: Double? = null,
+    val refundPercentage: Double? = null
 )

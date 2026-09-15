@@ -42,7 +42,8 @@ mvn spring-boot:run
 - [x] Task 4: Google Maps API Integration (OSRM Routing Placeholder Added)
 - [x] Task 5: Resiliency Patterns (Circuit Breaker / Retry)
 - [x] Task 6: Payment Processing Implementation (Razorpay)
-- [ ] Task 7: Activity Discovery & Caching Implementation
+- [x] Task 7: Cancellation Policies + Refund + No-Show
+- [ ] Task 8: Activity Discovery & Caching Implementation
 - [ ] Task 8: Notification Service (Stub)
 - [ ] Task 9: Real-time Updates (WebSockets / SSE)
 - [ ] Task 10: Advanced Guide Matching Rules
@@ -120,3 +121,23 @@ We integrate with Razorpay to collect a non-refundable deposit to secure a guide
 - Endpoint: `POST /api/payments/webhook`
 - Requires `X-Razorpay-Signature` header.
 - You can test this manually using the provided `PeakConnect.postman_collection.json`, which includes requests for "Simulate Webhook Success" and "Simulate Webhook Failure" using dummy signatures. Note: Since signature verification is active, passing a dummy signature will result in a `400 Bad Request`. For end-to-end testing, use the actual Razorpay test dashboard to dispatch webhooks to an exposed local URL (e.g. ngrok).
+
+---
+
+## Cancellation Policies & No-Show
+PeakConnect V2 includes customizable cancellation policies per `Activity`.
+
+### Policies
+1. **FLEXIBLE**: 100% refund (of non-deposit base amount) > 48h before activity, 50% refund between 12h and 48h, 0% within 12h.
+2. **MODERATE**: 100% refund > 7 days before, 50% refund between 48h and 7 days, 0% within 48h.
+3. **STRICT**: 50% refund > 14 days before, 0% within 14 days.
+
+*Note: The deposit amount is never refunded, regardless of the policy.*
+The thresholds are fully configurable via `application.yml` under `cancellation.*`.
+
+### Refund Handling
+When a trekker cancels a `CONFIRMED` booking, the server calculates the refund percentage and the final `refundAmount` based on the activity's policy.
+**Currently, the system only records the calculated refund.** A real gateway refund call (e.g. Razorpay refunds API) is pending integration and is logged to the console instead.
+
+### No-Show
+Guides have access to a dedicated endpoint (`POST /api/bookings/{id}/no-show`) to flag a booking as a NO_SHOW if the trekker fails to arrive. This endpoint can only be called *after* the slot's scheduled time has passed. A `NO_SHOW` yields a 0% refund, overriding any cancellation policy.

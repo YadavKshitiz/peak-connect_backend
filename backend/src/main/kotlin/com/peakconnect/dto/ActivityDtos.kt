@@ -1,5 +1,6 @@
 package com.peakconnect.dto
 
+import com.peakconnect.entity.CancellationPolicyType
 import com.peakconnect.entity.DifficultyLevel
 import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.NotBlank
@@ -12,7 +13,8 @@ data class ActivityRequest(
     val description: String?,
     @field:NotBlank val location: String,
     @field:NotNull val difficultyLevel: DifficultyLevel,
-    @field:NotNull @field:DecimalMin("0.0") val basePrice: BigDecimal
+    @field:NotNull @field:DecimalMin("0.0") val basePrice: BigDecimal,
+    val cancellationPolicy: CancellationPolicyType = CancellationPolicyType.MODERATE
 )
 
 data class ActivityResponse(
@@ -22,5 +24,6 @@ data class ActivityResponse(
     val location: String,
     val difficultyLevel: DifficultyLevel,
     val basePrice: BigDecimal,
+    val cancellationPolicy: CancellationPolicyType,
     val slots: List<SlotResponse> = emptyList()
 )

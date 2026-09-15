@@ -27,6 +27,10 @@ class Activity(
     @Column(nullable = false)
     var basePrice: BigDecimal,
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var cancellationPolicy: CancellationPolicyType = CancellationPolicyType.MODERATE,
+
     @OneToMany(mappedBy = "activity", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     // LAZY is used because we don't always need to load all slots when showing activity details, avoiding N+1
     var slots: MutableList<Slot> = mutableListOf()

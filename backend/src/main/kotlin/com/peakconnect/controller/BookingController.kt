@@ -46,4 +46,13 @@ class BookingController(
     ): ResponseEntity<BookingResponse> {
         return ResponseEntity.ok(bookingService.cancelBooking(id, principal.name))
     }
+
+    @PostMapping("/{id}/no-show")
+    @PreAuthorize("hasRole('GUIDE')")
+    fun markNoShow(
+        @PathVariable id: UUID,
+        principal: Principal
+    ): ResponseEntity<BookingResponse> {
+        return ResponseEntity.ok(bookingService.markNoShow(id, principal.name))
+    }
 }

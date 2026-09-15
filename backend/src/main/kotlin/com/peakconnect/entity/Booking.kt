@@ -34,5 +34,11 @@ class Booking(
     var createdAt: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "payment_order_id")
-    var paymentOrderId: String? = null
+    var paymentOrderId: String? = null,
+
+    @Column(name = "refund_amount")
+    var refundAmount: Double? = null,
+
+    @Column(name = "refund_percentage")
+    var refundPercentage: Double? = null
 )
