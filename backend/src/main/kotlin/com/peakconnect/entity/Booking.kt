@@ -40,5 +40,11 @@ class Booking(
     var refundAmount: Double? = null,
 
     @Column(name = "refund_percentage")
-    var refundPercentage: Double? = null
+    var refundPercentage: Double? = null,
+
+    @Column(name = "deposit_amount")
+    var depositAmount: Double? = null,
+
+    @Column(name = "total_price")
+    var totalPrice: Double? = null
 )

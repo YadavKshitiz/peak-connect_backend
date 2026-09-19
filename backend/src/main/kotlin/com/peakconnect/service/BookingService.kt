@@ -72,7 +72,9 @@ class BookingService(
             trekker = trekker,
             guide = guide,
             status = BookingStatus.AWAITING_PAYMENT,
-            paymentOrderId = orderId
+            paymentOrderId = orderId,
+            depositAmount = depositAmount,
+            totalPrice = slotPrice.toDouble()
         )
         val savedBooking = bookingRepository.save(booking)
 
@@ -145,11 +147,14 @@ class BookingService(
             val policy = cancellationPolicyFactory.getPolicy(booking.slot.activity.cancellationPolicy)
             val refundPercentage = policy.calculateRefundPercentage(booking, java.time.LocalDateTime.now())
             
-            // Calculate non-deposit amount which is refundable
-            val slotPrice = priceCalculator.calculateFinalPrice(booking.slot.activity.basePrice, booking.slot).toDouble()
-            val depositAmount = depositCalculator.calculateDeposit(slotPrice)
-            val refundableBase = slotPrice - depositAmount
+            // Safeguard: ensure we have persisted price data
+            val totalPrice = booking.totalPrice
+                ?: throw IllegalStateException("Cannot process refund: Booking is missing original totalPrice.")
+            val depositAmount = booking.depositAmount
+                ?: throw IllegalStateException("Cannot process refund: Booking is missing original depositAmount.")
             
+            // Calculate non-deposit amount which is refundable
+            val refundableBase = totalPrice - depositAmount
             val refundAmount = refundableBase * refundPercentage
             
             booking.refundPercentage = refundPercentage
@@ -220,6 +225,7 @@ class BookingService(
             status = b.status,
             date = b.slot.date,
             paymentOrderId = b.paymentOrderId,
+            depositAmount = b.depositAmount,
             refundAmount = b.refundAmount,
             refundPercentage = b.refundPercentage
         )
