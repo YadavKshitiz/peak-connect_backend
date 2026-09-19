@@ -6,3 +6,4 @@ enum class DifficultyLevel { EASY, MODERATE, CHALLENGING, EXTREME }
 enum class Season { LOW, SHOULDER, PEAK }
 enum class BookingStatus { PENDING, AWAITING_PAYMENT, CONFIRMED, CANCELLED, NO_SHOW }
 enum class CancellationPolicyType { FLEXIBLE, MODERATE, STRICT }
+enum class WaitlistStatus { WAITING, PROMOTED, EXPIRED, CONFIRMED }

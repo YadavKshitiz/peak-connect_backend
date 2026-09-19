@@ -43,8 +43,8 @@ mvn spring-boot:run
 - [x] Task 5: Resiliency Patterns (Circuit Breaker / Retry)
 - [x] Task 6: Payment Processing Implementation (Razorpay)
 - [x] Task 7: Cancellation Policies + Refund + No-Show
-- [ ] Task 8: Activity Discovery & Caching Implementation
-- [ ] Task 8: Notification Service (Stub)
+- [x] Task 8: Waitlist Service
+- [ ] Task 9: Notification Service (Stub)
 - [ ] Task 9: Real-time Updates (WebSockets / SSE)
 - [ ] Task 10: Advanced Guide Matching Rules
 - [ ] Task 11: Dynamic Pricing & Discount Strategies
@@ -141,3 +141,18 @@ When a trekker cancels a `CONFIRMED` booking, the server calculates the refund p
 
 ### No-Show
 Guides have access to a dedicated endpoint (`POST /api/bookings/{id}/no-show`) to flag a booking as a NO_SHOW if the trekker fails to arrive. This endpoint can only be called *after* the slot's scheduled time has passed. A `NO_SHOW` yields a 0% refund, overriding any cancellation policy.
+
+---
+
+## Waitlist Service
+PeakConnect V2 includes waitlist functionality for fully booked activities.
+
+### Waitlist Flow
+1. **Join Waitlist**: When a Trekker attempts to book a fully occupied slot, the system returns a `409 Conflict` prompting them to join the waitlist. They can hit the `/api/bookings/waitlist` endpoint to join, specifying the slot and their preferred guide.
+2. **Promotion (`WaitlistService.promoteNext`)**: When an existing `CONFIRMED` booking is cancelled, the system frees the slot capacity and immediately promotes the earliest `WAITING` waitlist entry. The user is granted a provisional `AWAITING_PAYMENT` booking, reserving the slot for them.
+3. **Confirmation**: The promoted user has a configurable window to pay for the booking (default 60 minutes, configurable via `waitlist.confirmation-window-minutes`). Upon payment webhook confirmation, the waitlist entry is marked `CONFIRMED`.
+
+### Background Jobs
+To prevent waitlist promotions from blocking slots indefinitely:
+- **`WaitlistExpiryJob`**: Runs automatically to scan for `PROMOTED` waitlist entries that have exceeded their 60-minute payment window. These entries are marked `EXPIRED`, their provisional bookings are cancelled, and the slot is immediately offered to the next person on the waitlist.
+- **Job Separation**: The generic `AutoCancelUnpaidBookingsJob` (Task 3) ignores waitlist-promoted bookings. This ensures waitlisted users get their dedicated 60-minute window without interference from the standard 15-minute unpaid booking timeout.

@@ -14,7 +14,8 @@ import java.util.UUID
 @RestController
 @RequestMapping("/api/bookings")
 class BookingController(
-    private val bookingService: BookingService
+    private val bookingService: BookingService,
+    private val waitlistService: com.peakconnect.service.WaitlistService
 ) {
 
     @PostMapping("/request")
@@ -54,5 +55,15 @@ class BookingController(
         principal: Principal
     ): ResponseEntity<BookingResponse> {
         return ResponseEntity.ok(bookingService.markNoShow(id, principal.name))
+    }
+
+    @PostMapping("/waitlist")
+    @PreAuthorize("hasRole('TREKKER')")
+    fun joinWaitlist(
+        @RequestBody request: BookingConfirmDto,
+        principal: Principal
+    ): ResponseEntity<Map<String, String>> {
+        waitlistService.joinWaitlist(request, principal.name)
+        return ResponseEntity.ok(mapOf("message" to "Successfully joined waitlist"))
     }
 }

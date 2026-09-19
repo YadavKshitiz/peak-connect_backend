@@ -25,7 +25,7 @@ class AutoCancelUnpaidBookingsJob(
     @Transactional
     fun cancelUnpaidBookings() {
         val cutoffTime = LocalDateTime.now().minusMinutes(paymentTimeoutMinutes)
-        val staleBookings = bookingRepository.findByStatusAndCreatedAtBefore(BookingStatus.AWAITING_PAYMENT, cutoffTime)
+        val staleBookings = bookingRepository.findByStatusAndCreatedAtBeforeAndIsFromWaitlistFalse(BookingStatus.AWAITING_PAYMENT, cutoffTime)
         
         if (staleBookings.isEmpty()) return
 

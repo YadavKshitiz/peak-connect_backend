@@ -46,5 +46,8 @@ class Booking(
     var depositAmount: Double? = null,
 
     @Column(name = "total_price")
-    var totalPrice: Double? = null
+    var totalPrice: Double? = null,
+
+    @Column(name = "is_from_waitlist", nullable = false)
+    var isFromWaitlist: Boolean = false
 )

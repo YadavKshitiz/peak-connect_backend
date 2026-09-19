@@ -29,7 +29,8 @@ class BookingService(
     private val priceCalculator: PriceCalculator,
     private val depositCalculator: DepositCalculator,
     private val paymentApiClient: PaymentApiClient,
-    private val cancellationPolicyFactory: com.peakconnect.cancellation.CancellationPolicyFactory
+    private val cancellationPolicyFactory: com.peakconnect.cancellation.CancellationPolicyFactory,
+    private val waitlistService: WaitlistService
 ) {
 
     @Transactional(readOnly = true)
@@ -54,7 +55,7 @@ class BookingService(
             .orElseThrow { com.peakconnect.exception.ResourceNotFoundException("Slot not found") }
 
         if (slot.currentOccupancy >= slot.capacity) {
-            throw com.peakconnect.exception.ConflictException("Slot is already full")
+            throw com.peakconnect.exception.ConflictException("Slot is already full. Join waitlist?")
         }
 
         slot.currentOccupancy++
@@ -93,7 +94,11 @@ class BookingService(
         }
         
         booking.status = BookingStatus.CONFIRMED
-        return toBookingResponse(bookingRepository.save(booking))
+        val savedBooking = bookingRepository.save(booking)
+        
+        waitlistService.markConfirmed(savedBooking.id!!)
+        
+        return toBookingResponse(savedBooking)
     }
 
     @Transactional
@@ -171,6 +176,7 @@ class BookingService(
         if (slot.currentOccupancy > 0) {
             slot.currentOccupancy--
             slotRepository.save(slot)
+            waitlistService.promoteNext(slot.id!!)
         }
 
         return toBookingResponse(bookingRepository.save(booking))
