@@ -44,7 +44,7 @@ mvn spring-boot:run
 - [x] Task 6: Payment Processing Implementation (Razorpay)
 - [x] Task 7: Cancellation Policies + Refund + No-Show
 - [x] Task 8: Waitlist Service
-- [ ] Task 9: Notification Service (Stub)
+- [x] Task 8: Activity Discovery & Caching Implementation
 - [ ] Task 9: Real-time Updates (WebSockets / SSE)
 - [ ] Task 10: Advanced Guide Matching Rules
 - [ ] Task 11: Dynamic Pricing & Discount Strategies
@@ -156,3 +156,23 @@ PeakConnect V2 includes waitlist functionality for fully booked activities.
 To prevent waitlist promotions from blocking slots indefinitely:
 - **`WaitlistExpiryJob`**: Runs automatically to scan for `PROMOTED` waitlist entries that have exceeded their 60-minute payment window. These entries are marked `EXPIRED`, their provisional bookings are cancelled, and the slot is immediately offered to the next person on the waitlist.
 - **Job Separation**: The generic `AutoCancelUnpaidBookingsJob` (Task 3) ignores waitlist-promoted bookings. This ensures waitlisted users get their dedicated 60-minute window without interference from the standard 15-minute unpaid booking timeout.
+
+---
+
+## Dynamic Pricing Strategies
+PeakConnect V2 adds two new dynamic pricing strategies that plug seamlessly into the original `PriceCalculator` composition without altering the base logic:
+
+1. **`LeadTimeStrategy`** (`@Order(3)`): Adjusts price based on how far in advance a booking is made.
+   - **Far Advance**: Bookings made >30 days out receive a 5% discount (Multiplier `0.95`).
+   - **Last Minute**: Bookings made <3 days out incur a 15% premium (Multiplier `1.15`).
+   - *Defaults configurable via:* `pricing.lead-time.far-advance-days` / `pricing.lead-time.last-minute-multiplier` etc.
+
+2. **`DemandStrategy`** (`@Order(4)`): Adjusts price based on recent search/interest volume.
+   - **High Demand**: If a slot has >100 views in the rolling 24-hour window, it incurs a 10% premium (Multiplier `1.10`).
+   - *Defaults configurable via:* `pricing.demand.high-demand-threshold` / `pricing.demand.high-demand-multiplier`.
+
+### Demand Tracking Mechanism
+Demand tracking is powered by a lightweight Redis counter (`DemandTrackerService`).
+- Every time a user requests a booking (`POST /api/bookings/request`) or views an activity's details (`GET /api/activities/{id}`), the counter for the respective slot(s) increments (`slot:views:{slotId}`).
+- The counter is given a 24-hour Time-to-Live (TTL) upon first increment.
+- The 5-minute TTL on the `priceCache` (configured in Task 2) has intentionally been left exactly as-is. It provides a natural smoothing effect to dynamic pricing, preventing thundering herds on the database/Redis, and ensures prices do not fluctuate wildly by the second for users currently checking out.

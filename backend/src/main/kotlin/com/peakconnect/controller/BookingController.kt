@@ -15,12 +15,14 @@ import java.util.UUID
 @RequestMapping("/api/bookings")
 class BookingController(
     private val bookingService: BookingService,
-    private val waitlistService: com.peakconnect.service.WaitlistService
+    private val waitlistService: com.peakconnect.service.WaitlistService,
+    private val demandTrackerService: com.peakconnect.pricing.DemandTrackerService
 ) {
 
     @PostMapping("/request")
     @PreAuthorize("hasRole('TREKKER')")
     fun requestBooking(@RequestBody request: BookingRequestDto): ResponseEntity<List<MatchedGuideResponse>> {
+        demandTrackerService.trackSlotView(request.slotId)
         return ResponseEntity.ok(bookingService.requestBooking(request))
     }
 

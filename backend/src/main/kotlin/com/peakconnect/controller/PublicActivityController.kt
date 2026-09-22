@@ -9,7 +9,10 @@ import java.util.UUID
 
 @RestController
 @RequestMapping("/api/activities")
-class PublicActivityController(private val activityService: ActivityService) {
+class PublicActivityController(
+    private val activityService: ActivityService,
+    private val demandTrackerService: com.peakconnect.pricing.DemandTrackerService
+) {
 
     @GetMapping
     fun getActivities(
@@ -21,6 +24,10 @@ class PublicActivityController(private val activityService: ActivityService) {
 
     @GetMapping("/{id}")
     fun getActivity(@PathVariable id: UUID): ResponseEntity<ActivityResponse> {
-        return ResponseEntity.ok(activityService.getActivity(id))
+        val response = activityService.getActivity(id)
+        response.slots.forEach { slot ->
+            demandTrackerService.trackSlotView(slot.id)
+        }
+        return ResponseEntity.ok(response)
     }
 }

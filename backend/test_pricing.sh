@@ -1,37 +1,35 @@
 #!/bin/bash
+set -e
+source .env
 
-# Login Admin
-ADMIN_TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d '{"email": "admin@example.com", "password": "admin123"}' | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+echo "=== 1. Login Admin ==="
+ADMIN_TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d '{"email": "admin@example.com", "password": "admin123"}' | jq -r .token)
 
-# Create Activity (Base Price: 1000.00)
-ACTIVITY_RES=$(curl -s -X POST http://localhost:8080/api/admin/activities \
--H "Content-Type: application/json" \
--H "Authorization: Bearer $ADMIN_TOKEN" \
--d '{"title": "Pricing Trek", "description": "Trek", "location": "Nepal", "difficultyLevel": "MODERATE", "basePrice": 1000.00}')
-ACT_ID=$(echo $ACTIVITY_RES | grep -o '"id":"[^"]*"' | cut -d'"' -f4)
+echo "=== 2. Create Activity (Base Price = 100) ==="
+ACT_RES=$(curl -s -X POST http://localhost:8080/api/admin/activities -H "Content-Type: application/json" -H "Authorization: Bearer $ADMIN_TOKEN" -d '{"title": "Pricing Test Trek", "location": "Manali", "difficultyLevel": "MODERATE", "basePrice": 100.0, "cancellationPolicy": "FLEXIBLE"}')
+ACT_ID=$(echo $ACT_RES | jq -r .id)
 
-# Create Slot (Capacity: 10, Season: SHOULDER)
-SLOT_RES=$(curl -s -X POST http://localhost:8080/api/admin/activities/$ACT_ID/slots \
--H "Content-Type: application/json" \
--H "Authorization: Bearer $ADMIN_TOKEN" \
--d '{"date": "2026-11-01T08:00:00", "capacity": 10, "season": "SHOULDER"}')
-SLOT_ID=$(echo $SLOT_RES | grep -o '"id":"[^"]*"' | cut -d'"' -f4)
+echo "=== 3. Create Slot for TOMORROW (LeadTime < 3 days) ==="
+TOMORROW_DATE=$(date -d "+1 day" +"%Y-%m-%dT%H:%M:%S")
+SLOT_RES=$(curl -s -X POST http://localhost:8080/api/admin/activities/$ACT_ID/slots -H "Content-Type: application/json" -H "Authorization: Bearer $ADMIN_TOKEN" -d "{\"date\": \"$TOMORROW_DATE\", \"capacity\": 10, \"season\": \"SHOULDER\"}")
+SLOT_ID=$(echo $SLOT_RES | jq -r .id)
 
-echo -e "\n--- Before Modification ---"
-# Base Price 1000.00
-# Season: SHOULDER (x1.00)
-# Occupancy: 0/10 < 50% (x1.00)
-# Expected Price: 1000.00
-curl -s -X GET http://localhost:8080/api/admin/activities/$ACT_ID/slots \
--H "Authorization: Bearer $ADMIN_TOKEN" | jq
+echo "=== 4. Check Initial Price (Should be 100 * 1.15 = 115) ==="
+INITIAL_PRICE=$(echo $SLOT_RES | jq -r .computedPrice)
+echo "Initial Price: $INITIAL_PRICE"
 
-echo -e "\n\n--- Modifying DB ---"
-PGPASSWORD=localdevpassword psql -h localhost -U peakconnect_user -d peakconnect -c "UPDATE slots SET current_occupancy = 9, season = 'PEAK' WHERE id = '$SLOT_ID';"
+echo "=== 5. Inflate Views (>100 times) ==="
+for i in {1..101}
+do
+   curl -s -X GET http://localhost:8080/api/activities/$ACT_ID -H "Authorization: Bearer $ADMIN_TOKEN" > /dev/null
+done
+echo "Views inflated."
 
-echo -e "\n--- After Modification ---"
-# Base Price 1000.00
-# Season: PEAK (x1.20) -> 1200.00
-# Occupancy: 9/10 = 90% >= 80% (x1.25) -> 1500.00
-# Expected Price: 1500.00
-curl -s -X GET http://localhost:8080/api/admin/activities/$ACT_ID/slots \
--H "Authorization: Bearer $ADMIN_TOKEN" | jq
+echo "=== 6. Evict Cache (Update Slot) ==="
+SLOT_UPDATE=$(curl -s -X PUT http://localhost:8080/api/admin/activities/$ACT_ID/slots/$SLOT_ID -H "Content-Type: application/json" -H "Authorization: Bearer $ADMIN_TOKEN" -d "{\"date\": \"$TOMORROW_DATE\", \"capacity\": 10, \"season\": \"SHOULDER\"}")
+NEW_PRICE=$(echo $SLOT_UPDATE | jq -r .computedPrice)
+
+echo "=== 7. Check New Price (Should be 115 * 1.10 = 126.50) ==="
+echo "New Price: $NEW_PRICE"
+
+echo "Done."
