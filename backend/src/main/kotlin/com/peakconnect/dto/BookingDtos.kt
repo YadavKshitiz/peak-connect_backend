@@ -5,7 +5,10 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 data class BookingRequestDto(
-    val slotId: UUID
+    val slotId: UUID,
+    val skillWeight: Double? = null,
+    val locationWeight: Double? = null,
+    val languageWeight: Double? = null
 )
 
 data class BookingConfirmDto(

@@ -20,6 +20,9 @@ class Activity(
     @Column(nullable = false)
     var location: String,
 
+    var latitude: Double? = null,
+    var longitude: Double? = null,
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var difficultyLevel: DifficultyLevel,

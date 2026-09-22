@@ -40,7 +40,8 @@ class AuthService(
             name = request.name,
             email = request.email,
             password = passwordEncoder.encode(request.password),
-            role = request.role
+            role = request.role,
+            preferredLanguages = request.preferredLanguages?.toMutableList() ?: mutableListOf()
         )
         val savedUser = userRepository.saveAndFlush(user)
         

@@ -25,5 +25,10 @@ class User(
     var role: Role,
 
     @Column(nullable = false, updatable = false)
-    var createdAt: LocalDateTime = LocalDateTime.now()
+    var createdAt: LocalDateTime = LocalDateTime.now(),
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "user_languages", joinColumns = [JoinColumn(name = "user_id")])
+    @Column(name = "language")
+    var preferredLanguages: MutableList<String> = mutableListOf()
 )

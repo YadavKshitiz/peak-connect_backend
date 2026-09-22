@@ -21,9 +21,12 @@ class BookingController(
 
     @PostMapping("/request")
     @PreAuthorize("hasRole('TREKKER')")
-    fun requestBooking(@RequestBody request: BookingRequestDto): ResponseEntity<List<MatchedGuideResponse>> {
+    fun requestBooking(
+        @RequestBody request: BookingRequestDto,
+        principal: Principal
+    ): ResponseEntity<List<MatchedGuideResponse>> {
         demandTrackerService.trackSlotView(request.slotId)
-        return ResponseEntity.ok(bookingService.requestBooking(request))
+        return ResponseEntity.ok(bookingService.requestBooking(request, principal.name))
     }
 
     @PostMapping("/confirm")

@@ -8,6 +8,8 @@ data class GuideProfileUpdateRequest(
     val skills: List<String>?,
     val languages: List<String>?,
     val location: String?,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     @field:NotNull val experienceLevel: ExperienceLevel
 )
 
@@ -18,6 +20,8 @@ data class GuideResponse(
     val skills: List<String>,
     val languages: List<String>,
     val location: String?,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     val experienceLevel: ExperienceLevel,
     val isVerified: Boolean
 )

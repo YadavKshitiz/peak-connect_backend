@@ -12,6 +12,8 @@ data class ActivityRequest(
     @field:NotBlank val title: String,
     val description: String?,
     @field:NotBlank val location: String,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     @field:NotNull val difficultyLevel: DifficultyLevel,
     @field:NotNull @field:DecimalMin("0.0") val basePrice: BigDecimal,
     val cancellationPolicy: CancellationPolicyType = CancellationPolicyType.MODERATE
@@ -22,6 +24,8 @@ data class ActivityResponse(
     val title: String,
     val description: String?,
     val location: String,
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     val difficultyLevel: DifficultyLevel,
     val basePrice: BigDecimal,
     val cancellationPolicy: CancellationPolicyType,

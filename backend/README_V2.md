@@ -45,7 +45,7 @@ mvn spring-boot:run
 - [x] Task 7: Cancellation Policies + Refund + No-Show
 - [x] Task 8: Waitlist Service
 - [x] Task 8: Activity Discovery & Caching Implementation
-- [ ] Task 9: Real-time Updates (WebSockets / SSE)
+- [x] Task 9: Guide Matching Additions
 - [ ] Task 10: Advanced Guide Matching Rules
 - [ ] Task 11: Dynamic Pricing & Discount Strategies
 - [ ] Task 12: Analytics & Metrics Setup
@@ -176,3 +176,16 @@ Demand tracking is powered by a lightweight Redis counter (`DemandTrackerService
 - Every time a user requests a booking (`POST /api/bookings/request`) or views an activity's details (`GET /api/activities/{id}`), the counter for the respective slot(s) increments (`slot:views:{slotId}`).
 - The counter is given a 24-hour Time-to-Live (TTL) upon first increment.
 - The 5-minute TTL on the `priceCache` (configured in Task 2) has intentionally been left exactly as-is. It provides a natural smoothing effect to dynamic pricing, preventing thundering herds on the database/Redis, and ensures prices do not fluctuate wildly by the second for users currently checking out.
+
+---
+
+## Guide Matching Additions (Task 9)
+PeakConnect V2 adds advanced, highly configurable guide matching logic to the existing rule-based system. 
+
+### Matchers Added/Updated
+1. **`LocationMatcher` (Upgraded)**: Originally a simple string comparison. Now uses real route distance from the free public OSRM driving API (`OsrmRoutingClient`) using the Guide and Activity `latitude`/`longitude`. Safely falls back to string comparison on missing coordinates or OSRM failure.
+2. **`LanguageMatcher` (New)**: Scores guides dynamically based on the percentage of their languages that overlap with the authenticated Trekker's `preferredLanguages`.
+3. **`HybridMatcher` (New)**: Instead of the default static V1 weighting (60% skill / 40% location), `HybridMatcher` aggregates all matchers and applies weights (`skillWeight`, `locationWeight`, `languageWeight`) dynamically passed per request.
+
+### Caching Considerations
+Because Trekker language preferences and request weights affect the outcome, the `@Cacheable` key for `guideAvailabilityCache` has been expanded from `#slot.id.toString()` to include `#trekkerEmail`, `#skillWeight`, `#locationWeight`, and `#languageWeight`. This cleanly prevents cross-user and cross-weight cache poisoning.

@@ -17,7 +17,9 @@ data class RegisterRequest(
     val password: String,
     
     @field:NotNull
-    val role: Role
+    val role: Role,
+
+    val preferredLanguages: List<String>? = null
 )
 
 data class LoginRequest(

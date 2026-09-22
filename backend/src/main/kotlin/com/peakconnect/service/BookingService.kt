@@ -34,11 +34,17 @@ class BookingService(
 ) {
 
     @Transactional(readOnly = true)
-    fun requestBooking(dto: BookingRequestDto): List<MatchedGuideResponse> {
+    fun requestBooking(dto: BookingRequestDto, trekkerEmail: String): List<MatchedGuideResponse> {
         val slot = slotRepository.findById(dto.slotId)
             .orElseThrow { com.peakconnect.exception.ResourceNotFoundException("Slot not found") }
             
-        return guideMatchingService.matchGuidesForSlot(slot)
+        return guideMatchingService.matchGuidesForSlot(
+            slot = slot,
+            trekkerEmail = trekkerEmail,
+            skillWeight = dto.skillWeight,
+            locationWeight = dto.locationWeight,
+            languageWeight = dto.languageWeight
+        )
     }
 
     @Transactional

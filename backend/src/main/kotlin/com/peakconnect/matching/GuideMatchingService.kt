@@ -14,26 +14,52 @@ class GuideMatchingService(
 ) {
     /**
      * Finds and ranks eligible, verified guides for a given slot.
-     * Weights:
-     * - Skill: 60%
-     * - Location: 40%
+     * Optionally uses HybridMatcher if weights are provided.
      */
-    @Cacheable(value = ["guideAvailabilityCache"], key = "#slot.id.toString()")
-    fun matchGuidesForSlot(slot: Slot): List<MatchedGuideResponse> {
+    @Cacheable(
+        value = ["guideAvailabilityCache"],
+        key = "#slot.id.toString() + '_' + #trekkerEmail + '_' + (#skillWeight ?: 'def') + '_' + (#locationWeight ?: 'def') + '_' + (#languageWeight ?: 'def')"
+    )
+    fun matchGuidesForSlot(
+        slot: Slot,
+        trekkerEmail: String,
+        skillWeight: Double? = null,
+        locationWeight: Double? = null,
+        languageWeight: Double? = null
+    ): List<MatchedGuideResponse> {
         println("COMPUTING GUIDE AVAILABILITY FOR SLOT ${slot.id} (This should not print on cache hit)")
         val verifiedGuides = guideRepository.findByIsVerified(true)
         
+        val useHybrid = skillWeight != null || locationWeight != null || languageWeight != null
+        val hybridMatcher = if (useHybrid) {
+            val skill = matchers.find { it is SkillBasedMatcher }!!
+            val loc = matchers.find { it is LocationMatcher }!!
+            val lang = matchers.find { it is LanguageMatcher }!!
+            HybridMatcher(
+                skillBasedMatcher = skill,
+                locationMatcher = loc,
+                languageMatcher = lang,
+                skillWeight = skillWeight ?: 0.33,
+                locationWeight = locationWeight ?: 0.33,
+                languageWeight = languageWeight ?: 0.33
+            )
+        } else null
+
         val matchedGuides = verifiedGuides.map { guide ->
             var totalScore = 0.0
             
-            for (matcher in matchers) {
-                val score = matcher.match(slot, guide)
-                val weight = when (matcher) {
-                    is SkillBasedMatcher -> 0.60
-                    is LocationMatcher -> 0.40
-                    else -> 0.0
+            if (hybridMatcher != null) {
+                totalScore = hybridMatcher.match(slot, guide)
+            } else {
+                for (matcher in matchers) {
+                    val score = matcher.match(slot, guide)
+                    val weight = when (matcher) {
+                        is SkillBasedMatcher -> 0.60
+                        is LocationMatcher -> 0.40
+                        else -> 0.0 // LanguageMatcher is ignored in V1 default logic
+                    }
+                    totalScore += (score * weight)
                 }
-                totalScore += (score * weight)
             }
             
             MatchedGuideResponse(

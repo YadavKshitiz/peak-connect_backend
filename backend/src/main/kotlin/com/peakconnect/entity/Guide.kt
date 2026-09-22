@@ -27,6 +27,9 @@ class Guide(
 
     var location: String? = null,
 
+    var latitude: Double? = null,
+    var longitude: Double? = null,
+
     @Enumerated(EnumType.STRING)
     var experienceLevel: ExperienceLevel,
 

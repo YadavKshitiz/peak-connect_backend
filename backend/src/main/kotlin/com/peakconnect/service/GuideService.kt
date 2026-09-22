@@ -18,6 +18,8 @@ class GuideService(
         request.skills?.let { guide.skills = it.toMutableList() }
         request.languages?.let { guide.languages = it.toMutableList() }
         request.location?.let { guide.location = it }
+        request.latitude?.let { guide.latitude = it }
+        request.longitude?.let { guide.longitude = it }
         guide.experienceLevel = request.experienceLevel
         return toGuideResponse(guideRepository.save(guide))
     }
@@ -60,6 +62,8 @@ class GuideService(
             skills = g.skills.toList(),
             languages = g.languages.toList(),
             location = g.location,
+            latitude = g.latitude,
+            longitude = g.longitude,
             experienceLevel = g.experienceLevel,
             isVerified = g.isVerified
         )
