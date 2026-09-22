@@ -15,7 +15,7 @@ class DemandTrackerService(
      * If the key doesn't exist, it sets it with a 24-hour TTL.
      */
     fun trackSlotView(slotId: UUID) {
-        val key = "slot:views:\$slotId"
+        val key = "slot:views:$slotId"
         val count = stringRedisTemplate.opsForValue().increment(key)
         
         // If this is the first view (count == 1), set the TTL
@@ -34,7 +34,7 @@ class DemandTrackerService(
      * Reads the current view count for a slot.
      */
     fun getSlotViews(slotId: UUID): Long {
-        val key = "slot:views:\$slotId"
+        val key = "slot:views:$slotId"
         val countStr = stringRedisTemplate.opsForValue().get(key)
         return countStr?.toLongOrNull() ?: 0L
     }
