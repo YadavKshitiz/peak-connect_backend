@@ -61,6 +61,6 @@ class WaitlistExpiryJob(
             expiredCount++
         }
 
-        logger.info("WaitlistExpiryJob completed: expired \$expiredCount waitlist entries.")
+        logger.info("WaitlistExpiryJob completed: expired $expiredCount waitlist entries.")
     }
 }

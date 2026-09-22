@@ -50,6 +50,6 @@ class AutoCancelUnpaidBookingsJob(
             cancelledCount++
         }
 
-        logger.info("AutoCancelUnpaidBookingsJob completed: auto-cancelled \$cancelledCount stale bookings.")
+        logger.info("AutoCancelUnpaidBookingsJob completed: auto-cancelled $cancelledCount stale bookings.")
     }
 }
