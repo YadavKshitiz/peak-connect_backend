@@ -18,17 +18,18 @@ class GuideMatchingService(
      */
     @Cacheable(
         value = ["guideAvailabilityCache"],
-        key = "#slot.id.toString() + '_' + #trekkerEmail + '_' + (#skillWeight ?: 'def') + '_' + (#locationWeight ?: 'def') + '_' + (#languageWeight ?: 'def')"
+        key = "#slot.id.toString() + '_' + #trekkerEmail + '_' + (#skillWeight ?: 'def') + '_' + (#locationWeight ?: 'def') + '_' + (#languageWeight ?: 'def') + '_' + #excludeGuideIds.hashCode()"
     )
     fun matchGuidesForSlot(
         slot: Slot,
         trekkerEmail: String,
         skillWeight: Double? = null,
         locationWeight: Double? = null,
-        languageWeight: Double? = null
+        languageWeight: Double? = null,
+        excludeGuideIds: Set<java.util.UUID> = emptySet()
     ): List<MatchedGuideResponse> {
         println("COMPUTING GUIDE AVAILABILITY FOR SLOT ${slot.id} (This should not print on cache hit)")
-        val verifiedGuides = guideRepository.findByIsVerified(true)
+        val verifiedGuides = guideRepository.findByIsVerified(true).filter { it.id !in excludeGuideIds }
         
         val useHybrid = skillWeight != null || locationWeight != null || languageWeight != null
         val hybridMatcher = if (useHybrid) {

@@ -62,6 +62,24 @@ class BookingController(
         return ResponseEntity.ok(bookingService.markNoShow(id, principal.name))
     }
 
+    @PostMapping("/{id}/accept")
+    @PreAuthorize("hasRole('GUIDE')")
+    fun acceptBooking(
+        @PathVariable id: UUID,
+        principal: Principal
+    ): ResponseEntity<BookingResponse> {
+        return ResponseEntity.ok(bookingService.acceptBooking(id, principal.name))
+    }
+
+    @PostMapping("/{id}/decline")
+    @PreAuthorize("hasRole('GUIDE')")
+    fun declineBooking(
+        @PathVariable id: UUID,
+        principal: Principal
+    ): ResponseEntity<BookingResponse> {
+        return ResponseEntity.ok(bookingService.declineBooking(id, principal.name))
+    }
+
     @PostMapping("/waitlist")
     @PreAuthorize("hasRole('TREKKER')")
     fun joinWaitlist(

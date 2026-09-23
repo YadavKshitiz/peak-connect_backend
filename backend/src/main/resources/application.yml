@@ -32,6 +32,9 @@ scheduler:
 booking:
   payment-timeout-minutes: 15
 
+guide:
+  response-timeout-minutes: 20
+
 payment:
   deposit-percentage: 0.2
 

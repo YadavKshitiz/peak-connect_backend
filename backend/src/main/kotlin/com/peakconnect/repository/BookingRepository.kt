@@ -11,5 +11,6 @@ interface BookingRepository : JpaRepository<Booking, UUID> {
     fun findByGuideId(guideId: UUID): List<Booking>
     fun findByStatus(status: BookingStatus): List<Booking>
     fun findByStatusAndCreatedAtBeforeAndIsFromWaitlistFalse(status: BookingStatus, createdAt: LocalDateTime): List<Booking>
+    fun findByStatusAndLastGuideAssignedAtBefore(status: BookingStatus, cutoff: LocalDateTime): List<Booking>
     fun findByPaymentOrderId(paymentOrderId: String): Booking?
 }

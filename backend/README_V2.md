@@ -46,7 +46,7 @@ mvn spring-boot:run
 - [x] Task 8: Waitlist Service
 - [x] Task 8: Activity Discovery & Caching Implementation
 - [x] Task 9: Guide Matching Additions
-- [ ] Task 10: Advanced Guide Matching Rules
+- [x] Task 10: Advanced Guide Matching Rules
 - [ ] Task 11: Dynamic Pricing & Discount Strategies
 - [ ] Task 12: Analytics & Metrics Setup
 - [ ] Task 13: End-to-End Testing & QA
@@ -189,3 +189,18 @@ PeakConnect V2 adds advanced, highly configurable guide matching logic to the ex
 
 ### Caching Considerations
 Because Trekker language preferences and request weights affect the outcome, the `@Cacheable` key for `guideAvailabilityCache` has been expanded from `#slot.id.toString()` to include `#trekkerEmail`, `#skillWeight`, `#locationWeight`, and `#languageWeight`. This cleanly prevents cross-user and cross-weight cache poisoning.
+
+---
+
+## Guide Accept/Decline & Auto-Rematch (Task 10)
+PeakConnect V2 adds interactive guide assignments to the previously read-only booking system, ensuring active acceptance before trekking payments are processed.
+
+### Reordered Payment Flow
+1. **Assignment (`/confirm`)**: When a Trekker selects a guide, the booking enters `PENDING_GUIDE_RESPONSE` (and records `lastGuideAssignedAt`). No Razorpay payment order is created yet.
+2. **Acceptance (`/accept`)**: The assigned guide reviews the booking and hits the accept endpoint. At this point, the system calculates the required deposit based on the locked slot price, creates the Razorpay payment order, and sets the booking to `AWAITING_PAYMENT`.
+3. **Payment**: Trekker completes checkout (existing flow).
+
+### Auto-Rematch & Decline
+- **Manual Decline (`/decline`)**: If a guide declines, their ID is saved to the booking's `declinedGuideIds` list. The system then automatically triggers `rematchGuide`, reusing the `HybridMatcher` (with V1 default weights) to find the next best available guide, excluding the declined guides. The new guide is assigned and status resets to `PENDING_GUIDE_RESPONSE`.
+- **Auto-Decline (Timeout)**: The `GuideResponseTimeoutJob` runs periodically to scan for bookings in `PENDING_GUIDE_RESPONSE` older than `guide.response-timeout-minutes` (default: 20 minutes). If found, the guide is automatically considered declined, added to the exclusion list, and the same auto-rematch logic fires.
+- **Failure**: If no other guides are available during a rematch, the booking status falls to `REMATCH_FAILED`, awaiting manual admin/trekker intervention.

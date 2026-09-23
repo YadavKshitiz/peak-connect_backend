@@ -67,26 +67,20 @@ class BookingService(
         slot.currentOccupancy++
         slotRepository.save(slot)
 
-        // Calculate price and deposit
+        // Calculate price (deposit calculation deferred until guide accepts)
         val slotPrice = priceCalculator.calculateFinalPrice(slot.activity.basePrice, slot)
-        val depositAmount = depositCalculator.calculateDeposit(slotPrice.toDouble())
-
-        // Create Razorpay order
-        val orderId = paymentApiClient.createOrder(depositAmount)
 
         val booking = Booking(
             slot = slot,
             trekker = trekker,
             guide = guide,
-            status = BookingStatus.AWAITING_PAYMENT,
-            paymentOrderId = orderId,
-            depositAmount = depositAmount,
+            status = BookingStatus.PENDING_GUIDE_RESPONSE,
+            lastGuideAssignedAt = java.time.LocalDateTime.now(),
             totalPrice = slotPrice.toDouble()
         )
         val savedBooking = bookingRepository.save(booking)
 
-        val response = toBookingResponse(savedBooking)
-        return response.copy(depositAmount = depositAmount)
+        return toBookingResponse(savedBooking)
     }
 
     @Transactional
@@ -223,6 +217,86 @@ class BookingService(
             ?: throw com.peakconnect.exception.ResourceNotFoundException("Guide user not found")
             
         return bookingRepository.findByGuideId(guideUser.id!!).map { toBookingResponse(it) }
+    }
+
+    @Transactional
+    fun acceptBooking(bookingId: UUID, guideEmail: String): BookingResponse {
+        val guideUser = userRepository.findByEmail(guideEmail)
+            ?: throw com.peakconnect.exception.ResourceNotFoundException("Guide user not found")
+            
+        val booking = bookingRepository.findById(bookingId)
+            .orElseThrow { com.peakconnect.exception.ResourceNotFoundException("Booking not found") }
+            
+        if (booking.guide?.user?.id != guideUser.id) {
+            throw org.springframework.security.access.AccessDeniedException("You can only accept bookings assigned to you")
+        }
+
+        if (booking.status != BookingStatus.PENDING_GUIDE_RESPONSE) {
+            throw com.peakconnect.exception.ConflictException("Booking is not pending your response")
+        }
+
+        // Calculate deposit based on the already computed totalPrice
+        val depositAmount = depositCalculator.calculateDeposit(booking.totalPrice ?: 0.0)
+
+        // Create Razorpay order
+        val orderId = paymentApiClient.createOrder(depositAmount)
+
+        booking.status = BookingStatus.AWAITING_PAYMENT
+        booking.paymentOrderId = orderId
+        booking.depositAmount = depositAmount
+
+        val savedBooking = bookingRepository.save(booking)
+        return toBookingResponse(savedBooking).copy(depositAmount = depositAmount)
+    }
+
+    @Transactional
+    fun declineBooking(bookingId: UUID, guideEmail: String): BookingResponse {
+        val guideUser = userRepository.findByEmail(guideEmail)
+            ?: throw com.peakconnect.exception.ResourceNotFoundException("Guide user not found")
+            
+        val booking = bookingRepository.findById(bookingId)
+            .orElseThrow { com.peakconnect.exception.ResourceNotFoundException("Booking not found") }
+            
+        if (booking.guide?.user?.id != guideUser.id) {
+            throw org.springframework.security.access.AccessDeniedException("You can only decline bookings assigned to you")
+        }
+
+        if (booking.status != BookingStatus.PENDING_GUIDE_RESPONSE) {
+            throw com.peakconnect.exception.ConflictException("Booking is not pending your response")
+        }
+
+        // Add to declined set
+        booking.declinedGuideIds.add(booking.guide!!.id!!)
+        
+        rematchGuide(booking)
+        
+        return toBookingResponse(bookingRepository.save(booking))
+    }
+
+    fun rematchGuide(booking: Booking) {
+        // Reuse matching logic to find next best guide, excluding declined ones
+        // Since we don't store original weights, we use default V1 weights for auto-rematch
+        val matches = guideMatchingService.matchGuidesForSlot(
+            slot = booking.slot,
+            trekkerEmail = booking.trekker.email,
+            excludeGuideIds = booking.declinedGuideIds
+        )
+
+        val nextBestGuideResponse = matches.firstOrNull()
+
+        if (nextBestGuideResponse != null) {
+            val nextGuide = guideRepository.findById(nextBestGuideResponse.guideId).orElse(null)
+            if (nextGuide != null) {
+                booking.guide = nextGuide
+                booking.lastGuideAssignedAt = java.time.LocalDateTime.now()
+                booking.status = BookingStatus.PENDING_GUIDE_RESPONSE
+                return
+            }
+        }
+
+        // Rematch failed
+        booking.guide = null
+        booking.status = BookingStatus.REMATCH_FAILED
     }
 
     private fun toBookingResponse(b: Booking): BookingResponse {

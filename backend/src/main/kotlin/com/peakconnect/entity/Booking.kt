@@ -49,5 +49,13 @@ class Booking(
     var totalPrice: Double? = null,
 
     @Column(name = "is_from_waitlist", nullable = false)
-    var isFromWaitlist: Boolean = false
+    var isFromWaitlist: Boolean = false,
+
+    @Column(name = "last_guide_assigned_at")
+    var lastGuideAssignedAt: LocalDateTime? = null,
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "booking_declined_guides", joinColumns = [JoinColumn(name = "booking_id")])
+    @Column(name = "guide_id")
+    var declinedGuideIds: MutableSet<UUID> = mutableSetOf()
 )
