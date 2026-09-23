@@ -39,3 +39,4 @@ build/
 application-local.yml
 .env
 *.log
+test_vars.sh
