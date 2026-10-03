@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+import java.util.concurrent.TimeUnit
 
 @Component
 class GuideResponseTimeoutJob(
@@ -18,7 +19,7 @@ class GuideResponseTimeoutJob(
 ) {
     private val logger = LoggerFactory.getLogger(GuideResponseTimeoutJob::class.java)
 
-    @Scheduled(fixedRate = 60000) // Runs every minute
+    @Scheduled(fixedRateString = "\${guide.response-timeout-minutes:20}", timeUnit = TimeUnit.MINUTES)
     @Transactional
     fun autoDeclineUnresponsiveGuides() {
         val cutoffTime = LocalDateTime.now().minusMinutes(timeoutMinutes)
@@ -31,10 +32,12 @@ class GuideResponseTimeoutJob(
         for (booking in timedOutBookings) {
             try {
                 if (booking.guide != null) {
-                    booking.declinedGuideIds.add(booking.guide!!.id!!)
+                    val newSet = booking.declinedGuideIds.toMutableSet()
+                    newSet.add(booking.guide!!.id!!)
+                    booking.declinedGuideIds = newSet
                 }
                 bookingService.rematchGuide(booking)
-                bookingRepository.save(booking)
+                bookingRepository.saveAndFlush(booking)
                 rematchCount++
             } catch (e: Exception) {
                 logger.error("Failed to process timeout rematch for booking ${booking.id}: ${e.message}")

@@ -220,6 +220,7 @@ class BookingService(
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = ["guideAvailabilityCache"], key = "#result.slotId.toString()")
     fun acceptBooking(bookingId: UUID, guideEmail: String): BookingResponse {
         val guideUser = userRepository.findByEmail(guideEmail)
             ?: throw com.peakconnect.exception.ResourceNotFoundException("Guide user not found")
@@ -250,6 +251,7 @@ class BookingService(
     }
 
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = ["guideAvailabilityCache"], key = "#result.slotId.toString()")
     fun declineBooking(bookingId: UUID, guideEmail: String): BookingResponse {
         val guideUser = userRepository.findByEmail(guideEmail)
             ?: throw com.peakconnect.exception.ResourceNotFoundException("Guide user not found")
@@ -265,8 +267,10 @@ class BookingService(
             throw com.peakconnect.exception.ConflictException("Booking is not pending your response")
         }
 
-        // Add to declined set
-        booking.declinedGuideIds.add(booking.guide!!.id!!)
+        // Create new set to avoid Hibernate collection sharing/caching anomalies
+        val newSet = booking.declinedGuideIds.toMutableSet()
+        newSet.add(booking.guide!!.id!!)
+        booking.declinedGuideIds = newSet
         
         rematchGuide(booking)
         
@@ -297,6 +301,13 @@ class BookingService(
         // Rematch failed
         booking.guide = null
         booking.status = BookingStatus.REMATCH_FAILED
+
+        // Free slot capacity
+        val slot = booking.slot
+        if (slot.currentOccupancy > 0) {
+            slot.currentOccupancy--
+            slotRepository.save(slot)
+        }
     }
 
     private fun toBookingResponse(b: Booking): BookingResponse {

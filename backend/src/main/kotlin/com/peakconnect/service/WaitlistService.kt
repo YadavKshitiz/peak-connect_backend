@@ -68,20 +68,15 @@ class WaitlistService(
         slot.currentOccupancy++
         slotRepository.save(slot)
 
-        // Calculate price and deposit
+        // Calculate price (deposit calculation deferred until guide accepts)
         val slotPrice = priceCalculator.calculateFinalPrice(slot.activity.basePrice, slot)
-        val depositAmount = depositCalculator.calculateDeposit(slotPrice.toDouble())
-
-        // Create Razorpay order
-        val orderId = paymentApiClient.createOrder(depositAmount)
 
         val booking = Booking(
             slot = slot,
             trekker = nextEntry.trekker,
             guide = nextEntry.guide,
-            status = BookingStatus.AWAITING_PAYMENT,
-            paymentOrderId = orderId,
-            depositAmount = depositAmount,
+            status = BookingStatus.PENDING_GUIDE_RESPONSE,
+            lastGuideAssignedAt = LocalDateTime.now(),
             totalPrice = slotPrice.toDouble(),
             isFromWaitlist = true
         )

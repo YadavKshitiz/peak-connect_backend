@@ -27,10 +27,13 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import org.springframework.cache.annotation.CachingConfigurer
+import org.springframework.cache.interceptor.CacheErrorHandler
+import org.springframework.cache.interceptor.SimpleCacheErrorHandler
 
 @Configuration
 @EnableCaching
-class CacheConfig {
+class CacheConfig : CachingConfigurer {
 
     @Bean
     fun cacheManager(redisConnectionFactory: RedisConnectionFactory): CacheManager {
@@ -60,6 +63,33 @@ class CacheConfig {
             
         // Combine with Caffeine L1
         return TwoLevelCacheManager(redisCacheManager)
+    }
+
+    override fun errorHandler(): CacheErrorHandler {
+        return object : SimpleCacheErrorHandler() {
+            private val logger = org.slf4j.LoggerFactory.getLogger("CacheErrorHandler")
+            
+            override fun handleCacheGetError(exception: RuntimeException, cache: Cache, key: Any) {
+                logger.warn("Cache GET error for key {} in cache {}, treating as miss: {}", key, cache.name, exception.message)
+                try {
+                    cache.evict(key)
+                } catch (e: Exception) {
+                    // Ignore
+                }
+            }
+            
+            override fun handleCachePutError(exception: RuntimeException, cache: Cache, key: Any, value: Any?) {
+                logger.warn("Cache PUT error for key {} in cache {}: {}", key, cache.name, exception.message)
+            }
+            
+            override fun handleCacheEvictError(exception: RuntimeException, cache: Cache, key: Any) {
+                logger.warn("Cache EVICT error for key {} in cache {}: {}", key, cache.name, exception.message)
+            }
+            
+            override fun handleCacheClearError(exception: RuntimeException, cache: Cache) {
+                logger.warn("Cache CLEAR error in cache {}: {}", cache.name, exception.message)
+            }
+        }
     }
 }
 
@@ -98,11 +128,21 @@ class TwoLevelCache(
         if (localValue != null) return localValue
 
         // 2. Try L2 (Redis)
-        val remoteValue = remoteCache.get(key)
-        if (remoteValue != null) {
-            // Populate L1
-            localCache.put(key, remoteValue.get())
-            return remoteValue
+        try {
+            val remoteValue = remoteCache.get(key)
+            if (remoteValue != null) {
+                // Populate L1
+                localCache.put(key, remoteValue.get())
+                return remoteValue
+            }
+        } catch (e: Exception) {
+            org.slf4j.LoggerFactory.getLogger(TwoLevelCache::class.java)
+                .warn("Failed to deserialize from Redis cache for key {}, treating as cache miss: {}", key, e.message)
+            try {
+                remoteCache.evict(key)
+            } catch (evictEx: Exception) {
+                // ignore eviction failure
+            }
         }
         return null
     }

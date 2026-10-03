@@ -35,16 +35,20 @@ class PaymentWebhookController(
         val event = jsonPayload.optString("event")
 
         // Handle relevant events
-        if (event == "order.paid" || event == "payment.captured") {
-            val paymentEntity = jsonPayload.getJSONObject("payload").getJSONObject("payment").getJSONObject("entity")
-            val orderId = paymentEntity.getString("order_id")
-            
-            bookingService.markBookingConfirmed(orderId)
-        } else if (event == "payment.failed") {
-            val paymentEntity = jsonPayload.getJSONObject("payload").getJSONObject("payment").getJSONObject("entity")
-            val orderId = paymentEntity.getString("order_id")
-            
-            bookingService.markBookingCancelled(orderId)
+        try {
+            if (event == "order.paid" || event == "payment.captured") {
+                val paymentEntity = jsonPayload.getJSONObject("payload").getJSONObject("payment").getJSONObject("entity")
+                val orderId = paymentEntity.getString("order_id")
+                
+                bookingService.markBookingConfirmed(orderId)
+            } else if (event == "payment.failed") {
+                val paymentEntity = jsonPayload.getJSONObject("payload").getJSONObject("payment").getJSONObject("entity")
+                val orderId = paymentEntity.getString("order_id")
+                
+                bookingService.markBookingCancelled(orderId)
+            }
+        } catch (e: com.peakconnect.exception.ResourceNotFoundException) {
+            return ResponseEntity.badRequest().body(e.message)
         }
 
         return ResponseEntity.ok("OK")
