@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/payments")
 class PaymentWebhookController(
     private val bookingService: BookingService,
+    private val appMetricsService: com.peakconnect.metrics.AppMetricsService,
     @Value("\${razorpay.key-secret}") private val webhookSecret: String
 ) {
 
@@ -46,6 +47,7 @@ class PaymentWebhookController(
                 val orderId = paymentEntity.getString("order_id")
                 
                 bookingService.markBookingCancelled(orderId)
+                appMetricsService.recordBookingEvent("failure", "payment-failed")
             }
         } catch (e: com.peakconnect.exception.ResourceNotFoundException) {
             return ResponseEntity.badRequest().body(e.message)

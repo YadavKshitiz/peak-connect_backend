@@ -30,7 +30,8 @@ class BookingService(
     private val depositCalculator: DepositCalculator,
     private val paymentApiClient: PaymentApiClient,
     private val cancellationPolicyFactory: com.peakconnect.cancellation.CancellationPolicyFactory,
-    private val waitlistService: WaitlistService
+    private val waitlistService: WaitlistService,
+    private val appMetricsService: com.peakconnect.metrics.AppMetricsService
 ) {
 
     @Transactional(readOnly = true)
@@ -97,6 +98,7 @@ class BookingService(
         val savedBooking = bookingRepository.save(booking)
         
         waitlistService.markConfirmed(savedBooking.id!!)
+        appMetricsService.recordBookingEvent("success", "confirmed")
         
         return toBookingResponse(savedBooking)
     }
@@ -112,6 +114,7 @@ class BookingService(
         }
         
         booking.status = BookingStatus.CANCELLED
+        appMetricsService.recordBookingEvent("failure", "payment-failed")
         
         val slot = booking.slot
         if (slot.currentOccupancy > 0) {
@@ -302,6 +305,7 @@ class BookingService(
         // Rematch failed
         booking.guide = null
         booking.status = BookingStatus.REMATCH_FAILED
+        appMetricsService.recordBookingEvent("failure", "guide-declined-no-rematch")
 
         // Free slot capacity
         val slot = booking.slot

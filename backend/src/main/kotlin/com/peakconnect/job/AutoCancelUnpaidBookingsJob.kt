@@ -16,6 +16,7 @@ class AutoCancelUnpaidBookingsJob(
     private val bookingRepository: BookingRepository,
     private val slotRepository: SlotRepository,
     private val cacheManager: CacheManager,
+    private val appMetricsService: com.peakconnect.metrics.AppMetricsService,
     @Value("\${booking.payment-timeout-minutes:15}")
     private val paymentTimeoutMinutes: Long
 ) {
@@ -44,6 +45,7 @@ class AutoCancelUnpaidBookingsJob(
             }
             
             bookingRepository.save(booking)
+            appMetricsService.recordBookingEvent("failure", "auto-cancelled")
             
             // Evict guide availability cache for this slot
             guideAvailabilityCache?.evict(slot.id.toString())

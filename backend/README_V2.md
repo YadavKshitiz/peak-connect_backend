@@ -5,11 +5,21 @@
 To run PeakConnect V2 locally, you need the following infrastructure services running:
 1. **PostgreSQL** (Port 5432)
 2. **Redis** (Port 6379)
+3. **Prometheus** (Port 9090)
+4. **Grafana** (Port 3000)
 
 These are managed via `docker-compose.yml`. You can start them by running:
 ```bash
 docker compose up -d
 ```
+
+### Accessing Observability Stack Locally
+- **Grafana UI**: [http://localhost:3000](http://localhost:3000)
+  - **Default Username**: `admin`
+  - **Default Password**: `admin`
+  - Pre-provisioned Prometheus datasource and dashboards are ready out of the box in the `PeakConnect` folder.
+- **Prometheus UI**: [http://localhost:9090](http://localhost:9090)
+  - Scrapes the Spring Boot application at `http://host.docker.internal:8080/actuator/prometheus` every 15 seconds.
 
 ### Environment Variables
 The application relies on a `.env` file at the project root for secrets and configuration. It must contain the following variables:
@@ -48,7 +58,7 @@ mvn spring-boot:run
 - [x] Task 9: Guide Matching Additions
 - [x] Task 10: Advanced Guide Matching Rules
 - [x] Task 11: Admin Aggregate-Stats Endpoints
-- [ ] Task 12: Analytics & Metrics Setup
+- [x] Task 12: Observability & Metrics Setup (Prometheus + Grafana)
 - [ ] Task 13: End-to-End Testing & QA
 - [ ] Task 14: Containerization & Deployment Setup
 
@@ -215,3 +225,67 @@ PeakConnect V2 includes new internal endpoints to power a future operational das
 2. **`GET /api/admin/stats/cache-hit-rate`**: Returns absolute hits, misses, and the overall hit rate (0.0 to 1.0) derived directly from custom `AtomicLong` counters embedded within the Two-Level Cache architecture.
 3. **`GET /api/admin/stats/waitlists`**: Returns the count of waitlist entries currently in `WAITING` or `PROMOTED` status, broken down by `Slot ID`.
 4. **`GET /api/admin/stats/guide-responses`**: Analyzes the historical interaction of guides across all bookings (including declined/timed-out historical assignments preserved in the `declinedGuideIds` / `timedOutGuideIds` collections) to provide an aggregate `acceptRate` and `declineRate`.
+
+---
+
+## Observability & Metrics Setup (Task 12)
+PeakConnect V2 includes a production-grade observability and metrics stack using **Micrometer**, **Prometheus**, and **Grafana**.
+
+### Custom Micrometer Metrics Added
+1. **`booking.events` (Counter)**:
+   - Tracks booking lifecycle outcomes.
+   - Tags:
+     - `status`: `"success"` or `"failure"`
+     - `reason`:
+       - `"confirmed"`: Recorded when a booking payment is completed via Razorpay webhook.
+       - `"payment-failed"`: Recorded when Razorpay webhook issues a payment failure event.
+       - `"auto-cancelled"`: Recorded when `AutoCancelUnpaidBookingsJob` auto-cancels unpaid bookings.
+       - `"guide-declined-no-rematch"`: Recorded when auto-rematch exhaust all available guides and fails.
+2. **`booking.endpoint.latency` (Timer)**:
+   - Measures latency and throughput for booking API endpoints with p50/p95 percentiles and histogram buckets.
+   - Tag: `endpoint` (`"request"`, `"confirm"`, `"my"`, `"cancel"`, `"no-show"`, `"accept"`, `"decline"`, `"waitlist"`).
+3. **`cache.requests` (Counter)**:
+   - Reuses and extends Task 2 / Task 11's two-level cache (`TwoLevelCache`) without duplicating logic.
+   - Tags:
+     - `cache`: Cache name (`"riskCache"`, `"guideAvailabilityCache"`, `"priceCache"`).
+     - `result`: `"hit"` or `"miss"`.
+4. **`external.api.latency` (Timer)**:
+   - Measures external partner latency, call counts, and failure rates with p50/p95 percentiles.
+   - Tags:
+     - `api`: `"weather"` (OpenWeatherMap), `"osrm"` (OSRM routing), `"payment"` (Razorpay).
+     - `status`: `"success"` or `"error"`.
+5. **Circuit Breakers & Retries (Resilience4j + Micrometer)**:
+   - Pre-initializes circuit breakers (`weatherApi`, `osrmApi`, `paymentApi`) at application startup.
+   - Publishes gauges: `resilience4j_circuitbreaker_state` (1 for current state: CLOSED, OPEN, HALF_OPEN), `resilience4j_circuitbreaker_failure_rate`, and call counts.
+   - Logs state transition events in application logs.
+
+### Docker Compose Services Added
+- **`prometheus`**:
+  - Image: `prom/prometheus:latest` on port `9090`.
+  - Scrapes `/actuator/prometheus` on a 15-second interval via host gateway (`host.docker.internal:8080`).
+- **`grafana`**:
+  - Image: `grafana/grafana:latest` on port `3000`.
+  - Credentials: `admin` / `admin`.
+  - Configured with automated datasource provisioning pointing to Prometheus.
+  - Automatically loads pre-built dashboards on container startup.
+
+### Provisioned Grafana Dashboards
+Dashboards are stored in `grafana/dashboards/` and pre-loaded into the **PeakConnect** folder:
+
+1. **Dashboard 1: "Booking & Cache Health"** (`peakconnect-booking-cache-health`):
+   - **Booking Success vs Failure Rate Over Time** (*Time Series*): Real-time rate of confirmed bookings vs failures broken down by failure reason.
+   - **Total Booking Events by Reason** (*Stat*): Aggregate distribution of booking outcomes (`confirmed`, `payment-failed`, `auto-cancelled`, `guide-declined-no-rematch`).
+   - **Cache Hit Ratio per Cache (%)** (*Time Series*): Percentage hit rates for `riskCache`, `guideAvailabilityCache`, and `priceCache`.
+   - **Cache Request Volume (Hits vs Misses)** (*Time Series*): Absolute request throughput showing hits vs misses.
+   - **Circuit Breaker Current States** (*Stat*): Real-time state indicator for `weatherApi`, `osrmApi`, and `paymentApi` (CLOSED = Healthy).
+   - **Circuit Breaker Failure Rate (%)** (*Time Series*): Failure rate percentages tracked against circuit breaker thresholds.
+
+2. **Dashboard 2: "API Latency & Load"** (`peakconnect-api-latency-load`):
+   - **Booking Endpoint Latency (p50 / p95 in ms)** (*Time Series*): 50th and 95th percentile response times per booking action.
+   - **Booking Endpoint Request Rate (req/sec)** (*Time Series*): Throughput volume per booking action.
+   - **External API Call Latency (Weather / OSRM / Payment)** (*Time Series*): Average and p95 latency for partner integrations.
+   - **External API Call Rate & Errors** (*Time Series*): Success and error rates for partner integrations.
+   - **System-wide HTTP Request Rate by Status** (*Time Series*): HTTP request rates categorized by response status code (2xx, 4xx, 5xx).
+   - **System-wide HTTP Latency (p50 / p95 in ms)** (*Time Series*): Overall application response time distribution.
+
+*Note on Data Visualization:* Metrics are generated dynamically as users navigate activities, request/confirm bookings, or when webhooks/jobs execute. Real dashboard charts update within seconds of requests being processed.

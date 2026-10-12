@@ -56,10 +56,25 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,metrics
+        include: health,metrics,prometheus
   endpoint:
     health:
       show-details: always
+    prometheus:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+        booking.endpoint.latency: true
+        external.api.latency: true
+      percentiles:
+        booking.endpoint.latency: 0.5, 0.95
+        external.api.latency: 0.5, 0.95
+        http.server.requests: 0.5, 0.95
 
 resilience4j.circuitbreaker:
   instances:

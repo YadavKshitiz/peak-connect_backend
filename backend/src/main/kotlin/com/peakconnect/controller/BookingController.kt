@@ -16,7 +16,8 @@ import java.util.UUID
 class BookingController(
     private val bookingService: BookingService,
     private val waitlistService: com.peakconnect.service.WaitlistService,
-    private val demandTrackerService: com.peakconnect.pricing.DemandTrackerService
+    private val demandTrackerService: com.peakconnect.pricing.DemandTrackerService,
+    private val appMetricsService: com.peakconnect.metrics.AppMetricsService
 ) {
 
     @PostMapping("/request")
@@ -25,8 +26,10 @@ class BookingController(
         @RequestBody request: BookingRequestDto,
         principal: Principal
     ): ResponseEntity<List<MatchedGuideResponse>> {
-        demandTrackerService.trackSlotView(request.slotId)
-        return ResponseEntity.ok(bookingService.requestBooking(request, principal.name))
+        return appMetricsService.timeBookingEndpoint("request") {
+            demandTrackerService.trackSlotView(request.slotId)
+            ResponseEntity.ok(bookingService.requestBooking(request, principal.name))
+        }
     }
 
     @PostMapping("/confirm")
@@ -35,13 +38,17 @@ class BookingController(
         @RequestBody request: BookingConfirmDto,
         principal: Principal
     ): ResponseEntity<BookingResponse> {
-        return ResponseEntity.ok(bookingService.confirmBooking(request, principal.name))
+        return appMetricsService.timeBookingEndpoint("confirm") {
+            ResponseEntity.ok(bookingService.confirmBooking(request, principal.name))
+        }
     }
 
     @GetMapping("/my")
     @PreAuthorize("hasRole('TREKKER')")
     fun getMyBookings(principal: Principal): ResponseEntity<List<BookingResponse>> {
-        return ResponseEntity.ok(bookingService.getMyBookings(principal.name))
+        return appMetricsService.timeBookingEndpoint("my") {
+            ResponseEntity.ok(bookingService.getMyBookings(principal.name))
+        }
     }
 
     @PostMapping("/{id}/cancel")
@@ -50,7 +57,9 @@ class BookingController(
         @PathVariable id: UUID,
         principal: Principal
     ): ResponseEntity<BookingResponse> {
-        return ResponseEntity.ok(bookingService.cancelBooking(id, principal.name))
+        return appMetricsService.timeBookingEndpoint("cancel") {
+            ResponseEntity.ok(bookingService.cancelBooking(id, principal.name))
+        }
     }
 
     @PostMapping("/{id}/no-show")
@@ -59,7 +68,9 @@ class BookingController(
         @PathVariable id: UUID,
         principal: Principal
     ): ResponseEntity<BookingResponse> {
-        return ResponseEntity.ok(bookingService.markNoShow(id, principal.name))
+        return appMetricsService.timeBookingEndpoint("no-show") {
+            ResponseEntity.ok(bookingService.markNoShow(id, principal.name))
+        }
     }
 
     @PostMapping("/{id}/accept")
@@ -68,7 +79,9 @@ class BookingController(
         @PathVariable id: UUID,
         principal: Principal
     ): ResponseEntity<BookingResponse> {
-        return ResponseEntity.ok(bookingService.acceptBooking(id, principal.name))
+        return appMetricsService.timeBookingEndpoint("accept") {
+            ResponseEntity.ok(bookingService.acceptBooking(id, principal.name))
+        }
     }
 
     @PostMapping("/{id}/decline")
@@ -77,7 +90,9 @@ class BookingController(
         @PathVariable id: UUID,
         principal: Principal
     ): ResponseEntity<BookingResponse> {
-        return ResponseEntity.ok(bookingService.declineBooking(id, principal.name))
+        return appMetricsService.timeBookingEndpoint("decline") {
+            ResponseEntity.ok(bookingService.declineBooking(id, principal.name))
+        }
     }
 
     @PostMapping("/waitlist")
@@ -86,7 +101,9 @@ class BookingController(
         @RequestBody request: BookingConfirmDto,
         principal: Principal
     ): ResponseEntity<Map<String, String>> {
-        waitlistService.joinWaitlist(request, principal.name)
-        return ResponseEntity.ok(mapOf("message" to "Successfully joined waitlist"))
+        return appMetricsService.timeBookingEndpoint("waitlist") {
+            waitlistService.joinWaitlist(request, principal.name)
+            ResponseEntity.ok(mapOf("message" to "Successfully joined waitlist"))
+        }
     }
 }

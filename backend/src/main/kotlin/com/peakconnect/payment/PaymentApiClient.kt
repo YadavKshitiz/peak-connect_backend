@@ -12,7 +12,8 @@ import java.util.UUID
 @Component
 class PaymentApiClient(
     @Value("\${razorpay.key-id}") private val keyId: String,
-    @Value("\${razorpay.key-secret}") private val keySecret: String
+    @Value("\${razorpay.key-secret}") private val keySecret: String,
+    private val appMetricsService: com.peakconnect.metrics.AppMetricsService
 ) {
 
     private val razorpayClient: RazorpayClient by lazy {
@@ -22,15 +23,17 @@ class PaymentApiClient(
     @CircuitBreaker(name = "paymentApi", fallbackMethod = "createOrderFallback")
     @Retry(name = "paymentApi")
     fun createOrder(amount: Double): String {
-        val amountInPaise = (amount * 100).toLong()
-        val orderRequest = JSONObject().apply {
-            put("amount", amountInPaise)
-            put("currency", "INR")
-            put("receipt", "txn_${UUID.randomUUID().toString().substring(0, 8)}")
-        }
+        return appMetricsService.timeExternalApi("payment") {
+            val amountInPaise = (amount * 100).toLong()
+            val orderRequest = JSONObject().apply {
+                put("amount", amountInPaise)
+                put("currency", "INR")
+                put("receipt", "txn_${UUID.randomUUID().toString().substring(0, 8)}")
+            }
 
-        val order: Order = razorpayClient.orders.create(orderRequest)
-        return order.get("id")
+            val order: Order = razorpayClient.orders.create(orderRequest)
+            order.get("id")
+        }
     }
 
     fun createOrderFallback(amount: Double, t: Throwable): String {

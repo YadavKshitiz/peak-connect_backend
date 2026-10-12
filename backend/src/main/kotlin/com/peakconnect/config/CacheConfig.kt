@@ -33,7 +33,9 @@ import org.springframework.cache.interceptor.SimpleCacheErrorHandler
 
 @Configuration
 @EnableCaching
-class CacheConfig : CachingConfigurer {
+class CacheConfig(
+    private val meterRegistry: io.micrometer.core.instrument.MeterRegistry
+) : CachingConfigurer {
 
     @Bean
     fun cacheManager(redisConnectionFactory: RedisConnectionFactory): CacheManager {
@@ -62,7 +64,7 @@ class CacheConfig : CachingConfigurer {
             .build()
             
         // Combine with Caffeine L1
-        return TwoLevelCacheManager(redisCacheManager)
+        return TwoLevelCacheManager(redisCacheManager, meterRegistry)
     }
 
     override fun errorHandler(): CacheErrorHandler {
@@ -93,7 +95,10 @@ class CacheConfig : CachingConfigurer {
     }
 }
 
-class TwoLevelCacheManager(private val redisCacheManager: RedisCacheManager) : CacheManager {
+class TwoLevelCacheManager(
+    private val redisCacheManager: RedisCacheManager,
+    private val meterRegistry: io.micrometer.core.instrument.MeterRegistry
+) : CacheManager {
     private val caches = ConcurrentHashMap<String, Cache>()
 
     override fun getCache(name: String): Cache? {
@@ -104,7 +109,7 @@ class TwoLevelCacheManager(private val redisCacheManager: RedisCacheManager) : C
                 name,
                 Caffeine.newBuilder().expireAfterWrite(Duration.ofSeconds(30)).maximumSize(1000).build()
             )
-            TwoLevelCache(name, caffeineCache, redisCache)
+            TwoLevelCache(name, caffeineCache, redisCache, meterRegistry)
         }
     }
 
@@ -116,11 +121,15 @@ class TwoLevelCacheManager(private val redisCacheManager: RedisCacheManager) : C
 class TwoLevelCache(
     private val cacheName: String,
     private val localCache: Cache,
-    private val remoteCache: Cache
+    private val remoteCache: Cache,
+    private val meterRegistry: io.micrometer.core.instrument.MeterRegistry? = null
 ) : Cache {
 
     var hits = java.util.concurrent.atomic.AtomicLong(0)
     var misses = java.util.concurrent.atomic.AtomicLong(0)
+
+    private val hitCounter = meterRegistry?.counter("cache.requests", "cache", cacheName, "result", "hit")
+    private val missCounter = meterRegistry?.counter("cache.requests", "cache", cacheName, "result", "miss")
 
     override fun getName() = cacheName
     override fun getNativeCache() = this
@@ -130,6 +139,7 @@ class TwoLevelCache(
         val localValue = localCache.get(key)
         if (localValue != null) {
             hits.incrementAndGet()
+            hitCounter?.increment()
             return localValue
         }
 
@@ -140,6 +150,7 @@ class TwoLevelCache(
                 // Populate L1
                 localCache.put(key, remoteValue.get())
                 hits.incrementAndGet()
+                hitCounter?.increment()
                 return remoteValue
             }
         } catch (e: Exception) {
@@ -152,6 +163,7 @@ class TwoLevelCache(
             }
         }
         misses.incrementAndGet()
+        missCounter?.increment()
         return null
     }
 

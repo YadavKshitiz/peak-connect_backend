@@ -7,7 +7,8 @@ import org.springframework.web.client.RestClientException
 
 @Component
 class WeatherClient(
-    @Value("\${openweathermap.api-key}") private val apiKey: String
+    @Value("\${openweathermap.api-key}") private val apiKey: String,
+    private val appMetricsService: com.peakconnect.metrics.AppMetricsService
 ) {
     private val restTemplate = RestTemplate()
     // Using a configurable base URL so it can be overridden for testing
@@ -15,11 +16,15 @@ class WeatherClient(
     private lateinit var baseUrl: String
 
     fun getWeather(location: String): WeatherData? {
+        val start = System.nanoTime()
         return try {
             val url = "$baseUrl?q=$location&appid=$apiKey&units=metric"
-            restTemplate.getForObject(url, WeatherData::class.java)
+            val result = restTemplate.getForObject(url, WeatherData::class.java)
+            appMetricsService.recordExternalApiCall("weather", "success", System.nanoTime() - start)
+            result
         } catch (e: RestClientException) {
             println("Weather API call failed: ${e.message}")
+            appMetricsService.recordExternalApiCall("weather", "error", System.nanoTime() - start)
             null // Handle gracefully for V1
         }
     }
