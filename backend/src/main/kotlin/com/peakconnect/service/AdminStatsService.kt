@@ -97,14 +97,19 @@ class AdminStatsService(
         
         allBookings.forEach { booking ->
             // Current assignment count (if they accepted it or still pending)
-            if (booking.status != BookingStatus.PENDING) {
-                if (booking.status == BookingStatus.AWAITING_PAYMENT || booking.status == BookingStatus.CONFIRMED || booking.status == BookingStatus.CANCELLED || booking.status == BookingStatus.NO_SHOW) {
-                     // The guide accepted the booking to advance it past PENDING_GUIDE_RESPONSE
-                     totalAssignments++
-                     totalAccepted++
-                } else if (booking.status == BookingStatus.PENDING_GUIDE_RESPONSE) {
-                     totalAssignments++
-                }
+            val isAccepted = booking.guideAcceptedAt != null ||
+                booking.status == BookingStatus.AWAITING_PAYMENT ||
+                booking.status == BookingStatus.CONFIRMED ||
+                booking.status == BookingStatus.NO_SHOW ||
+                (booking.status == BookingStatus.CANCELLED && (booking.depositAmount != null || booking.paymentOrderId != null))
+
+            if (isAccepted) {
+                // The guide accepted the booking
+                totalAssignments++
+                totalAccepted++
+            } else if (booking.status == BookingStatus.PENDING_GUIDE_RESPONSE) {
+                // Currently pending guide response
+                totalAssignments++
             }
             
             // Add historical declines and timeouts

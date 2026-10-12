@@ -245,6 +245,7 @@ class BookingService(
         booking.status = BookingStatus.AWAITING_PAYMENT
         booking.paymentOrderId = orderId
         booking.depositAmount = depositAmount
+        booking.guideAcceptedAt = java.time.LocalDateTime.now()
 
         val savedBooking = bookingRepository.save(booking)
         return toBookingResponse(savedBooking).copy(depositAmount = depositAmount)

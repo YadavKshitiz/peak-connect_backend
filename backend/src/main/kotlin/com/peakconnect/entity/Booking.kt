@@ -54,6 +54,9 @@ class Booking(
     @Column(name = "last_guide_assigned_at")
     var lastGuideAssignedAt: LocalDateTime? = null,
 
+    @Column(name = "guide_accepted_at")
+    var guideAcceptedAt: LocalDateTime? = null,
+
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "booking_declined_guides", joinColumns = [JoinColumn(name = "booking_id")])
     @Column(name = "guide_id")
