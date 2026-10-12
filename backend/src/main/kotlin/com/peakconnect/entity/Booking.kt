@@ -57,5 +57,10 @@ class Booking(
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "booking_declined_guides", joinColumns = [JoinColumn(name = "booking_id")])
     @Column(name = "guide_id")
-    var declinedGuideIds: MutableSet<UUID> = mutableSetOf()
+    var declinedGuideIds: MutableSet<UUID> = mutableSetOf(),
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "booking_timed_out_guides", joinColumns = [JoinColumn(name = "booking_id")])
+    @Column(name = "guide_id")
+    var timedOutGuideIds: MutableSet<UUID> = mutableSetOf()
 )

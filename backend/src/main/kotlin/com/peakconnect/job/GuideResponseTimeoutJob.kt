@@ -35,6 +35,10 @@ class GuideResponseTimeoutJob(
                     val newSet = booking.declinedGuideIds.toMutableSet()
                     newSet.add(booking.guide!!.id!!)
                     booking.declinedGuideIds = newSet
+
+                    val newTimedOutSet = booking.timedOutGuideIds.toMutableSet()
+                    newTimedOutSet.add(booking.guide!!.id!!)
+                    booking.timedOutGuideIds = newTimedOutSet
                 }
                 bookingService.rematchGuide(booking)
                 bookingRepository.saveAndFlush(booking)

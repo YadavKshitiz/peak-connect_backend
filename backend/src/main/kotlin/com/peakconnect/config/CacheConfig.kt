@@ -119,13 +119,19 @@ class TwoLevelCache(
     private val remoteCache: Cache
 ) : Cache {
 
+    var hits = java.util.concurrent.atomic.AtomicLong(0)
+    var misses = java.util.concurrent.atomic.AtomicLong(0)
+
     override fun getName() = cacheName
     override fun getNativeCache() = this
 
     override fun get(key: Any): Cache.ValueWrapper? {
         // 1. Try L1 (Caffeine)
         val localValue = localCache.get(key)
-        if (localValue != null) return localValue
+        if (localValue != null) {
+            hits.incrementAndGet()
+            return localValue
+        }
 
         // 2. Try L2 (Redis)
         try {
@@ -133,6 +139,7 @@ class TwoLevelCache(
             if (remoteValue != null) {
                 // Populate L1
                 localCache.put(key, remoteValue.get())
+                hits.incrementAndGet()
                 return remoteValue
             }
         } catch (e: Exception) {
@@ -144,6 +151,7 @@ class TwoLevelCache(
                 // ignore eviction failure
             }
         }
+        misses.incrementAndGet()
         return null
     }
 

@@ -47,7 +47,7 @@ mvn spring-boot:run
 - [x] Task 8: Activity Discovery & Caching Implementation
 - [x] Task 9: Guide Matching Additions
 - [x] Task 10: Advanced Guide Matching Rules
-- [ ] Task 11: Dynamic Pricing & Discount Strategies
+- [x] Task 11: Admin Aggregate-Stats Endpoints
 - [ ] Task 12: Analytics & Metrics Setup
 - [ ] Task 13: End-to-End Testing & QA
 - [ ] Task 14: Containerization & Deployment Setup
@@ -204,3 +204,14 @@ PeakConnect V2 adds interactive guide assignments to the previously read-only bo
 - **Manual Decline (`/decline`)**: If a guide declines, their ID is saved to the booking's `declinedGuideIds` list. The system then automatically triggers `rematchGuide`, reusing the `HybridMatcher` (with V1 default weights) to find the next best available guide, excluding the declined guides. The new guide is assigned and status resets to `PENDING_GUIDE_RESPONSE`.
 - **Auto-Decline (Timeout)**: The `GuideResponseTimeoutJob` runs periodically to scan for bookings in `PENDING_GUIDE_RESPONSE` older than `guide.response-timeout-minutes` (default: 20 minutes). If found, the guide is automatically considered declined, added to the exclusion list, and the same auto-rematch logic fires.
 - **Failure**: If no other guides are available during a rematch, the booking status falls to `REMATCH_FAILED`, awaiting manual admin/trekker intervention.
+
+---
+
+## Admin Aggregate-Stats Endpoints (Task 11)
+PeakConnect V2 includes new internal endpoints to power a future operational dashboard. These endpoints summarize daily activity and operational health. All endpoints require the `ADMIN` role.
+
+### Endpoints Added:
+1. **`GET /api/admin/stats/bookings-today`**: Returns the count of bookings created and the subset that are confirmed within the current calendar day.
+2. **`GET /api/admin/stats/cache-hit-rate`**: Returns absolute hits, misses, and the overall hit rate (0.0 to 1.0) derived directly from custom `AtomicLong` counters embedded within the Two-Level Cache architecture.
+3. **`GET /api/admin/stats/waitlists`**: Returns the count of waitlist entries currently in `WAITING` or `PROMOTED` status, broken down by `Slot ID`.
+4. **`GET /api/admin/stats/guide-responses`**: Analyzes the historical interaction of guides across all bookings (including declined/timed-out historical assignments preserved in the `declinedGuideIds` / `timedOutGuideIds` collections) to provide an aggregate `acceptRate` and `declineRate`.
