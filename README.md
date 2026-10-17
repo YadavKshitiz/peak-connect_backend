@@ -310,7 +310,7 @@ curl http://localhost:8080/actuator/health
 
 ## 👤 Author
 
-- **Name**: [Your Name]
+- **Name**: [Kshitiz Yadav]
 - **GitHub**: [@YourGitHubProfile](https://github.com/YadavKshitiz)
 - **LinkedIn**: [Your LinkedIn Profile](https://linkedin.com/in/)
 
