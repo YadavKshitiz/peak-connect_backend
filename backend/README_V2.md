@@ -1,5 +1,11 @@
 # PeakConnect V2
 
+> [!NOTE]
+> ### V2 Part 1 (Backend) — COMPLETE
+> - **Live Deployment URL:** [https://peak-connect-backend.onrender.com](https://peak-connect-backend.onrender.com)
+> - **Completion Date:** October 17, 2026
+> - **Status:** Fully integrated, containerized, and deployed to Render Free with Neon PostgreSQL and Upstash Redis. Verified with live regression, dynamic pricing/weather risk caching, guide matching, pessimistic write locking, Razorpay test webhooks, and tiered cancellation.
+
 ## Infrastructure & Local Setup
 
 To run PeakConnect V2 locally, you need the following infrastructure services running:
@@ -60,7 +66,7 @@ mvn spring-boot:run
 - [x] Task 11: Admin Aggregate-Stats Endpoints
 - [x] Task 12: Observability & Metrics Setup (Prometheus + Grafana)
 - [x] Task 13: Concurrency & Load Testing (k6)
-- [ ] Task 14: Containerization & Deployment Setup
+- [x] Task 14: Containerization & Deployment Setup (Render + Neon + Upstash)
 
 ---
 
@@ -93,7 +99,11 @@ PeakConnect V2 uses Spring `@Scheduled` background jobs to proactively manage ca
 ---
 
 ## Known Limitations
-- **Database Migrations:** Currently, the project relies on Hibernate's `ddl-auto=update` for schema management and lacks a dedicated migration tool like Flyway or Liquibase. While `ddl-auto` adds new columns, it does **not** automatically update existing `CHECK` constraints (e.g., when adding `AWAITING_PAYMENT` to `BookingStatus`). Schema-level constraint updates require manual `ALTER TABLE` intervention on existing databases. We plan to integrate Flyway before production deployment (Task 14) to properly address this.
+- **Cold Starts & Sleep Behavior (Render Free):** Free web services sleep automatically after ~15 minutes of inactivity. The initial incoming HTTP request after an idle window experiences a 45–60 second cold start latency while compute resumes. Spring background scheduled jobs (`WeatherRefreshJob`, `AutoCancelUnpaidBookingsJob`, `WaitlistExpiryJob`, `GuideResponseTimeoutJob`) run only while the container instance is awake, and catch up on their next designated tick once awakened.
+- **Free-Tier Limits & Ephemeral Neon Storage:** Neon PostgreSQL (0.5 GiB limit, compute autosuspends on idle) and Upstash Redis (10,000 commands/day). Long idle stretches may cause cloud platforms to pause branches, so free-tier cloud data should be considered non-permanent.
+- **Admin Registration Endpoint Exposure:** While `AuthService` rejects registration requests specifying `Role.ADMIN`, user registration via the public `/api/auth/register` endpoint allows open self-registration for `TREKKER` and `GUIDE`. Role assignment and administrative privileges should be migrated to an invitation/approval token system before distributing the production URL broadly.
+- **Public OSRM Demo Server:** Distance calculations in `LocationMatcher` rely on the public OSRM demo API (`https://router.project-osrm.org`), which is unauthenticated and intended strictly for light demonstration traffic; high request volumes will be rate-limited.
+- **Database Migrations:** Currently, the project relies on Hibernate's `ddl-auto=update` for schema management and lacks a dedicated migration tool like Flyway or Liquibase. While `ddl-auto` adds new columns, it does not automatically update existing `CHECK` constraints on modified enums. Schema migrations with Flyway are recommended for future long-term production evolution.
 
 ---
 
