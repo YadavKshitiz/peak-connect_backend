@@ -1,21 +1,72 @@
+server:
+  port: ${PORT:8080}
+
 spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      idle-timeout: 300000          # 5 minutes
+      max-lifetime: 600000          # 10 minutes (prevents stale connections when Neon compute suspends)
+      connection-timeout: 30000     # 30 seconds (tolerates Neon cold-start wake-up latency)
+      keepalive-time: 60000         # 1 minute keep-alive ping
+  jpa:
+    hibernate:
+      ddl-auto: update              # Automatically builds schema on fresh Neon DB and preserves data across restarts
+    show-sql: false                 # Prevent noisy SQL log outputs in cloud logs
+    properties:
+      hibernate:
+        format_sql: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
   data:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      ssl:
+        enabled: ${REDIS_SSL:true}  # Required for Upstash Redis cloud instances
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 5
+          max-idle: 5
+          min-idle: 1
+        shutdown-timeout: 2000ms
   cache:
     type: redis
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: 86400000
+
+openweathermap:
+  api-key: ${OPENWEATHER_API_KEY}
+  url: ${OPENWEATHER_URL:https://api.openweathermap.org/data/2.5/weather}
+
+osrm:
+  base-url: ${OSRM_BASE_URL:https://router.project-osrm.org}
 
 razorpay:
   key-id: ${RAZORPAY_KEY_ID}
   key-secret: ${RAZORPAY_KEY_SECRET}
 
-google:
-  maps:
-    api-key: ${GOOGLE_MAPS_API_KEY}
-
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus,metrics
+        include: health,info       # In production on Render Free (public internet), expose ONLY health and info
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+    prometheus:
+      enabled: false               # Disabled to avoid exposing business metrics publicly
+  metrics:
+    export:
+      prometheus:
+        enabled: false

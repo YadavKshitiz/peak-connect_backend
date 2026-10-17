@@ -41,3 +41,4 @@ application-local.yml
 *.log
 test_vars.sh
 load-test/test-config.json
+.env.prod

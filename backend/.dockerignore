@@ -1,0 +1,16 @@
+target/
+.git
+.gitignore
+*.md
+.env*
+test_vars.sh
+load-test/
+grafana/
+prometheus/
+owm_mock.py
+update_postman.py
+*.sh
+*.json
+.idea
+.vscode
+.DS_Store

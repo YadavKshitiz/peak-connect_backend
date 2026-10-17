@@ -309,3 +309,164 @@ The pessimistic write locking constraint on the booking endpoint passed the conc
    k6 run load-test/booking-load-test.js
    ```
 
+---
+
+## Deploying V2 Part 1 Backend (Render + Neon + Upstash)
+
+This section provides the end-to-end guide for deploying the PeakConnect V2 backend to Render Free Web Service, backed by Neon PostgreSQL Free and Upstash Redis Free.
+
+### Architecture & Infrastructure Stack
+- **Compute:** Render Web Service (Free tier, 512 MB RAM, Docker runtime).
+- **Relational Database:** Neon PostgreSQL (Free tier, direct non-pooled connection, SSL required).
+- **Distributed Cache:** Upstash Redis (Free tier, TLS required, token-based auth).
+- **Payment Gateway:** Razorpay (Test mode).
+- **External Integrations:** OpenWeatherMap API & OSRM public demo routing (`router.project-osrm.org`).
+- **Observability:** Prometheus & Grafana remain local-development only (Task 12). In production, `/actuator/prometheus` and `/actuator/metrics` are intentionally disabled to protect sensitive business and system telemetry on Render's public network; only `/actuator/health` and `/actuator/info` are exposed.
+
+### Render Free Resource Constraints & Behaviors
+1. **Instance Sleep & Cold Starts:** On Render Free, instances spin down after 15 minutes of inbound HTTP inactivity. The first request after a sleep period may take 45–60 seconds while the container and database compute awake. Subsequent requests respond with sub-50ms latency.
+2. **Scheduled Background Jobs:** Spring `@Scheduled` background jobs (`WeatherRefreshJob`, `AutoCancelUnpaidBookingsJob`, `WaitlistExpiryJob`, `GuideResponseTimeoutJob`) run only while the instance is awake. When the service awakens from sleep upon incoming traffic, the scheduled jobs catch up on their next designated tick.
+3. **Database Idle Suspension (Neon):** Neon automatically suspends compute when idle. The HikariCP connection pool is configured with `connection-timeout: 30000` (30 seconds) and `max-lifetime: 600000` (10 minutes) so connections re-establish smoothly without timeout exceptions.
+4. **Free Tier Quota Management:** Neon provides 0.5 GiB storage and Upstash provides 10,000 requests/day on their free tiers. Avoid upgrading plans; monitor dashboards periodically.
+
+---
+
+### Step-by-Step Deployment Instructions
+
+#### 1. Provision Cloud Databases
+1. **Neon PostgreSQL**:
+   - Create a free project on [neon.tech](https://neon.tech).
+   - Copy the direct connection string. Ensure it uses JDBC format with SSL mode:
+     `jdbc:postgresql://<neon-hostname>/neondb?sslmode=require`
+   - Note the database username and password.
+2. **Upstash Redis**:
+   - Create a free Redis database on [upstash.com](https://upstash.com).
+   - Ensure **TLS (SSL)** is enabled.
+   - Note the endpoint hostname (`<endpoint>.upstash.io`), port (`6379`), and password.
+
+#### 2. Create Render Web Service
+1. Log in to [render.com](https://render.com) and click **New + > Web Service**.
+2. Connect your GitHub repository (`PeakConnect`).
+3. Configure service settings:
+   - **Name:** `peakconnect-backend` (or your chosen service name)
+   - **Branch:** `v2-part1-backend`
+   - **Root Directory:** `backend` *(CRITICAL: The Spring Boot Maven project and Dockerfile live in `backend/`)*
+   - **Runtime:** `Docker`
+   - **Instance Type:** `Free`
+   - **Health Check Path:** `/actuator/health`
+
+#### 3. Configure Environment Variables in Render
+Under the **Environment** tab of your Render Web Service, add the following environment variables (values should match your cloud credentials):
+
+| Render Environment Variable | Source / Mapping from Local `.env` | Description |
+| :--- | :--- | :--- |
+| `SPRING_PROFILES_ACTIVE` | `prod` | Activates `application-prod.yml` configuration |
+| `DB_URL` | `DB_URL` | Neon JDBC URL (`jdbc:postgresql://.../neondb?sslmode=require`) |
+| `DB_USERNAME` | `DB_USERNAME` | Neon database username |
+| `DB_PASSWORD` | `DB_PASSWORD` | Neon database password |
+| `REDIS_HOST` | `REDIS_HOST` | Upstash Redis host (`...upstash.io`) |
+| `REDIS_PORT` | `REDIS_PORT` | Upstash Redis port (`6379`) |
+| `REDIS_PASSWORD` | *(New for Cloud)* | Upstash Redis password / token |
+| `REDIS_SSL` | `true` | Enforces TLS connection to Upstash Redis |
+| `JWT_SECRET` | `JWT_SECRET` | 256/384-bit secret for signing JWT tokens |
+| `OPENWEATHER_API_KEY` | `OPENWEATHER_API_KEY` | OpenWeatherMap API key |
+| `OSRM_BASE_URL` | `OSRM_BASE_URL` | `https://router.project-osrm.org` |
+| `RAZORPAY_KEY_ID` | `RAZORPAY_KEY_ID` | Razorpay Test Key ID (`rzp_test_...`) |
+| `RAZORPAY_KEY_SECRET` | `RAZORPAY_KEY_SECRET` | Razorpay Test Key Secret (also used for webhook signatures) |
+| `JAVA_OPTS` | *(Optional)* | Memory flags for 512MB RAM: `-XX:MaxRAMPercentage=75.0 -XX:+ExitOnOutOfMemoryError -XX:+UseG1GC` |
+
+*(Note: Render automatically injects `PORT=10000`, which our `Dockerfile` and `application-prod.yml` read via `${PORT:8080}`)*
+
+#### 4. Configure Razorpay Webhook
+1. Go to [Razorpay Dashboard](https://dashboard.razorpay.com/) > **Settings** > **Webhooks**.
+2. Click **Add New Webhook**:
+   - **Webhook URL:** `https://<your-render-service-url>.onrender.com/api/payments/webhook`
+   - **Secret:** Enter the exact value set in `RAZORPAY_KEY_SECRET`.
+   - **Active Events:** Check `order.paid`, `payment.captured`, and `payment.failed`.
+3. Save the webhook.
+
+---
+
+## First-Run Data Setup (Empty Production Database)
+
+When deploying to a fresh Neon database for the first time, Hibernate automatically builds the schema tables via `ddl-auto: update`, and the Spring Boot `DataSeeder` creates the initial administrator account.
+
+Follow these steps using the existing REST endpoints to populate the system:
+
+### 1. Authenticate as the Default Administrator
+The default administrator is automatically initialized on the first boot:
+```bash
+curl -X POST https://<your-render-url>/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@example.com", "password": "admin123"}'
+```
+*Save the returned `token` as `ADMIN_TOKEN`.*
+
+### 2. Create the First Activity
+```bash
+curl -X POST https://<your-render-url>/api/admin/activities \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Hampta Pass Trek",
+    "description": "High altitude Himalayan pass connecting Kullu and Lahaul valleys.",
+    "location": "Manali",
+    "latitude": 32.2432,
+    "longitude": 77.1892,
+    "difficultyLevel": "MODERATE",
+    "basePrice": 150.00,
+    "cancellationPolicy": "MODERATE"
+  }'
+```
+*Save the returned `id` as `ACTIVITY_ID`.*
+
+### 3. Create a Slot for the Activity
+```bash
+curl -X POST https://<your-render-url>/api/admin/activities/$ACTIVITY_ID/slots \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "date": "2026-11-15T08:00:00",
+    "capacity": 8,
+    "season": "PEAK"
+  }'
+```
+*Save the returned `id` as `SLOT_ID`.*
+
+### 4. Register a Guide & Complete Profile
+```bash
+# Register guide user
+GUIDE_TOKEN=$(curl -s -X POST https://<your-render-url>/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Tenzing Norgay", "email": "guide_tenzing@example.com", "password": "password123", "role": "GUIDE"}' | jq -r .token)
+
+# Update guide profile with skills, languages, and coordinates
+GUIDE_ID=$(curl -s -X PUT https://<your-render-url>/api/guides/me \
+  -H "Authorization: Bearer $GUIDE_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "skills": ["High Altitude Trekking", "First Aid", "Navigation"],
+    "languages": ["English", "Hindi", "Nepali"],
+    "location": "Manali",
+    "latitude": 32.2432,
+    "longitude": 77.1892,
+    "experienceLevel": "EXPERT"
+  }' | jq -r .id)
+
+# Admin approves guide
+curl -X POST https://<your-render-url>/api/admin/guides/$GUIDE_ID/approve \
+  -H "Authorization: Bearer $ADMIN_TOKEN"
+```
+
+### 5. Register a Trekker
+```bash
+curl -X POST https://<your-render-url>/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Alex Explorer", "email": "alex@example.com", "password": "password123", "role": "TREKKER"}'
+```
+
+> [!CAUTION]
+> **Do NOT run `load-test/seed-data.sh` directly against production!**
+> The load test seed script registers 25 test users and generates high-volume test traffic intended exclusively for local stress testing. Running it in production will rapidly exhaust your Neon and Upstash free-tier limits.
+
+

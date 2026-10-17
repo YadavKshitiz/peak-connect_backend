@@ -34,8 +34,8 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mapOf("error" to "Validation failed", "details" to errors))
     }
 
-    @ExceptionHandler(ResourceNotFoundException::class)
-    fun handleResourceNotFoundException(ex: ResourceNotFoundException): ResponseEntity<Map<String, String>> {
+    @ExceptionHandler(ResourceNotFoundException::class, org.springframework.web.servlet.resource.NoResourceFoundException::class)
+    fun handleResourceNotFoundException(ex: Exception): ResponseEntity<Map<String, String>> {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(mapOf("error" to (ex.message ?: "Resource not found")))
     }
 
