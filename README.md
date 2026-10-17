@@ -312,7 +312,7 @@ curl http://localhost:8080/actuator/health
 
 - **Name**: Kshitiz Yadav
 - **GitHub**: [YadavKshitiz](https://github.com/YadavKshitiz)
-- **LinkedIn**: [yadavkshitiz94/](https://linkedin.com/in/)
+- **LinkedIn**: [yadavkshitiz94](https://linkedin.com/in/)
 
 ---
 
