@@ -78,7 +78,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "booking_endpoint_latency_seconds{quantile=\"0.5\"} * 1000",
+          "expr": "histogram_quantile(0.5, sum by (le, endpoint) (rate(booking_endpoint_latency_seconds_bucket[5m]))) * 1000",
           "legendFormat": "p50: {{endpoint}}",
           "range": true,
           "refId": "A"
@@ -89,7 +89,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "booking_endpoint_latency_seconds{quantile=\"0.95\"} * 1000",
+          "expr": "histogram_quantile(0.95, sum by (le, endpoint) (rate(booking_endpoint_latency_seconds_bucket[5m]))) * 1000",
           "legendFormat": "p95: {{endpoint}}",
           "range": true,
           "refId": "B"
@@ -220,7 +220,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "external_api_latency_seconds{quantile=\"0.95\"} * 1000",
+          "expr": "histogram_quantile(0.95, sum by (le, api) (rate(external_api_latency_seconds_bucket[5m]))) * 1000",
           "legendFormat": "p95 {{api}} (ms)",
           "range": true,
           "refId": "B"

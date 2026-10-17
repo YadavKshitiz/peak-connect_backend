@@ -16,7 +16,8 @@ class OsrmRoutingClient(
     @CircuitBreaker(name = "osrmApi", fallbackMethod = "getDistanceFallback")
     @Retry(name = "osrmApi")
     fun getDistance(originLat: Double, originLng: Double, destLat: Double, destLng: Double): Double {
-        return appMetricsService.timeExternalApi("osrm") {
+        val start = System.nanoTime()
+        try {
             // OSRM requires {originLng},{originLat};{destLng},{destLat}
             val url = "$baseUrl/route/v1/driving/$originLng,$originLat;$destLng,$destLat?overview=false"
             
@@ -28,12 +29,16 @@ class OsrmRoutingClient(
                     val route = routes[0] as? Map<*, *>
                     val distance = route?.get("distance") as? Number
                     if (distance != null) {
-                        return@timeExternalApi distance.toDouble()
+                        appMetricsService.recordExternalApiCall("osrm", "success", System.nanoTime() - start)
+                        return distance.toDouble()
                     }
                 }
             }
             
             throw RuntimeException("Failed to get valid route from OSRM")
+        } catch (e: Exception) {
+            appMetricsService.recordExternalApiCall("osrm", "error", System.nanoTime() - start)
+            throw e
         }
     }
 

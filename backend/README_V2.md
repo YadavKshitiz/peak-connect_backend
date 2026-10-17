@@ -239,8 +239,9 @@ PeakConnect V2 includes a production-grade observability and metrics stack using
      - `reason`:
        - `"confirmed"`: Recorded when a booking payment is completed via Razorpay webhook.
        - `"payment-failed"`: Recorded when Razorpay webhook issues a payment failure event.
-       - `"auto-cancelled"`: Recorded when `AutoCancelUnpaidBookingsJob` auto-cancels unpaid bookings.
-       - `"guide-declined-no-rematch"`: Recorded when auto-rematch exhaust all available guides and fails.
+       - `"auto-cancelled"`: Recorded when `AutoCancelUnpaidBookingsJob` or `WaitlistExpiryJob` auto-cancels unpaid bookings.
+       - `"guide-declined-no-rematch"`: Recorded when auto-rematch exhausts all available guides and fails.
+       - `"user-cancelled"`: Recorded when a trekker cancels a booking via `/api/bookings/{id}/cancel`.
 2. **`booking.endpoint.latency` (Timer)**:
    - Measures latency and throughput for booking API endpoints with p50/p95 percentiles and histogram buckets.
    - Tag: `endpoint` (`"request"`, `"confirm"`, `"my"`, `"cancel"`, `"no-show"`, `"accept"`, `"decline"`, `"waitlist"`).

@@ -23,7 +23,8 @@ class PaymentApiClient(
     @CircuitBreaker(name = "paymentApi", fallbackMethod = "createOrderFallback")
     @Retry(name = "paymentApi")
     fun createOrder(amount: Double): String {
-        return appMetricsService.timeExternalApi("payment") {
+        val start = System.nanoTime()
+        return try {
             val amountInPaise = (amount * 100).toLong()
             val orderRequest = JSONObject().apply {
                 put("amount", amountInPaise)
@@ -32,7 +33,12 @@ class PaymentApiClient(
             }
 
             val order: Order = razorpayClient.orders.create(orderRequest)
-            order.get("id")
+            val orderId: String = order.get("id")
+            appMetricsService.recordExternalApiCall("payment", "success", System.nanoTime() - start)
+            orderId
+        } catch (e: Exception) {
+            appMetricsService.recordExternalApiCall("payment", "error", System.nanoTime() - start)
+            throw e
         }
     }
 

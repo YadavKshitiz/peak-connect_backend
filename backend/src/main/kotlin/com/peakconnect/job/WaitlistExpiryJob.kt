@@ -21,6 +21,7 @@ class WaitlistExpiryJob(
     private val slotRepository: SlotRepository,
     private val waitlistService: WaitlistService,
     private val cacheManager: CacheManager,
+    private val appMetricsService: com.peakconnect.metrics.AppMetricsService,
     @Value("\${waitlist.confirmation-window-minutes:60}")
     private val confirmationWindowMinutes: Long
 ) {
@@ -45,6 +46,7 @@ class WaitlistExpiryJob(
             if (booking != null && booking.status == BookingStatus.AWAITING_PAYMENT) {
                 booking.status = BookingStatus.CANCELLED
                 bookingRepository.save(booking)
+                appMetricsService.recordBookingEvent("failure", "auto-cancelled")
 
                 val slot = booking.slot
                 if (slot.currentOccupancy > 0) {

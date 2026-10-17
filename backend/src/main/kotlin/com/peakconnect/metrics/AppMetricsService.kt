@@ -18,6 +18,7 @@ class AppMetricsService(
      * - payment-failed (failure)
      * - auto-cancelled (failure)
      * - guide-declined-no-rematch (failure)
+     * - user-cancelled (failure)
      */
     fun recordBookingEvent(status: String, reason: String) {
         meterRegistry.counter(

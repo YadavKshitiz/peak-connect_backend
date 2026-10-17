@@ -114,7 +114,6 @@ class BookingService(
         }
         
         booking.status = BookingStatus.CANCELLED
-        appMetricsService.recordBookingEvent("failure", "payment-failed")
         
         val slot = booking.slot
         if (slot.currentOccupancy > 0) {
@@ -174,6 +173,7 @@ class BookingService(
         }
 
         booking.status = BookingStatus.CANCELLED
+        appMetricsService.recordBookingEvent("failure", "user-cancelled")
         
         val slot = booking.slot
         if (slot.currentOccupancy > 0) {
