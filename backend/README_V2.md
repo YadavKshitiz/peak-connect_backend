@@ -59,7 +59,7 @@ mvn spring-boot:run
 - [x] Task 10: Advanced Guide Matching Rules
 - [x] Task 11: Admin Aggregate-Stats Endpoints
 - [x] Task 12: Observability & Metrics Setup (Prometheus + Grafana)
-- [ ] Task 13: End-to-End Testing & QA
+- [x] Task 13: Concurrency & Load Testing (k6)
 - [ ] Task 14: Containerization & Deployment Setup
 
 ---
@@ -290,3 +290,22 @@ Dashboards are stored in `grafana/dashboards/` and pre-loaded into the **PeakCon
    - **System-wide HTTP Latency (p50 / p95 in ms)** (*Time Series*): Overall application response time distribution.
 
 *Note on Data Visualization:* Metrics are generated dynamically as users navigate activities, request/confirm bookings, or when webhooks/jobs execute. Real dashboard charts update within seconds of requests being processed.
+
+---
+
+## Concurrency & Load Testing (k6)
+
+Full load test results and methodology are documented in [load-test/RESULTS.md](load-test/RESULTS.md).
+
+The pessimistic write locking constraint on the booking endpoint passed the concurrency stress test with 100% correctness: exactly 5 bookings succeeded matching the slot's capacity limit, 2,054 excess requests were safely rejected with HTTP 409 Conflict, and zero overselling occurred across 20 concurrent virtual users generating 6,178 requests.
+
+### Running the Load Test
+1. **Seed Test Activity & Slot**:
+   ```bash
+   ./load-test/seed-data.sh
+   ```
+2. **Execute k6 Stress Test**:
+   ```bash
+   k6 run load-test/booking-load-test.js
+   ```
+
