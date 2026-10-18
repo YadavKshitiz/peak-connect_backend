@@ -69,6 +69,11 @@ android {
         compose = true
         buildConfig = true
     }
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 configurations.all {
@@ -76,6 +81,8 @@ configurations.all {
         force("org.jetbrains.kotlin:kotlin-stdlib:2.2.10")
         force("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.2.10")
         force("org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.2.10")
+        // Pin Razorpay standard-core to resolved version 1.7.20 instead of dynamic 'latest.integration' to ensure reproducible builds
+        force("com.razorpay:standard-core:1.7.20")
     }
 }
 
@@ -140,11 +147,9 @@ dependencies {
     // Splash Screen
     implementation(libs.androidx.core.splashscreen)
 
-    // AppCompat
+    // AppCompat & Material Components
     implementation(libs.androidx.appcompat)
-
-    // Biometric
-    implementation(libs.androidx.biometric)
+    implementation(libs.material)
 
     // OSMDroid
     implementation(libs.osmdroid.android)
@@ -159,11 +164,22 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.androidx.room.testing)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.test.core.ktx)
+    testImplementation(libs.androidx.work.testing)
+    testImplementation(libs.hilt.android.testing)
+    kspTest(libs.hilt.compiler)
 
     // Android Instrumented Testing
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.androidx.test.core)
+    androidTestImplementation(libs.androidx.test.core.ktx)
+    androidTestImplementation(libs.androidx.work.testing)
+    androidTestImplementation(libs.hilt.android.testing)
+    kspAndroidTest(libs.hilt.compiler)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
