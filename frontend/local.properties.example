@@ -1,0 +1,5 @@
+# Copy this file to local.properties and fill in your actual configuration values.
+# Do not commit local.properties to version control.
+
+RAZORPAY_KEY_ID=rzp_test_replace_me
+API_BASE_URL=https://peak-connect-backend.onrender.com/
