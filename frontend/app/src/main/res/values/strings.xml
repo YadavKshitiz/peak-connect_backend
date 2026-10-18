@@ -1,3 +1,57 @@
 <resources>
     <string name="app_name">PeakConnect</string>
+
+    <!-- Common UI strings -->
+    <string name="common_retry">Retry</string>
+    <string name="common_loading">Loading</string>
+    <string name="common_back">Back</string>
+    <string name="common_close">Close</string>
+    <string name="common_image_unavailable">Image unavailable</string>
+    <string name="common_image_content_description">Activity image</string>
+    <string name="common_password_toggle">Toggle password visibility</string>
+    <string name="common_clear_text">Clear text</string>
+    <string name="common_approx">approx. %1$s</string>
+
+    <!-- Booking Status strings -->
+    <string name="status_pending_guide_response">Waiting for guide</string>
+    <string name="status_awaiting_payment">Payment due</string>
+    <string name="status_confirmed">Confirmed</string>
+    <string name="status_cancelled">Cancelled</string>
+    <string name="status_no_show">No-show</string>
+    <string name="status_rematch_failed">No guide available</string>
+    <string name="status_pending">Pending</string>
+
+    <!-- Risk Level strings -->
+    <string name="risk_low">Low risk</string>
+    <string name="risk_moderate">Moderate risk</string>
+    <string name="risk_high">High risk</string>
+    <string name="risk_unknown">Risk unknown</string>
+
+    <!-- Difficulty strings -->
+    <string name="difficulty_easy">Easy</string>
+    <string name="difficulty_moderate">Moderate</string>
+    <string name="difficulty_challenging">Challenging</string>
+    <string name="difficulty_difficult">Difficult</string>
+    <string name="difficulty_expert">Expert</string>
+
+    <!-- Season strings -->
+    <string name="season_low">Low season</string>
+    <string name="season_shoulder">Shoulder season</string>
+    <string name="season_peak">Peak season</string>
+
+    <!-- Experience Level strings -->
+    <string name="experience_beginner">Beginner</string>
+    <string name="experience_intermediate">Intermediate</string>
+    <string name="experience_advanced">Advanced</string>
+    <string name="experience_expert">Expert</string>
+
+    <!-- Offline and Banner strings -->
+    <string name="offline_connect_to_action">Connect to the internet to %1$s</string>
+    <string name="banner_offline_message">You are offline. Showing cached information.</string>
+    <string name="banner_server_waking_message">Connecting to server. This may take a few seconds…</string>
+
+    <!-- Empty and Error states -->
+    <string name="error_default_message">Something went wrong. Please check your connection and try again.</string>
+    <string name="empty_default_title">Nothing here yet</string>
+    <string name="empty_default_message">Check back later or try adjusting your filters.</string>
 </resources>

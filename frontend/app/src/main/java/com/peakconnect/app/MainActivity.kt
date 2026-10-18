@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            PeakConnectTheme {
+            PeakConnectTheme(themeMode = com.peakconnect.app.core.theme.ThemeMode.SYSTEM) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Box(
                         modifier = Modifier
