@@ -33,6 +33,7 @@
     <string name="difficulty_challenging">Challenging</string>
     <string name="difficulty_difficult">Difficult</string>
     <string name="difficulty_expert">Expert</string>
+    <string name="difficulty_extreme">Extreme</string>
 
     <!-- Season strings -->
     <string name="season_low">Low season</string>
@@ -45,10 +46,33 @@
     <string name="experience_advanced">Advanced</string>
     <string name="experience_expert">Expert</string>
 
+    <!-- Roles -->
+    <string name="role_trekker">Trekker</string>
+    <string name="role_guide">Guide</string>
+    <string name="role_admin">Admin</string>
+
+    <!-- Cancellation Policies -->
+    <string name="cancellation_flexible">Flexible</string>
+    <string name="cancellation_moderate">Moderate</string>
+    <string name="cancellation_strict">Strict</string>
+
     <!-- Offline and Banner strings -->
     <string name="offline_connect_to_action">Connect to the internet to %1$s</string>
     <string name="banner_offline_message">You are offline. Showing cached information.</string>
     <string name="banner_server_waking_message">Connecting to server. This may take a few seconds…</string>
+    <string name="banner_server_waking_retry">Server is waking up. Retrying…</string>
+
+    <!-- Auth and Error strings -->
+    <string name="auth_error_bad_credentials">Incorrect email or password</string>
+    <string name="error_unauthorized">Please log in to continue.</string>
+    <string name="error_forbidden">You do not have permission to perform this action.</string>
+    <string name="error_not_found">Requested item was not found.</string>
+    <string name="error_conflict">A conflict occurred. Please refresh and try again.</string>
+    <string name="error_validation">Please verify the submitted details.</string>
+    <string name="error_server">Server error occurred. Please try again later.</string>
+    <string name="error_timeout">Connection timed out. Please try again.</string>
+    <string name="error_no_internet">No internet connection. Please check your network.</string>
+    <string name="error_unknown">An unexpected error occurred.</string>
 
     <!-- Empty and Error states -->
     <string name="error_default_message">Something went wrong. Please check your connection and try again.</string>

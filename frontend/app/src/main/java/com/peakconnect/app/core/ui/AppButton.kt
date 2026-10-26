@@ -233,7 +233,7 @@ fun OnlineOnlyButton(
     actionLabel: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    isOnline: Boolean = true,
+    isOnline: Boolean = com.peakconnect.app.core.util.LocalIsOnline.current,
     style: OnlineOnlyButtonStyle = OnlineOnlyButtonStyle.PRIMARY,
     enabled: Boolean = true,
     isLoading: Boolean = false,

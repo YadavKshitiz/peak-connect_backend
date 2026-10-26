@@ -1,9 +1,3 @@
 package com.peakconnect.app.domain.model
 
-enum class Difficulty {
-    EASY,
-    MODERATE,
-    CHALLENGING,
-    DIFFICULT,
-    EXPERT
-}
+// Deprecated: Refer to DifficultyLevel.kt which provides enum class DifficultyLevel and typealias Difficulty
