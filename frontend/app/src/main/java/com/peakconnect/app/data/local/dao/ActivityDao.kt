@@ -75,6 +75,44 @@ object ActivityQueryBuilder {
         val sql = "SELECT * FROM activities $whereSql $orderSql"
         return SimpleSQLiteQuery(sql, args.toTypedArray())
     }
+
+    fun buildCountQuery(filter: ActivityFilter): SimpleSQLiteQuery {
+        val whereClauses = mutableListOf<String>()
+        val args = mutableListOf<Any>()
+
+        if (!filter.query.isNullOrBlank()) {
+            val pattern = "%${filter.query.trim()}%"
+            whereClauses.add("(LOWER(title) LIKE LOWER(?) OR LOWER(location) LIKE LOWER(?) OR (description IS NOT NULL AND LOWER(description) LIKE LOWER(?)))")
+            args.add(pattern)
+            args.add(pattern)
+            args.add(pattern)
+        }
+
+        if (!filter.location.isNullOrBlank()) {
+            whereClauses.add("LOWER(location) = LOWER(?)")
+            args.add(filter.location.trim())
+        }
+
+        if (!filter.difficulties.isNullOrEmpty()) {
+            val placeholders = filter.difficulties.joinToString(",") { "?" }
+            whereClauses.add("difficulty IN ($placeholders)")
+            filter.difficulties.forEach { args.add(it.name) }
+        }
+
+        if (!filter.hasSlotOnDate.isNullOrBlank()) {
+            whereClauses.add("id IN (SELECT activityId FROM slots WHERE date LIKE ?)")
+            args.add("${filter.hasSlotOnDate.trim()}%")
+        }
+
+        val whereSql = if (whereClauses.isNotEmpty()) {
+            "WHERE " + whereClauses.joinToString(" AND ")
+        } else {
+            ""
+        }
+
+        val sql = "SELECT COUNT(*) FROM activities $whereSql"
+        return SimpleSQLiteQuery(sql, args.toTypedArray())
+    }
 }
 
 @Dao
@@ -82,6 +120,18 @@ interface ActivityDao {
 
     @RawQuery(observedEntities = [ActivityEntity::class, SlotEntity::class])
     fun getActivitiesPagedRaw(query: SupportSQLiteQuery): PagingSource<Int, ActivityEntity>
+
+    @RawQuery(observedEntities = [ActivityEntity::class, SlotEntity::class])
+    suspend fun countActivitiesRaw(query: SupportSQLiteQuery): Int
+
+    @Query("SELECT DISTINCT location FROM activities WHERE location IS NOT NULL AND location != '' ORDER BY location ASC")
+    fun getDistinctLocationsFlow(): Flow<List<String>>
+
+    @Query("SELECT a.* FROM activities a INNER JOIN favourites f ON a.id = f.activityId ORDER BY f.addedAt DESC")
+    fun getSavedActivitiesFlow(): Flow<List<ActivityEntity>>
+
+    @Query("SELECT a.* FROM activities a INNER JOIN recently_viewed rv ON a.id = rv.activityId ORDER BY rv.viewedAt DESC LIMIT 10")
+    fun getRecentlyViewedActivitiesFlow(): Flow<List<ActivityEntity>>
 
     @Query("SELECT * FROM activities ORDER BY title ASC")
     fun getAllActivitiesFlow(): Flow<List<ActivityEntity>>
@@ -124,6 +174,10 @@ interface ActivityDao {
 
 fun ActivityDao.getActivitiesPaged(filter: ActivityFilter = ActivityFilter()): PagingSource<Int, ActivityEntity> {
     return getActivitiesPagedRaw(ActivityQueryBuilder.buildQuery(filter))
+}
+
+suspend fun ActivityDao.countActivities(filter: ActivityFilter = ActivityFilter()): Int {
+    return countActivitiesRaw(ActivityQueryBuilder.buildCountQuery(filter))
 }
 
 suspend fun ActivityDao.syncActivitiesWithSlots(

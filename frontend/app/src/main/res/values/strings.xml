@@ -169,4 +169,42 @@
     <string name="dialog_logout_confirm">Log out</string>
     <string name="common_cancel">Cancel</string>
     <string name="dismiss">Dismiss</string>
+
+    <!-- Explore & Saved -->
+    <string name="explore_greeting">Hi, %1$s</string>
+    <string name="explore_search_hint">Search treks, places…</string>
+    <string name="explore_search_history_title">Recent searches</string>
+    <string name="explore_search_history_clear">Clear</string>
+    <string name="explore_filter_title">Filters</string>
+    <string name="explore_filter_difficulty">Difficulty</string>
+    <string name="explore_filter_location">Location</string>
+    <string name="explore_filter_location_any">Any</string>
+    <string name="explore_filter_date">Date</string>
+    <string name="explore_filter_date_any">Select date</string>
+    <string name="common_clear">Clear</string>
+    <string name="common_confirm">OK</string>
+    <string name="explore_filter_select_date">Select date</string>
+    <string name="explore_filter_clear_date">Clear date</string>
+    <string name="explore_filter_sort">Sort by</string>
+    <string name="explore_sort_price_low_high">Price: Low to High</string>
+    <string name="explore_sort_price_high_low">Price: High to Low</string>
+    <string name="explore_sort_difficulty">Difficulty</string>
+    <string name="explore_sort_name_az">Name: A to Z</string>
+    <string name="explore_filter_reset">Reset</string>
+    <string name="explore_filter_apply">Apply (%1$d)</string>
+    <string name="explore_filter_apply_no_count">Apply</string>
+    <string name="explore_empty_title">No activities match your search</string>
+    <string name="explore_empty_subtitle">Try adjusting your query or filters to find what you’re looking for.</string>
+    <string name="explore_action_clear_filters">Clear filters</string>
+    <string name="explore_refresh_error">Couldn’t refresh</string>
+    <string name="explore_recently_viewed">Recently viewed</string>
+    <string name="explore_price_from">from %1$s</string>
+    <string name="explore_base_price_from">from %1$s base price</string>
+    <string name="explore_offline_banner">You’re offline. Showing saved data.</string>
+    <string name="saved_title">Saved Activities</string>
+    <string name="saved_empty_message">No saved activities yet. Tap the heart on any activity.</string>
+    <string name="explore_favorite_added">Added to favourites</string>
+    <string name="explore_favorite_removed">Removed from favourites</string>
+    <string name="explore_favourite_add">Add to favourites</string>
+    <string name="explore_favourite_remove">Remove from favourites</string>
 </resources>

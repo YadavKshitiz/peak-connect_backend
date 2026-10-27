@@ -8,7 +8,9 @@ import com.peakconnect.app.data.local.PeakConnectDatabase
 import com.peakconnect.app.data.local.dao.ActivityDao
 import com.peakconnect.app.data.local.dao.ActivityFilter
 import com.peakconnect.app.data.local.dao.ActivitySortOption
+import com.peakconnect.app.data.local.dao.countActivities
 import com.peakconnect.app.data.local.dao.getActivitiesPaged
+import kotlinx.coroutines.flow.first
 import com.peakconnect.app.data.local.entity.ActivityEntity
 import com.peakconnect.app.data.local.entity.SlotEntity
 import com.peakconnect.app.domain.model.CancellationPolicyType
@@ -190,5 +192,36 @@ class ActivityDaoTest {
 
         val titleAsc = loadPaged(ActivityFilter(sortOption = ActivitySortOption.TITLE))
         assertEquals(listOf("act-1", "act-2", "act-3"), titleAsc.map { it.id })
+    }
+
+    @Test
+    fun `countActivities matches filter conditions`() = runTest {
+        seedActivities()
+
+        assertEquals(3, dao.countActivities(ActivityFilter()))
+        assertEquals(1, dao.countActivities(ActivityFilter(query = "trek")))
+        assertEquals(2, dao.countActivities(ActivityFilter(location = "Pokhara")))
+        assertEquals(1, dao.countActivities(ActivityFilter(hasSlotOnDate = "2026-06-15")))
+        assertEquals(0, dao.countActivities(ActivityFilter(query = "non-existent")))
+    }
+
+    @Test
+    fun `distinct locations returns sorted non-empty locations`() = runTest {
+        seedActivities()
+
+        val locations = dao.getDistinctLocationsFlow().first()
+        assertEquals(listOf("Lukla", "Pokhara"), locations)
+    }
+
+    @Test
+    fun `getSavedActivitiesFlow returns favourited activities in order`() = runTest {
+        seedActivities()
+
+        val userContentDao = db.userContentDao()
+        userContentDao.insertFavourite(com.peakconnect.app.data.local.entity.FavouriteEntity("act-1", addedAt = 1000L))
+        userContentDao.insertFavourite(com.peakconnect.app.data.local.entity.FavouriteEntity("act-3", addedAt = 2000L))
+
+        val saved = dao.getSavedActivitiesFlow().first()
+        assertEquals(listOf("act-3", "act-1"), saved.map { it.id })
     }
 }

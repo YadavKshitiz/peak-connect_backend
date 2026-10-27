@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "baseUrl": "https://raw.githubusercontent.com/YadavKshitiz/peak-connect_backend/main/assets/activity_images/",
+  "items": [
+    {
+      "location": "mcleod-ganj",
+      "activity": "triund-sunset-trek",
+      "image": "mcleod-ganj/triund-sunset-trek.webp"
+    }
+  ],
+  "defaults": {
+    "rafting": "defaults/rafting.webp",
+    "trekking": "defaults/trekking.webp",
+    "camping": "defaults/camping.webp",
+    "hiking": "defaults/hiking.webp"
+  }
+}

@@ -39,4 +39,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindHealthRepository(impl: HealthRepositoryImpl): HealthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindImageManifestRepository(impl: com.peakconnect.app.core.images.ImageManifestRepositoryImpl): com.peakconnect.app.core.images.ImageManifestRepository
 }

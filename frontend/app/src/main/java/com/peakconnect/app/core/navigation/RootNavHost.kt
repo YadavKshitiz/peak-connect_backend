@@ -177,6 +177,9 @@ fun RootNavHost(
                                 navController.navigate(LoginRoute) {
                                     popUpTo(0) { inclusive = true }
                                 }
+                            },
+                            onNavigateToActivityDetail = { activityId ->
+                                navController.navigate(ActivityDetailRoute(activityId))
                             }
                         )
                     }

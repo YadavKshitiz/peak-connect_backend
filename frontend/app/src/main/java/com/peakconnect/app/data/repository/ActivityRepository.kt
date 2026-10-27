@@ -8,6 +8,7 @@ import com.peakconnect.app.core.util.IoDispatcher
 import com.peakconnect.app.data.api.PeakConnectApi
 import com.peakconnect.app.data.local.dao.ActivityDao
 import com.peakconnect.app.data.local.dao.ActivityFilter
+import com.peakconnect.app.data.local.dao.countActivities
 import com.peakconnect.app.data.local.dao.getActivitiesPaged
 import com.peakconnect.app.data.local.dao.syncActivitiesWithSlots
 import com.peakconnect.app.data.local.entity.ActivityEntity
@@ -22,6 +23,12 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import com.peakconnect.app.data.local.dao.UserContentDao
+import com.peakconnect.app.data.local.dao.recordView
+import com.peakconnect.app.data.local.entity.FavouriteEntity
+import com.peakconnect.app.data.local.entity.SearchHistoryEntity
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,12 +40,23 @@ interface ActivityRepository {
     suspend fun getActivity(id: String): ApiResult<Activity>
     suspend fun refreshActivities(location: String? = null, date: String? = null): ApiResult<Unit>
     suspend fun hasCachedActivities(): Boolean
+    fun getDistinctLocations(): Flow<List<String>>
+    fun getSavedActivities(): Flow<List<ActivityEntity>>
+    fun getRecentlyViewedActivities(): Flow<List<ActivityEntity>>
+    suspend fun countActivities(filter: ActivityFilter = ActivityFilter()): Int
+    fun getFavouritesSetFlow(): Flow<Set<String>>
+    suspend fun toggleFavourite(activityId: String): Boolean
+    suspend fun recordRecentlyViewed(activityId: String)
+    fun getSearchHistory(): Flow<List<SearchHistoryEntity>>
+    suspend fun saveSearchTerm(term: String)
+    suspend fun clearSearchHistory()
 }
 
 @Singleton
 class ActivityRepositoryImpl @Inject constructor(
     private val api: PeakConnectApi,
     private val activityDao: ActivityDao,
+    private val userContentDao: UserContentDao,
     private val wakeUpRetryHelper: WakeUpRetryHelper,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ActivityRepository {
@@ -56,6 +74,58 @@ class ActivityRepositoryImpl @Inject constructor(
 
     override fun getActivityWithSlots(id: String): Flow<ActivityWithSlots?> {
         return activityDao.getActivityWithSlotsFlow(id)
+    }
+
+    override fun getDistinctLocations(): Flow<List<String>> {
+        return activityDao.getDistinctLocationsFlow()
+    }
+
+    override fun getSavedActivities(): Flow<List<ActivityEntity>> {
+        return activityDao.getSavedActivitiesFlow()
+    }
+
+    override fun getRecentlyViewedActivities(): Flow<List<ActivityEntity>> {
+        return activityDao.getRecentlyViewedActivitiesFlow()
+    }
+
+    override suspend fun countActivities(filter: ActivityFilter): Int = withContext(ioDispatcher) {
+        activityDao.countActivities(filter)
+    }
+
+    override fun getFavouritesSetFlow(): Flow<Set<String>> {
+        return userContentDao.getFavouritesFlow().map { list ->
+            list.map { it.activityId }.toSet()
+        }
+    }
+
+    override suspend fun toggleFavourite(activityId: String): Boolean = withContext(ioDispatcher) {
+        val isFav = userContentDao.isFavouriteFlow(activityId).first()
+        if (isFav) {
+            userContentDao.deleteFavourite(activityId)
+            false
+        } else {
+            userContentDao.insertFavourite(FavouriteEntity(activityId = activityId, addedAt = System.currentTimeMillis()))
+            true
+        }
+    }
+
+    override suspend fun recordRecentlyViewed(activityId: String) = withContext(ioDispatcher) {
+        userContentDao.recordView(activityId)
+    }
+
+    override fun getSearchHistory(): Flow<List<SearchHistoryEntity>> {
+        return userContentDao.getSearchHistoryFlow()
+    }
+
+    override suspend fun saveSearchTerm(term: String) = withContext(ioDispatcher) {
+        if (term.isNotBlank()) {
+            userContentDao.insertSearch(SearchHistoryEntity(query = term.trim(), searchedAt = System.currentTimeMillis()))
+        }
+    }
+
+    override suspend fun clearSearchHistory(): Unit = withContext(ioDispatcher) {
+        userContentDao.clearSearchHistory()
+        Unit
     }
 
     override suspend fun getActivity(id: String): ApiResult<Activity> = withContext(ioDispatcher) {
