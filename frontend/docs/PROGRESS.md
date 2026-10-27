@@ -7,7 +7,7 @@
 - [x] Task 4: Splash/cold-start/navigation (Completed on 2026-10-27)
 - [x] Task 5: Auth/settings (Completed on 2026-10-27)
 - [x] Task 6: Explore (Completed on 2026-10-27)
-- [ ] Task 7: Activity detail
+- [x] Task 7: Activity detail (Completed on 2026-10-27)
 - [ ] Task 8: Matching/booking
 - [ ] Task 9: Booking status/cancel
 - [ ] Task 10: Payment

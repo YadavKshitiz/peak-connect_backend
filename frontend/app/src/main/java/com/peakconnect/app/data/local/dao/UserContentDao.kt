@@ -96,6 +96,9 @@ interface UserContentDao {
     @Query("DELETE FROM checklist_items WHERE id = :id")
     suspend fun deleteChecklistItem(id: Long): Int
 
+    @Query("DELETE FROM checklist_items WHERE activityId = :activityId AND difficulty = :difficulty")
+    suspend fun deleteChecklistForActivity(activityId: String, difficulty: DifficultyLevel): Int
+
     @Query("DELETE FROM favourites")
     suspend fun clearFavourites(): Int
 

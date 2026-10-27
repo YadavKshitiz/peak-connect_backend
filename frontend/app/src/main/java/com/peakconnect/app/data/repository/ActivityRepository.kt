@@ -33,6 +33,10 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
+import com.peakconnect.app.data.local.entity.ChecklistItemEntity
+import com.peakconnect.app.data.local.entity.WaitlistEntryEntity
+import com.peakconnect.app.domain.model.DifficultyLevel
+
 interface ActivityRepository {
     val lastUpdatedFlow: Flow<Long?>
     fun getActivitiesPagingSource(filter: ActivityFilter = ActivityFilter()): PagingSource<Int, ActivityEntity>
@@ -50,6 +54,12 @@ interface ActivityRepository {
     fun getSearchHistory(): Flow<List<SearchHistoryEntity>>
     suspend fun saveSearchTerm(term: String)
     suspend fun clearSearchHistory()
+    fun getWaitlistEntriesFlow(): Flow<List<WaitlistEntryEntity>>
+    fun getChecklistItems(activityId: String, difficulty: DifficultyLevel): Flow<List<ChecklistItemEntity>>
+    suspend fun addChecklistItem(item: ChecklistItemEntity): Long
+    suspend fun updateChecklistItem(item: ChecklistItemEntity)
+    suspend fun deleteChecklistItem(id: Long)
+    suspend fun resetChecklist(activityId: String, difficulty: DifficultyLevel, defaultItems: List<ChecklistItemEntity>)
 }
 
 @Singleton
@@ -242,5 +252,37 @@ class ActivityRepositoryImpl @Inject constructor(
                 ErrorMapper.mapThrowable(e)
             }
         }
+    }
+
+    override fun getWaitlistEntriesFlow(): Flow<List<WaitlistEntryEntity>> {
+        return userContentDao.getWaitlistEntriesFlow()
+    }
+
+    override fun getChecklistItems(activityId: String, difficulty: DifficultyLevel): Flow<List<ChecklistItemEntity>> {
+        return userContentDao.getChecklistItemsFlow(activityId, difficulty)
+    }
+
+    override suspend fun addChecklistItem(item: ChecklistItemEntity): Long = withContext(ioDispatcher) {
+        userContentDao.insertChecklistItem(item)
+    }
+
+    override suspend fun updateChecklistItem(item: ChecklistItemEntity): Unit = withContext(ioDispatcher) {
+        userContentDao.updateChecklistItem(item)
+        Unit
+    }
+
+    override suspend fun deleteChecklistItem(id: Long): Unit = withContext(ioDispatcher) {
+        userContentDao.deleteChecklistItem(id)
+        Unit
+    }
+
+    override suspend fun resetChecklist(
+        activityId: String,
+        difficulty: DifficultyLevel,
+        defaultItems: List<ChecklistItemEntity>
+    ): Unit = withContext(ioDispatcher) {
+        userContentDao.deleteChecklistForActivity(activityId, difficulty)
+        userContentDao.insertChecklistItems(defaultItems)
+        Unit
     }
 }

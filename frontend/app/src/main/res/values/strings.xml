@@ -207,4 +207,58 @@
     <string name="explore_favorite_removed">Removed from favourites</string>
     <string name="explore_favourite_add">Add to favourites</string>
     <string name="explore_favourite_remove">Remove from favourites</string>
+
+    <!-- Map Component -->
+    <string name="map_attribution_osm">© OpenStreetMap contributors</string>
+
+    <!-- Activity Detail -->
+    <string name="activity_detail_read_more">Read more</string>
+    <string name="activity_detail_show_less">Show less</string>
+    <string name="activity_detail_location_title">Location</string>
+    <string name="activity_detail_get_directions">Get directions</string>
+    <string name="activity_detail_no_map_app">No map application found</string>
+    <string name="activity_detail_cancellation_title">Cancellation policy</string>
+    <string name="activity_detail_cancellation_disclaimer">Estimated tiers. Refund amounts are calculated by the server at cancellation.</string>
+    <string name="activity_detail_deposit_note">The %1$d%% estimated booking deposit is non-refundable.</string>
+    <string name="activity_detail_timeline_header">Timeline</string>
+    <string name="activity_detail_refund_header">Refund</string>
+    <string name="activity_detail_refund_percent">%1$d%% refund</string>
+    <string name="activity_detail_no_refund">No refund</string>
+    <string name="activity_detail_slots_title">Available slots</string>
+    <string name="activity_detail_per_person">per person</string>
+    <string name="activity_detail_spots_left">%1$d of %2$d spots left</string>
+    <string name="activity_detail_spots_full">Full · 0 of %1$d spots left</string>
+    <string name="activity_detail_request_booking">Request booking</string>
+    <string name="activity_detail_join_waitlist">Join waitlist</string>
+    <string name="activity_detail_on_waitlist">On the waitlist</string>
+    <string name="activity_detail_action_book">book</string>
+    <string name="activity_detail_action_join_waitlist">join the waitlist</string>
+    <string name="activity_detail_waitlist_note">If someone cancels, a booking request is sent automatically to the guide you choose. You’ll be asked to pay after they accept.</string>
+    <string name="activity_detail_dynamic_pricing_note">Prices change with season, demand and how early you book.</string>
+    <string name="activity_detail_no_upcoming_slots">No upcoming slots for this activity.</string>
+    <string name="activity_detail_share">Share</string>
+    <string name="policy_flexible_chip">Flexible cancellation</string>
+    <string name="policy_moderate_chip">Moderate cancellation</string>
+    <string name="policy_strict_chip">Strict cancellation</string>
+
+    <!-- Risk Level Sheet -->
+    <string name="risk_sheet_title">Weather &amp; Risk Assessment</string>
+    <string name="risk_level_low_explanation">Low risk. Good conditions expected. Weather forecast indicates clear trails and normal mountain conditions.</string>
+    <string name="risk_level_moderate_explanation">Moderate risk. Be prepared. Potential rain, wind, or changing mountain weather. Carry appropriate gear.</string>
+    <string name="risk_level_high_explanation">High risk. Conditions may be unsafe. Severe weather warnings or high-altitude hazards reported. Proceed with caution.</string>
+    <string name="risk_level_unknown_explanation">Unknown risk. Forecast not available yet for that date. Weather conditions will be evaluated closer to departure.</string>
+
+    <!-- Packing Checklist -->
+    <string name="checklist_title">Packing checklist</string>
+    <string name="checklist_subtitle">Customized for this trek’s difficulty</string>
+    <string name="checklist_category_clothing">Clothing</string>
+    <string name="checklist_category_gear">Gear</string>
+    <string name="checklist_category_safety">Safety</string>
+    <string name="checklist_category_food_water">Food and water</string>
+    <string name="checklist_category_documents">Documents</string>
+    <string name="checklist_add_item">Add custom item</string>
+    <string name="checklist_add_item_hint">Item name</string>
+    <string name="checklist_add_item_button">Add</string>
+    <string name="checklist_reset">Reset</string>
+    <string name="checklist_delete_item">Delete</string>
 </resources>

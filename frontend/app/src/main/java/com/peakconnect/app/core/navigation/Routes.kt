@@ -57,7 +57,7 @@ data object AdminUnsupportedRoute
 data class ActivityDetailRoute(val activityId: String)
 
 @Serializable
-data class GuideMatchesRoute(val slotId: String)
+data class GuideMatchesRoute(val slotId: String, val isWaitlist: Boolean = false)
 
 @Serializable
 data class BookingReviewRoute(val slotId: String, val guideId: String? = null)

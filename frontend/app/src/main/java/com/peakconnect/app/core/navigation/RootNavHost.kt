@@ -207,10 +207,14 @@ fun RootNavHost(
                         )
                     }
 
-                    // --- Pre-defined Future Feature Routes for Later Tasks ---
                     composable<ActivityDetailRoute> { backStackEntry ->
                         val route = backStackEntry.toRoute<ActivityDetailRoute>()
-                        PlaceholderScreen(title = "Activity Detail (${route.activityId})")
+                        com.peakconnect.app.feature.trekker.detail.ActivityDetailScreen(
+                            onBack = { navController.popBackStack() },
+                            onNavigateToMatches = { slotId, isWaitlist ->
+                                navController.navigate(GuideMatchesRoute(slotId = slotId, isWaitlist = isWaitlist))
+                            }
+                        )
                     }
 
                     composable<GuideMatchesRoute> { backStackEntry ->
