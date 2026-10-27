@@ -64,7 +64,8 @@ private val guideTabs = listOf(
 
 @Composable
 fun GuideNavShell(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToLogin: () -> Unit = {}
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -119,7 +120,10 @@ fun GuideNavShell(
                 PlaceholderScreen(title = stringResource(id = R.string.nav_tab_bookings))
             }
             composable<GuideProfileTabRoute> {
-                PlaceholderScreen(title = stringResource(id = R.string.nav_tab_profile))
+                com.peakconnect.app.feature.profile.ProfileScreen(
+                    viewModel = androidx.hilt.navigation.compose.hiltViewModel(),
+                    onNavigateToLogin = onNavigateToLogin
+                )
             }
         }
     }

@@ -9,7 +9,8 @@ data class JwtPayload(
     val email: String,
     val userId: String,
     val role: Role,
-    val expiresAt: Long // Epoch seconds
+    val expiresAt: Long, // Epoch seconds
+    val name: String? = null
 )
 
 object JwtDecoder {
@@ -24,7 +25,8 @@ object JwtDecoder {
         val sub: String? = null,
         val userId: String? = null,
         val role: String? = null,
-        val exp: Long? = null
+        val exp: Long? = null,
+        val name: String? = null
     )
 
     fun decode(token: String): JwtPayload? {
@@ -52,7 +54,8 @@ object JwtDecoder {
                 email = email,
                 userId = userId,
                 role = role,
-                expiresAt = exp
+                expiresAt = exp,
+                name = claims.name?.takeIf { it.isNotBlank() }
             )
         } catch (_: Exception) {
             null

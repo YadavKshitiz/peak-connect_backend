@@ -34,6 +34,9 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var resumeHealthChecker: ResumeHealthChecker
 
+    @Inject
+    lateinit var themePreferences: com.peakconnect.app.core.preferences.ThemePreferences
+
     private var isAppReady by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,13 +55,14 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val isOnline by networkMonitor.isOnline.collectAsStateWithLifecycle(initialValue = true)
+            val themeMode by themePreferences.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
 
             LaunchedEffect(Unit) {
                 isAppReady = true
             }
 
             CompositionLocalProvider(LocalIsOnline provides isOnline) {
-                PeakConnectTheme(themeMode = ThemeMode.SYSTEM) {
+                PeakConnectTheme(themeMode = themeMode) {
                     RootNavHost(
                         sessionManager = sessionManager,
                         resumeHealthChecker = resumeHealthChecker,

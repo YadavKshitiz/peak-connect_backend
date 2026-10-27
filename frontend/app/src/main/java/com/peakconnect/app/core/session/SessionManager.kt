@@ -12,7 +12,8 @@ sealed interface SessionState {
     data class LoggedIn(
         val role: Role,
         val userId: String,
-        val email: String
+        val email: String,
+        val name: String? = null
     ) : SessionState
 }
 
@@ -37,7 +38,8 @@ class SessionManager @Inject constructor(
                 _sessionState.value = SessionState.LoggedIn(
                     role = payload.role,
                     userId = payload.userId,
-                    email = payload.email
+                    email = payload.email,
+                    name = payload.name
                 )
                 return
             }
@@ -52,7 +54,8 @@ class SessionManager @Inject constructor(
             _sessionState.value = SessionState.LoggedIn(
                 role = payload.role,
                 userId = payload.userId,
-                email = payload.email
+                email = payload.email,
+                name = payload.name
             )
         }
     }

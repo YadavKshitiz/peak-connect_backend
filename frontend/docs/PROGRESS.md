@@ -5,7 +5,7 @@
 - [x] Task 2: Design system (Completed on 2026-10-18)
 - [x] Task 3: Data layer (Completed on 2026-10-18)
 - [x] Task 4: Splash/cold-start/navigation (Completed on 2026-10-27)
-- [ ] Task 5: Auth/settings
+- [x] Task 5: Auth/settings (Completed on 2026-10-27)
 - [ ] Task 6: Explore
 - [ ] Task 7: Activity detail
 - [ ] Task 8: Matching/booking

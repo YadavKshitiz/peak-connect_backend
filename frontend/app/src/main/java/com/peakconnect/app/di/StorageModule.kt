@@ -17,7 +17,9 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 import com.peakconnect.app.core.preferences.DataStoreOnboardingStore
+import com.peakconnect.app.core.preferences.DataStoreThemePreferences
 import com.peakconnect.app.core.preferences.OnboardingStore
+import com.peakconnect.app.core.preferences.ThemePreferences
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "peakconnect_prefs")
 
@@ -31,6 +33,10 @@ abstract class StorageBindingsModule {
     @Binds
     @Singleton
     abstract fun bindOnboardingStore(impl: DataStoreOnboardingStore): OnboardingStore
+
+    @Binds
+    @Singleton
+    abstract fun bindThemePreferences(impl: DataStoreThemePreferences): ThemePreferences
 }
 
 @Module

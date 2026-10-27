@@ -14,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -48,11 +49,13 @@ fun RootNavHost(
     val snackbarHostState = remember { SnackbarHostState() }
     val isServerWakingUp by resumeHealthChecker.isServerWakingUp.collectAsStateWithLifecycle()
     val sessionExpiredMsg = stringResource(id = R.string.session_expired_message)
+    var showSessionExpiredOnLogin by remember { androidx.compose.runtime.mutableStateOf(false) }
 
     // Global listener for SessionExpired events
     LaunchedEffect(Unit) {
         SessionEvents.events.collectLatest { event ->
             if (event is SessionEvent.SessionExpired) {
+                showSessionExpiredOnLogin = true
                 sessionManager.logout()
                 navController.navigate(LoginRoute) {
                     popUpTo(0) { inclusive = true }
@@ -121,19 +124,71 @@ fun RootNavHost(
                     }
 
                     composable<LoginRoute> {
-                        PlaceholderScreen(title = "Login")
+                        val loginViewModel: com.peakconnect.app.feature.auth.LoginViewModel = hiltViewModel()
+                        androidx.compose.runtime.LaunchedEffect(showSessionExpiredOnLogin) {
+                            if (showSessionExpiredOnLogin) {
+                                loginViewModel.setSessionExpiredNotice(true)
+                                showSessionExpiredOnLogin = false
+                            }
+                        }
+                        com.peakconnect.app.feature.auth.LoginScreen(
+                            viewModel = loginViewModel,
+                            onSuccess = { role ->
+                                val targetRoute: Any = when (role) {
+                                    com.peakconnect.app.domain.model.Role.TREKKER -> TrekkerGraphRoute
+                                    com.peakconnect.app.domain.model.Role.GUIDE -> GuideGraphRoute
+                                    com.peakconnect.app.domain.model.Role.ADMIN -> AdminUnsupportedRoute
+                                }
+                                navController.navigate(targetRoute) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            },
+                            onNavigateToRegister = {
+                                navController.navigate(RegisterRoute)
+                            }
+                        )
                     }
 
                     composable<RegisterRoute> {
-                        PlaceholderScreen(title = "Register")
+                        val registerViewModel: com.peakconnect.app.feature.auth.RegisterViewModel = hiltViewModel()
+                        com.peakconnect.app.feature.auth.RegisterScreen(
+                            viewModel = registerViewModel,
+                            onSuccess = { role ->
+                                val targetRoute: Any = when (role) {
+                                    com.peakconnect.app.domain.model.Role.TREKKER -> TrekkerGraphRoute
+                                    com.peakconnect.app.domain.model.Role.GUIDE -> GuideGraphRoute
+                                    com.peakconnect.app.domain.model.Role.ADMIN -> AdminUnsupportedRoute
+                                }
+                                navController.navigate(targetRoute) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            },
+                            onNavigateToLogin = {
+                                navController.navigate(LoginRoute) {
+                                    popUpTo(RegisterRoute) { inclusive = true }
+                                }
+                            }
+                        )
                     }
 
                     composable<TrekkerGraphRoute> {
-                        TrekkerNavShell()
+                        TrekkerNavShell(
+                            onNavigateToLogin = {
+                                navController.navigate(LoginRoute) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        )
                     }
 
                     composable<GuideGraphRoute> {
-                        GuideNavShell()
+                        GuideNavShell(
+                            onNavigateToLogin = {
+                                navController.navigate(LoginRoute) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        )
                     }
 
                     composable<AdminUnsupportedRoute> {
@@ -189,7 +244,14 @@ fun RootNavHost(
                     }
 
                     composable<SettingsRoute> {
-                        PlaceholderScreen(title = "Settings")
+                        com.peakconnect.app.feature.profile.ProfileScreen(
+                            viewModel = hiltViewModel(),
+                            onNavigateToLogin = {
+                                navController.navigate(LoginRoute) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        )
                     }
 
                     composable<GuideProfileEditRoute> {

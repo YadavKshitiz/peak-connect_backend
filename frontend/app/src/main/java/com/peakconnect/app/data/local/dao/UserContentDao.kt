@@ -115,7 +115,7 @@ suspend fun UserContentDao.recordView(activityId: String, timestamp: Long = Syst
 }
 
 suspend fun UserContentDao.clearUserSpecificData() {
-    clearFavourites()
+    // Note: Favourites stay intact on logout per specification
     clearRecentlyViewed()
     clearSearchHistory()
     clearNotifications()

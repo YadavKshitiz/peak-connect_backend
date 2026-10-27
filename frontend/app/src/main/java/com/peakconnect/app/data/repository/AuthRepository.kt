@@ -11,6 +11,7 @@ import com.peakconnect.app.data.dto.LoginRequest
 import com.peakconnect.app.data.dto.RegisterRequest
 import com.peakconnect.app.data.local.dao.BookingDao
 import com.peakconnect.app.data.local.dao.GuideDao
+import com.peakconnect.app.data.local.dao.NotifiedEventDao
 import com.peakconnect.app.data.local.dao.UserContentDao
 import com.peakconnect.app.data.local.dao.clearUserSpecificData
 import kotlinx.coroutines.CoroutineDispatcher
@@ -34,6 +35,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val userContentDao: UserContentDao,
     private val bookingDao: BookingDao,
     private val guideDao: GuideDao,
+    private val notifiedEventDao: NotifiedEventDao,
     private val wakeUpRetryHelper: WakeUpRetryHelper,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AuthRepository {
@@ -101,7 +103,9 @@ class AuthRepositoryImpl @Inject constructor(
             bookingDao.clearBookings()
             guideDao.clearGuideBookings()
             guideDao.clearGuideProfile()
+            notifiedEventDao.clearAll()
             userContentDao.clearUserSpecificData()
+            // TODO: Cancel any scheduled WorkManager periodic sync jobs (Task 13/14)
         } catch (_: Exception) {
         }
     }

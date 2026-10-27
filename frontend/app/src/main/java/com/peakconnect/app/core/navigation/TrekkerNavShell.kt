@@ -74,7 +74,8 @@ private val trekkerTabs = listOf(
 
 @Composable
 fun TrekkerNavShell(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToLogin: () -> Unit = {}
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -132,7 +133,10 @@ fun TrekkerNavShell(
                 PlaceholderScreen(title = stringResource(id = R.string.nav_tab_bookings))
             }
             composable<ProfileTabRoute> {
-                PlaceholderScreen(title = stringResource(id = R.string.nav_tab_profile))
+                com.peakconnect.app.feature.profile.ProfileScreen(
+                    viewModel = androidx.hilt.navigation.compose.hiltViewModel(),
+                    onNavigateToLogin = onNavigateToLogin
+                )
             }
         }
     }
