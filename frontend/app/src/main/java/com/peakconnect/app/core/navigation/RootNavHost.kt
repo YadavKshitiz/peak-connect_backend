@@ -217,14 +217,40 @@ fun RootNavHost(
                         )
                     }
 
-                    composable<GuideMatchesRoute> { backStackEntry ->
-                        val route = backStackEntry.toRoute<GuideMatchesRoute>()
-                        PlaceholderScreen(title = "Guide Matches (${route.slotId})")
+                    composable<GuideMatchesRoute> {
+                        com.peakconnect.app.feature.trekker.matches.GuideMatchesScreen(
+                            onBack = { navController.popBackStack() },
+                            onNavigateToReview = { slotId, guideId ->
+                                navController.navigate(BookingReviewRoute(slotId = slotId, guideId = guideId))
+                            },
+                            onNavigateToWaitlist = {
+                                navController.navigate(WaitlistRoute) {
+                                    popUpTo<GuideMatchesRoute> { inclusive = true }
+                                }
+                            }
+                        )
                     }
 
-                    composable<BookingReviewRoute> { backStackEntry ->
-                        val route = backStackEntry.toRoute<BookingReviewRoute>()
-                        PlaceholderScreen(title = "Booking Review (${route.slotId})")
+                    composable<BookingReviewRoute> {
+                        com.peakconnect.app.feature.trekker.review.BookingReviewScreen(
+                            onBack = { navController.popBackStack() },
+                            onBookingSuccess = { bookingId ->
+                                navController.navigate(BookingStatusRoute(bookingId = bookingId)) {
+                                    popUpTo<GuideMatchesRoute> { inclusive = true }
+                                }
+                            },
+                            onWaitlistSuccess = {
+                                navController.navigate(WaitlistRoute) {
+                                    popUpTo<GuideMatchesRoute> { inclusive = true }
+                                }
+                            },
+                            onNavigateBackToActivity = {
+                                navController.popBackStack<ActivityDetailRoute>(inclusive = false)
+                            },
+                            onNavigateBackToMatches = {
+                                navController.popBackStack()
+                            }
+                        )
                     }
 
                     composable<BookingStatusRoute> { backStackEntry ->

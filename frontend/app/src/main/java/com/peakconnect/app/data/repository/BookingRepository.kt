@@ -51,6 +51,8 @@ interface BookingRepository {
         activityTitle: String,
         slotDate: LocalDateTime
     ): ApiResult<String>
+    suspend fun getBookingForSlot(slotId: String): BookingEntity?
+    fun getCachedMatchedGuide(guideId: String): MatchedGuide?
 }
 
 @Singleton
@@ -63,8 +65,12 @@ class BookingRepositoryImpl @Inject constructor(
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BookingRepository {
 
+    private val matchedGuidesCache = java.util.concurrent.ConcurrentHashMap<String, MatchedGuide>()
+
     private val _lastUpdatedFlow = MutableStateFlow<Long?>(null)
     override val lastUpdatedFlow: Flow<Long?> = _lastUpdatedFlow.asStateFlow()
+
+    override fun getCachedMatchedGuide(guideId: String): MatchedGuide? = matchedGuidesCache[guideId]
 
     override fun getMyBookingsFlow(): Flow<List<BookingEntity>> {
         return bookingDao.getMyBookingsFlow()
@@ -112,7 +118,9 @@ class BookingRepositoryImpl @Inject constructor(
                 )
                 if (response.isSuccessful) {
                     val list = response.body() ?: emptyList()
-                    ApiResult.Success(list.map { it.toDomain() })
+                    val domainList = list.map { it.toDomain() }
+                    domainList.forEach { matchedGuidesCache[it.guideId] = it }
+                    ApiResult.Success(domainList)
                 } else {
                     ErrorMapper.mapHttpError(response.code(), response.errorBody()?.string())
                 }
@@ -339,5 +347,9 @@ class BookingRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             ErrorMapper.mapThrowable(e)
         }
+    }
+
+    override suspend fun getBookingForSlot(slotId: String): BookingEntity? = withContext(ioDispatcher) {
+        bookingDao.getBookingForSlot(slotId)
     }
 }

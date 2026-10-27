@@ -156,6 +156,18 @@ interface ActivityDao {
     @Query("SELECT * FROM slots WHERE activityId = :activityId ORDER BY date ASC")
     fun getSlotsForActivityFlow(activityId: String): Flow<List<SlotEntity>>
 
+    @Query("SELECT * FROM slots WHERE id = :slotId")
+    suspend fun getSlotById(slotId: String): SlotEntity?
+
+    @Query("SELECT * FROM slots WHERE id = :slotId")
+    fun getSlotFlow(slotId: String): Flow<SlotEntity?>
+
+    @Query("SELECT a.* FROM activities a INNER JOIN slots s ON a.id = s.activityId WHERE s.id = :slotId")
+    suspend fun getActivityForSlot(slotId: String): ActivityEntity?
+
+    @Query("SELECT a.* FROM activities a INNER JOIN slots s ON a.id = s.activityId WHERE s.id = :slotId")
+    fun getActivityForSlotFlow(slotId: String): Flow<ActivityEntity?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertActivities(activities: List<ActivityEntity>): List<Long>
 

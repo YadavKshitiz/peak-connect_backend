@@ -22,6 +22,9 @@ interface BookingDao {
     @Query("SELECT * FROM bookings WHERE id = :id")
     suspend fun getBookingById(id: String): BookingEntity?
 
+    @Query("SELECT * FROM bookings WHERE slotId = :slotId AND status != 'CANCELLED' LIMIT 1")
+    suspend fun getBookingForSlot(slotId: String): BookingEntity?
+
     @Query("SELECT * FROM bookings")
     suspend fun getAllBookings(): List<BookingEntity>
 

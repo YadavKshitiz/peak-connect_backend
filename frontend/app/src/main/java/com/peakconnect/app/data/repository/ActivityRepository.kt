@@ -60,6 +60,10 @@ interface ActivityRepository {
     suspend fun updateChecklistItem(item: ChecklistItemEntity)
     suspend fun deleteChecklistItem(id: Long)
     suspend fun resetChecklist(activityId: String, difficulty: DifficultyLevel, defaultItems: List<ChecklistItemEntity>)
+    fun getSlotFlow(slotId: String): Flow<SlotEntity?>
+    suspend fun getSlotById(slotId: String): SlotEntity?
+    fun getActivityForSlotFlow(slotId: String): Flow<ActivityEntity?>
+    suspend fun getActivityForSlot(slotId: String): ActivityEntity?
 }
 
 @Singleton
@@ -284,5 +288,17 @@ class ActivityRepositoryImpl @Inject constructor(
         userContentDao.deleteChecklistForActivity(activityId, difficulty)
         userContentDao.insertChecklistItems(defaultItems)
         Unit
+    }
+
+    override fun getSlotFlow(slotId: String): Flow<SlotEntity?> = activityDao.getSlotFlow(slotId)
+
+    override suspend fun getSlotById(slotId: String): SlotEntity? = withContext(ioDispatcher) {
+        activityDao.getSlotById(slotId)
+    }
+
+    override fun getActivityForSlotFlow(slotId: String): Flow<ActivityEntity?> = activityDao.getActivityForSlotFlow(slotId)
+
+    override suspend fun getActivityForSlot(slotId: String): ActivityEntity? = withContext(ioDispatcher) {
+        activityDao.getActivityForSlot(slotId)
     }
 }

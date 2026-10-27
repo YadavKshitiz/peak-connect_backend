@@ -261,4 +261,66 @@
     <string name="checklist_add_item_button">Add</string>
     <string name="checklist_reset">Reset</string>
     <string name="checklist_delete_item">Delete</string>
+
+    <!-- Task 8: Guide Matching & Booking Review -->
+    <string name="matches_title">Choose your guide</string>
+    <string name="matches_waitlist_title">Join the waitlist</string>
+    <string name="matches_waitlist_info">Pick the guide you’d like. If a spot opens up, your request goes to this guide automatically.</string>
+    <string name="matches_weights_title">What matters most?</string>
+    <string name="matches_weights_skills">Skills</string>
+    <string name="matches_weights_location">Location</string>
+    <string name="matches_weights_reset">Reset</string>
+    <string name="matches_weights_hint">Higher means more important</string>
+    <string name="matches_best_match">Best match</string>
+    <string name="matches_match_score">%1$d%% match</string>
+    <string name="matches_languages_label">Languages: %1$s</string>
+    <string name="matches_distance_km">%1$.1f km away</string>
+    <string name="matches_empty_title">No guides are available for this slot right now</string>
+    <string name="matches_empty_action_back">Go back</string>
+    <string name="matches_server_waking">Server is waking up, hang on…</string>
+    <string name="matches_select_guide">Select this guide</string>
+    <string name="matches_join_waitlist_guide">Join waitlist with this guide</string>
+    <string name="guide_profile_verified">Verified Guide</string>
+    <string name="guide_profile_skills_title">Skills</string>
+    <string name="guide_profile_languages_title">Languages</string>
+    <string name="guide_profile_location_title">Location</string>
+    <string name="guide_profile_experience_title">Experience</string>
+
+    <!-- Waitlist Dialog & States -->
+    <string name="waitlist_dialog_title">Join the waitlist?</string>
+    <string name="waitlist_dialog_message">If someone cancels, a booking request is sent to %1$s automatically. They have to accept first, then you’ll be asked to pay the deposit. You can cancel any resulting booking.</string>
+    <string name="waitlist_dialog_confirm">Join waitlist</string>
+    <string name="waitlist_dialog_action_label">join the waitlist</string>
+    <string name="waitlist_joined_snackbar">You’re on the waitlist</string>
+    <string name="waitlist_409_title">Slot has spots</string>
+    <string name="waitlist_409_message">This slot has spots again. Book it directly.</string>
+    <string name="waitlist_409_action_book">Book slot</string>
+    <string name="waitlist_timeout_message">Request timed out. Please check the Waitlist tab before retrying, as your request may have been processed.</string>
+
+    <!-- Booking Review -->
+    <string name="review_title">Review &amp; Book</string>
+    <string name="review_card_activity">Activity</string>
+    <string name="review_card_datetime">Date &amp; time</string>
+    <string name="review_card_guide">Your guide</string>
+    <string name="review_card_price">Price details</string>
+    <string name="review_total_price">Total price</string>
+    <string name="review_estimated_deposit">Estimated deposit due after the guide accepts: %1$s (%2$d%%)</string>
+    <string name="review_deposit_label">Non-refundable deposit (estimate)</string>
+    <string name="review_deposit_note">The final deposit amount is shown once your guide accepts.</string>
+    <string name="review_how_it_works_title">How booking works</string>
+    <string name="review_step_1_title">1 Guide accepts your request</string>
+    <string name="review_step_1_desc">Your guide reviews and confirms availability for this slot.</string>
+    <string name="review_step_2_title">2 You pay the deposit</string>
+    <string name="review_step_2_desc">Pay the estimated 20% deposit to confirm your spot.</string>
+    <string name="review_step_3_title">3 You’re confirmed</string>
+    <string name="review_step_3_desc">You receive your booking confirmation and details.</string>
+    <string name="review_action_send_request">Send booking request</string>
+    <string name="review_action_book_label">book</string>
+    <string name="review_slot_filled_title">Slot is full</string>
+    <string name="review_slot_filled_message">This slot just filled up</string>
+    <string name="review_slot_filled_waitlist">Join waitlist</string>
+    <string name="review_slot_filled_back">Back to activity</string>
+    <string name="review_booking_error_title">Booking request</string>
+    <string name="booking_offline_blocked">You’re offline. Connect to the internet to book.</string>
+    <string name="common_skills_more">+%1$d</string>
 </resources>

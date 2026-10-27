@@ -62,4 +62,9 @@ object CancellationPolicyInfo {
             }
         }
     }
+
+    fun calculateEstimatedDeposit(totalPrice: java.math.BigDecimal): java.math.BigDecimal {
+        return (totalPrice * java.math.BigDecimal.valueOf(DEPOSIT_PERCENTAGE))
+            .setScale(2, java.math.RoundingMode.HALF_UP)
+    }
 }
