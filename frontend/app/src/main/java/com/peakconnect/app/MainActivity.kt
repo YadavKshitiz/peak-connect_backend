@@ -4,17 +4,17 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import com.peakconnect.app.core.navigation.RootNavHost
+import com.peakconnect.app.core.network.ResumeHealthChecker
+import com.peakconnect.app.core.session.SessionManager
 import com.peakconnect.app.core.theme.PeakConnectTheme
 import com.peakconnect.app.core.theme.ThemeMode
 import com.peakconnect.app.core.util.LocalIsOnline
@@ -28,26 +28,54 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var networkMonitor: NetworkMonitor
 
+    @Inject
+    lateinit var sessionManager: SessionManager
+
+    @Inject
+    lateinit var resumeHealthChecker: ResumeHealthChecker
+
+    private var isAppReady by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
+        val splashStartTime = System.currentTimeMillis()
+
         super.onCreate(savedInstanceState)
+
+        // Keep system splash until first frame & session check ready, max 1 second
+        splashScreen.setKeepOnScreenCondition {
+            val elapsed = System.currentTimeMillis() - splashStartTime
+            !isAppReady && elapsed < 1000L
+        }
+
         enableEdgeToEdge()
+
         setContent {
             val isOnline by networkMonitor.isOnline.collectAsStateWithLifecycle(initialValue = true)
 
+            LaunchedEffect(Unit) {
+                isAppReady = true
+            }
+
             CompositionLocalProvider(LocalIsOnline provides isOnline) {
                 PeakConnectTheme(themeMode = ThemeMode.SYSTEM) {
-                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = stringResource(id = R.string.app_name))
-                        }
-                    }
+                    RootNavHost(
+                        sessionManager = sessionManager,
+                        resumeHealthChecker = resumeHealthChecker,
+                        onExitApp = { finish() }
+                    )
                 }
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        resumeHealthChecker.onAppForegrounded(lifecycleScope)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        resumeHealthChecker.onAppBackgrounded()
     }
 }

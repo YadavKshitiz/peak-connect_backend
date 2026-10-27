@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Sun circle -->
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M74,29 A7,7 0 1,0 74,43 A7,7 0 1,0 74,29 Z" />
+
+    <!-- Left / Background Mountain Peak -->
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M44,36 L20,76 L68,76 Z" />
+
+    <!-- Right / Foreground Overlapping Mountain Peak -->
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M64,46 L44,76 L88,76 Z" />
+
+    <!-- Separator stroke -->
+    <path
+        android:strokeColor="@color/black"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M64,46 L44,76" />
+</vector>

@@ -4,7 +4,7 @@
   - Task 1B patch applied (test libraries, AppCompatActivity, biometric removed) - 2026-10-18
 - [x] Task 2: Design system (Completed on 2026-10-18)
 - [x] Task 3: Data layer (Completed on 2026-10-18)
-- [ ] Task 4: Splash/cold-start/navigation
+- [x] Task 4: Splash/cold-start/navigation (Completed on 2026-10-27)
 - [ ] Task 5: Auth/settings
 - [ ] Task 6: Explore
 - [ ] Task 7: Activity detail

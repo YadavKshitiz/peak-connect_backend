@@ -16,6 +16,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+import com.peakconnect.app.core.preferences.DataStoreOnboardingStore
+import com.peakconnect.app.core.preferences.OnboardingStore
+
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "peakconnect_prefs")
 
 @Module
@@ -24,6 +27,10 @@ abstract class StorageBindingsModule {
     @Binds
     @Singleton
     abstract fun bindTokenStore(impl: DataStoreTokenStore): TokenStore
+
+    @Binds
+    @Singleton
+    abstract fun bindOnboardingStore(impl: DataStoreOnboardingStore): OnboardingStore
 }
 
 @Module

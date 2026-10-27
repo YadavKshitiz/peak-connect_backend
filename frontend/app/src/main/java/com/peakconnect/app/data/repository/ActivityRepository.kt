@@ -32,6 +32,7 @@ interface ActivityRepository {
     fun getActivityWithSlots(id: String): Flow<ActivityWithSlots?>
     suspend fun getActivity(id: String): ApiResult<Activity>
     suspend fun refreshActivities(location: String? = null, date: String? = null): ApiResult<Unit>
+    suspend fun hasCachedActivities(): Boolean
 }
 
 @Singleton
@@ -41,6 +42,10 @@ class ActivityRepositoryImpl @Inject constructor(
     private val wakeUpRetryHelper: WakeUpRetryHelper,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ActivityRepository {
+
+    override suspend fun hasCachedActivities(): Boolean = withContext(ioDispatcher) {
+        activityDao.getActivityCount() > 0
+    }
 
     private val _lastUpdatedFlow = MutableStateFlow<Long?>(null)
     override val lastUpdatedFlow: Flow<Long?> = _lastUpdatedFlow.asStateFlow()

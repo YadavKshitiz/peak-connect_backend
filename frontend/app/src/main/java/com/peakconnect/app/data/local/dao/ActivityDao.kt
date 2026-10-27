@@ -92,6 +92,9 @@ interface ActivityDao {
     @Query("SELECT * FROM activities WHERE id = :id")
     suspend fun getActivityById(id: String): ActivityEntity?
 
+    @Query("SELECT COUNT(*) FROM activities")
+    suspend fun getActivityCount(): Int
+
     @Transaction
     @Query("SELECT * FROM activities WHERE id = :id")
     fun getActivityWithSlotsFlow(id: String): Flow<ActivityWithSlots?>

@@ -78,4 +78,44 @@
     <string name="error_default_message">Something went wrong. Please check your connection and try again.</string>
     <string name="empty_default_title">Nothing here yet</string>
     <string name="empty_default_message">Check back later or try adjusting your filters.</string>
+
+    <!-- Boot / Server Waking -->
+    <string name="boot_waking_title">Waking up the server</string>
+    <string name="boot_waking_body">The free server sleeps when idle. This usually takes 30–60 seconds.</string>
+    <string name="boot_waiting_timer">Waiting %1$s</string>
+    <string name="boot_automatic_entry">You’ll be taken in automatically.</string>
+    <string name="boot_timeout_title">The server is taking longer than usual</string>
+    <string name="boot_timeout_body">The server may be taking longer to wake up. You can retry, view saved data offline, or close the app.</string>
+    <string name="boot_action_view_saved">View saved data</string>
+    <string name="boot_action_close_app">Close app</string>
+    <string name="boot_offline_title">No internet connection</string>
+    <string name="boot_offline_body">Please connect to the internet to access live mountain treks and guides.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get started</string>
+    <string name="onboarding_page1_title">Discover treks and adventures</string>
+    <string name="onboarding_page1_body">Explore curated high-altitude trails, hidden paths, and breathtaking mountain experiences.</string>
+    <string name="onboarding_page2_title">Smart prices and safety info</string>
+    <string name="onboarding_page2_body">Real-time seasonal pricing, risk assessments, and transparent difficulty metrics for every journey.</string>
+    <string name="onboarding_page3_title">Book trusted local guides</string>
+    <string name="onboarding_page3_body">Connect with certified, experienced guides matched precisely to your trekking preferences.</string>
+
+    <!-- Navigation Tabs & Placeholders -->
+    <string name="nav_tab_explore">Explore</string>
+    <string name="nav_tab_saved">Saved</string>
+    <string name="nav_tab_bookings">Bookings</string>
+    <string name="nav_tab_profile">Profile</string>
+    <string name="nav_tab_home">Home</string>
+    <string name="placeholder_coming_task_5">Coming in Task 5</string>
+    <string name="placeholder_tab_format">%1$s</string>
+
+    <!-- Admin Unsupported -->
+    <string name="admin_unsupported_title">Admin Portal</string>
+    <string name="admin_unsupported_message">The admin role isn’t supported in the app</string>
+    <string name="auth_logout">Logout</string>
+
+    <!-- Session Expired -->
+    <string name="session_expired_message">Your session expired. Please log in again.</string>
 </resources>
