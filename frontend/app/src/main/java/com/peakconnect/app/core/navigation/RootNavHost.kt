@@ -192,10 +192,19 @@ fun RootNavHost(
 
                     composable<GuideGraphRoute> {
                         GuideNavShell(
+                            onNavigateToBookingDetail = { bookingId ->
+                                navController.navigate(GuideBookingDetailRoute(bookingId = bookingId))
+                            },
+                            onNavigateToProfileEdit = {
+                                navController.navigate(GuideProfileEditRoute)
+                            },
                             onNavigateToLogin = {
                                 navController.navigate(LoginRoute) {
                                     popUpTo(0) { inclusive = true }
                                 }
+                            },
+                            onNotificationClick = {
+                                navController.navigate(NotificationsRoute)
                             }
                         )
                     }
@@ -327,12 +336,44 @@ fun RootNavHost(
                         )
                     }
 
-                    composable<GuideProfileEditRoute> {
-                        PlaceholderScreen(title = "Guide Profile Edit")
+                    composable<GuideProfileEditRoute> { backStackEntry ->
+                        val editViewModel: com.peakconnect.app.feature.guide.profile.GuideProfileEditViewModel = hiltViewModel()
+                        val savedStateHandle = backStackEntry.savedStateHandle
+                        val pickedLat by savedStateHandle.getStateFlow<Double?>("picked_lat", null).collectAsStateWithLifecycle()
+                        val pickedLng by savedStateHandle.getStateFlow<Double?>("picked_lng", null).collectAsStateWithLifecycle()
+                        LaunchedEffect(pickedLat, pickedLng) {
+                            val lat = pickedLat
+                            val lng = pickedLng
+                            if (lat != null && lng != null) {
+                                editViewModel.setCoordinates(lat, lng)
+                                savedStateHandle.remove<Double>("picked_lat")
+                                savedStateHandle.remove<Double>("picked_lng")
+                            }
+                        }
+                        com.peakconnect.app.feature.guide.profile.GuideProfileEditScreen(
+                            onBack = { navController.popBackStack() },
+                            onNavigateToMapPicker = { lat, lng ->
+                                navController.navigate(MapPickerRoute(initialLat = lat, initialLng = lng))
+                            },
+                            viewModel = editViewModel
+                        )
                     }
 
                     composable<MapPickerRoute> {
-                        PlaceholderScreen(title = "Map Picker")
+                        com.peakconnect.app.feature.guide.mappicker.MapPickerScreen(
+                            onLocationConfirmed = { lat, lng ->
+                                navController.previousBackStackEntry?.savedStateHandle?.set("picked_lat", lat)
+                                navController.previousBackStackEntry?.savedStateHandle?.set("picked_lng", lng)
+                                navController.popBackStack()
+                            },
+                            onCancel = { navController.popBackStack() }
+                        )
+                    }
+
+                    composable<GuideBookingDetailRoute> {
+                        com.peakconnect.app.feature.guide.detail.GuideBookingDetailScreen(
+                            onBack = { navController.popBackStack() }
+                        )
                     }
                 }
             }

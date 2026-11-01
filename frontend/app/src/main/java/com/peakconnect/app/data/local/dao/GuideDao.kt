@@ -26,6 +26,12 @@ interface GuideDao {
     @Query("SELECT * FROM guide_bookings ORDER BY date DESC")
     fun getGuideBookingsFlow(): Flow<List<GuideBookingEntity>>
 
+    @Query("SELECT * FROM guide_bookings WHERE id = :id LIMIT 1")
+    fun getGuideBookingFlow(id: String): Flow<GuideBookingEntity?>
+
+    @Query("SELECT * FROM guide_bookings WHERE id = :id LIMIT 1")
+    suspend fun getGuideBookingById(id: String): GuideBookingEntity?
+
     @Query("SELECT * FROM guide_bookings")
     suspend fun getAllGuideBookings(): List<GuideBookingEntity>
 

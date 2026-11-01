@@ -29,6 +29,8 @@ interface GuideRepository {
     suspend fun refreshProfile(): ApiResult<Unit>
     suspend fun updateProfile(request: GuideProfileUpdateRequest): ApiResult<GuideProfile>
     fun getGuideBookingsFlow(): Flow<List<GuideBookingEntity>>
+    fun getGuideBookingFlow(id: String): Flow<GuideBookingEntity?>
+    suspend fun getGuideBookingById(id: String): GuideBookingEntity?
     suspend fun refreshGuideBookings(): ApiResult<Unit>
 }
 
@@ -37,7 +39,7 @@ class GuideRepositoryImpl @Inject constructor(
     private val api: PeakConnectApi,
     private val guideDao: GuideDao,
     private val wakeUpRetryHelper: WakeUpRetryHelper,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : GuideRepository {
 
     private val _lastUpdatedProfileFlow = MutableStateFlow<Long?>(null)
@@ -144,6 +146,14 @@ class GuideRepositoryImpl @Inject constructor(
 
     override fun getGuideBookingsFlow(): Flow<List<GuideBookingEntity>> {
         return guideDao.getGuideBookingsFlow()
+    }
+
+    override fun getGuideBookingFlow(id: String): Flow<GuideBookingEntity?> {
+        return guideDao.getGuideBookingFlow(id)
+    }
+
+    override suspend fun getGuideBookingById(id: String): GuideBookingEntity? = withContext(ioDispatcher) {
+        guideDao.getGuideBookingById(id)
     }
 
     override suspend fun refreshGuideBookings(): ApiResult<Unit> = withContext(ioDispatcher) {

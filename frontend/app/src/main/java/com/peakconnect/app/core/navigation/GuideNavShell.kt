@@ -64,8 +64,11 @@ private val guideTabs = listOf(
 
 @Composable
 fun GuideNavShell(
+    onNavigateToBookingDetail: (String) -> Unit,
+    onNavigateToProfileEdit: () -> Unit,
     modifier: Modifier = Modifier,
-    onNavigateToLogin: () -> Unit = {}
+    onNavigateToLogin: () -> Unit = {},
+    onNotificationClick: () -> Unit = {}
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -114,15 +117,22 @@ fun GuideNavShell(
             popExitTransition = { defaultPopExitTransition() }
         ) {
             composable<GuideHomeTabRoute> {
-                PlaceholderScreen(title = stringResource(id = R.string.nav_tab_home))
+                com.peakconnect.app.feature.guide.home.GuideHomeScreen(
+                    onNavigateToBookingDetail = onNavigateToBookingDetail,
+                    onNavigateToProfileEdit = onNavigateToProfileEdit,
+                    onNotificationClick = onNotificationClick
+                )
             }
             composable<GuideBookingsTabRoute> {
-                PlaceholderScreen(title = stringResource(id = R.string.nav_tab_bookings))
+                com.peakconnect.app.feature.guide.bookings.GuideBookingsScreen(
+                    onNavigateToBookingDetail = onNavigateToBookingDetail
+                )
             }
             composable<GuideProfileTabRoute> {
                 com.peakconnect.app.feature.profile.ProfileScreen(
                     viewModel = androidx.hilt.navigation.compose.hiltViewModel(),
-                    onNavigateToLogin = onNavigateToLogin
+                    onNavigateToLogin = onNavigateToLogin,
+                    onNavigateToGuideProfileEdit = onNavigateToProfileEdit
                 )
             }
         }

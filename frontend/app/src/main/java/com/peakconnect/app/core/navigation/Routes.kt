@@ -88,3 +88,6 @@ data object GuideProfileEditRoute
 
 @Serializable
 data class MapPickerRoute(val initialLat: Double? = null, val initialLng: Double? = null)
+
+@Serializable
+data class GuideBookingDetailRoute(val bookingId: String)

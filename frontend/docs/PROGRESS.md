@@ -12,7 +12,7 @@
 - [x] Task 9: Booking status/cancel (Completed on 2026-11-01)
 - [x] Task 10: Payment (Completed on 2026-11-01)
 - [x] Task 11: Waitlist (Completed on 2026-11-01)
-- [ ] Task 12: Guide experience
+- [x] Task 12: Guide experience (Completed on 2026-11-01)
 - [ ] Task 13: Notifications
 - [ ] Task 14: Offline hardening
 - [ ] Task 15: Extras/localization

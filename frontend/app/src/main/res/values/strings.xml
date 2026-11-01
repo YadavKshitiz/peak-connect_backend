@@ -455,4 +455,88 @@
     <string name="waitlist_reason_no_guide">No guide available</string>
     <string name="waitlist_reason_no_show">No-show</string>
     <string name="waitlist_reason_date_passed">Slot date passed</string>
+
+    <!-- Task 12: Guide Experience -->
+    <string name="guide_home_title">Guide Home</string>
+    <string name="guide_home_awaiting_approval">Your account is awaiting admin approval. You won\'t appear in trekker matches until it\'s approved.</string>
+    <string name="guide_home_complete_profile_title">Complete your profile</string>
+    <string name="guide_home_complete_profile_desc">Add your skills, languages, and base location so trekkers can find you.</string>
+    <string name="guide_home_action_complete_profile">Complete profile</string>
+    <string name="guide_home_verified_badge">Verified guide</string>
+    <string name="guide_home_stats_pending">Pending requests</string>
+    <string name="guide_home_stats_upcoming">Upcoming trips</string>
+    <string name="guide_home_stats_completed">Completed</string>
+    <string name="guide_home_section_pending">Pending requests</string>
+    <string name="guide_home_empty_pending">No requests right now</string>
+    <string name="guide_home_section_upcoming">Upcoming trips</string>
+    <string name="guide_home_empty_upcoming">No upcoming trips</string>
+    <string name="guide_action_accept">Accept</string>
+    <string name="guide_action_decline">Decline</string>
+    <string name="guide_action_accept_label">accept</string>
+    <string name="guide_action_decline_label">decline</string>
+    <string name="guide_trekker_label">Trekker: %1$s</string>
+    <string name="guide_countdown_expired">Window expired</string>
+
+    <!-- Guide Bookings Tab -->
+    <string name="guide_bookings_title">Assigned Bookings</string>
+    <string name="guide_filter_all">All</string>
+    <string name="guide_filter_pending">Pending</string>
+    <string name="guide_filter_awaiting_payment">Awaiting payment</string>
+    <string name="guide_filter_confirmed">Confirmed</string>
+    <string name="guide_filter_past">Past</string>
+    <string name="guide_filter_cancelled">Cancelled</string>
+    <string name="guide_bookings_empty_title">No bookings found</string>
+    <string name="guide_bookings_empty_message">Assigned bookings for this filter will appear here.</string>
+
+    <!-- Guide Booking Detail -->
+    <string name="guide_detail_title">Booking Request</string>
+    <string name="guide_detail_section_trekker">Trekker Details</string>
+    <string name="guide_detail_section_activity">Activity Details</string>
+    <string name="guide_detail_waiting_payment_desc">Waiting for the trekker to pay the deposit</string>
+    <string name="guide_detail_decline_dialog_title">Decline this booking?</string>
+    <string name="guide_detail_decline_dialog_message">Decline this booking? We\'ll try to find another guide for the trekker.</string>
+    <string name="guide_detail_decline_confirm">Decline booking</string>
+    <string name="guide_detail_decline_dismiss">Keep booking</string>
+    <string name="guide_detail_action_no_show">Mark as no-show</string>
+    <string name="guide_detail_action_no_show_label">mark a no-show</string>
+    <string name="guide_detail_no_show_dialog_title">Mark trekker as no-show?</string>
+    <string name="guide_detail_no_show_dialog_message">Confirm trekker did not show up. The trekker receives no refund.</string>
+    <string name="guide_detail_no_show_confirm">Mark no-show</string>
+    <string name="guide_detail_no_show_dismiss">Cancel</string>
+    <string name="guide_detail_error_expired_or_responded">This booking request has expired or has already been responded to.</string>
+    <string name="guide_detail_accept_success">Booking request accepted</string>
+    <string name="guide_detail_decline_success">Booking request declined</string>
+    <string name="guide_detail_no_show_success">Trekker marked as no-show</string>
+
+    <!-- Guide Profile Edit -->
+    <string name="guide_profile_edit_title">Edit Guide Profile</string>
+    <string name="guide_profile_skills_label">Skills</string>
+    <string name="guide_profile_skills_hint">Add a skill</string>
+    <string name="guide_profile_skills_add">Add</string>
+    <string name="guide_profile_languages_label">Languages</string>
+    <string name="guide_profile_languages_hint">Add a language</string>
+    <string name="guide_profile_languages_add">Add</string>
+    <string name="guide_profile_experience_label">Experience Level</string>
+    <string name="guide_profile_location_label">Base Location</string>
+    <string name="guide_profile_location_hint">e.g. Manali, Himachal Pradesh</string>
+    <string name="guide_profile_map_section">Location on map</string>
+    <string name="guide_profile_map_action_choose">Choose on map</string>
+    <string name="guide_profile_action_save">Save Profile</string>
+    <string name="guide_profile_action_save_label">save</string>
+    <string name="guide_profile_save_success">Profile saved successfully</string>
+    <string name="guide_profile_error_skills_required">Please add at least one skill.</string>
+    <string name="guide_profile_error_languages_required">Please add at least one language.</string>
+    <string name="guide_profile_error_location_required">Please enter your base location.</string>
+    <string name="guide_profile_error_experience_required">Please select an experience level.</string>
+    <string name="profile_menu_edit_guide_profile">Edit Guide Profile</string>
+
+    <!-- Map Picker -->
+    <string name="map_picker_title">Choose Location</string>
+    <string name="map_picker_search_hint">Search place (e.g. Manali, Leh)…</string>
+    <string name="map_picker_search_error">Could not find locations. Please try another search.</string>
+    <string name="map_picker_action_use_my_location">Use my location</string>
+    <string name="map_picker_location_permission_rationale">Location permission is required to detect your current position.</string>
+    <string name="map_picker_coords_format">Lat: %1$.5f, Lng: %2$.5f</string>
+    <string name="map_picker_action_confirm">Confirm location</string>
+    <string name="map_picker_action_cancel">Cancel</string>
 </resources>

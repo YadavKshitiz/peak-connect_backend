@@ -103,7 +103,13 @@ fun OsmMapView(
                             return false
                         }
 
-                        override fun longPressHelper(p: GeoPoint?): Boolean = false
+                        override fun longPressHelper(p: GeoPoint?): Boolean {
+                            if (p != null) {
+                                onMapTap(p)
+                                return true
+                            }
+                            return false
+                        }
                     })
                     view.overlays.add(eventsOverlay)
                 }
