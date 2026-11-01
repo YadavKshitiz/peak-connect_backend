@@ -20,7 +20,7 @@ object ErrorMapper {
     const val DEFAULT_FORBIDDEN_MSG = "You do not have permission to perform this action."
     const val DEFAULT_NOT_FOUND_MSG = "Requested item was not found."
     const val DEFAULT_SERVER_ERROR_MSG = "Server error occurred. Please try again later."
-    const val DEFAULT_TIMEOUT_MSG = "Connection timed out. Please try again."
+    const val DEFAULT_TIMEOUT_MSG = "Server is taking a while…"
     const val DEFAULT_NO_INTERNET_MSG = "No internet connection. Please check your network."
     const val DEFAULT_UNKNOWN_MSG = "An unexpected error occurred."
 
@@ -32,6 +32,8 @@ object ErrorMapper {
         val isBadCredentials = rawMessage.contains("Bad credentials", ignoreCase = true)
         val finalMessage = if (isBadCredentials) {
             DEFAULT_BAD_CREDENTIALS_MSG
+        } else if (code in 500..599) {
+            DEFAULT_SERVER_ERROR_MSG
         } else if (rawMessage.isNotBlank()) {
             rawMessage
         } else {
@@ -64,7 +66,7 @@ object ErrorMapper {
             is IOException -> ApiResult.NetworkError(throwable)
             else -> ApiResult.Error(
                 type = AppError.Unknown(rawMessage = throwable.message),
-                message = throwable.message ?: DEFAULT_UNKNOWN_MSG
+                message = DEFAULT_UNKNOWN_MSG
             )
         }
     }

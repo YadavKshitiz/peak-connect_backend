@@ -109,6 +109,7 @@ fun ExploreScreen(
     val searchHistory by viewModel.searchHistory.collectAsState()
     val favourites by viewModel.favouritesSet.collectAsState()
     val unreadCount by viewModel.unreadNotificationCount.collectAsStateWithLifecycle()
+    val lastUpdated by viewModel.lastUpdated.collectAsStateWithLifecycle()
 
     val pagedActivities = viewModel.pagedActivities.collectAsLazyPagingItems()
     val isOnline = LocalIsOnline.current
@@ -144,17 +145,6 @@ fun ExploreScreen(
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
 
-                // Offline InfoBanner
-                if (!isOnline) {
-                    InfoBanner(
-                        type = BannerType.INFO,
-                        text = stringResource(id = R.string.explore_offline_banner),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 4.dp)
-                    )
-                }
-
                 // Greeting & Bell Header
                 Row(
                     modifier = Modifier
@@ -163,12 +153,15 @@ fun ExploreScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.explore_greeting, userFirstName),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                    Column {
+                        Text(
+                            text = stringResource(id = R.string.explore_greeting, userFirstName),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        com.peakconnect.app.core.ui.LastUpdatedIndicator(lastUpdatedMillis = lastUpdated)
+                    }
 
                     IconButton(
                         onClick = onNotificationClick

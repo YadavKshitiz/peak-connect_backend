@@ -7,8 +7,12 @@ import com.peakconnect.app.data.repository.GuideRepository
 import com.peakconnect.app.domain.model.BookingStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -33,10 +37,14 @@ data class GuideBookingsUiState(
 
 @HiltViewModel
 class GuideBookingsViewModel @Inject constructor(
-    private val guideRepository: GuideRepository
+    private val guideRepository: GuideRepository,
+    private val networkRefreshNotifier: com.peakconnect.app.core.network.NetworkRefreshNotifier? = null
 ) : ViewModel() {
 
     var nowSupplier: () -> LocalDateTime = { LocalDateTime.now() }
+
+    val lastUpdated: StateFlow<Long?> = guideRepository.lastUpdatedBookingsFlow
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000), null)
 
     private val _uiState = MutableStateFlow(GuideBookingsUiState())
     val uiState: StateFlow<GuideBookingsUiState> = _uiState.asStateFlow()
@@ -44,6 +52,11 @@ class GuideBookingsViewModel @Inject constructor(
     init {
         observeBookings()
         refresh()
+
+        // Auto-refresh when back online (Requirement 1 & 2)
+        networkRefreshNotifier?.refreshEvents?.onEach {
+            refresh()
+        }?.launchIn(viewModelScope)
     }
 
     private fun observeBookings() {

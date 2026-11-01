@@ -45,13 +45,17 @@ fun RootNavHost(
     onExitApp: () -> Unit,
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
+    networkRefreshNotifier: com.peakconnect.app.core.network.NetworkRefreshNotifier? = null,
+    wakeUpRetryHelper: com.peakconnect.app.core.network.WakeUpRetryHelper? = null,
     pendingBookingId: String? = null,
     pendingIsGuide: Boolean = false,
     onClearPendingBooking: () -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    val isServerWakingUp by resumeHealthChecker.isServerWakingUp.collectAsStateWithLifecycle()
+    val isResumeWakingUp by resumeHealthChecker.isServerWakingUp.collectAsStateWithLifecycle()
+    val isRetryWakingUp by (wakeUpRetryHelper?.isServerWakingUp ?: kotlinx.coroutines.flow.flowOf(false)).collectAsStateWithLifecycle(initialValue = false)
+    val isServerWakingUp = isResumeWakingUp || isRetryWakingUp
     val sessionExpiredMsg = stringResource(id = R.string.session_expired_message)
     var showSessionExpiredOnLogin by remember { androidx.compose.runtime.mutableStateOf(false) }
 
@@ -91,7 +95,14 @@ fun RootNavHost(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Non-blocking InfoBanner when server is waking up after 10+ min background resume
+            // Global slim animated offline / back-online banner (Requirement 1)
+            com.peakconnect.app.core.ui.GlobalOfflineBanner(
+                onBackOnline = {
+                    networkRefreshNotifier?.notifyBackOnline()
+                }
+            )
+
+            // Non-blocking InfoBanner when server is waking up after 10+ min background resume or retry (Requirement 6)
             AnimatedVisibility(visible = isServerWakingUp) {
                 InfoBanner(
                     type = BannerType.INFO,

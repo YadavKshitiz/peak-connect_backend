@@ -61,6 +61,7 @@ fun MyBookingsScreen(
     viewModel: BookingListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val lastUpdated by viewModel.lastUpdated.collectAsStateWithLifecycle()
     var entryToRemove by remember { mutableStateOf<WaitlistEntryEntity?>(null) }
 
     LifecycleResumeEffect(Unit) {
@@ -126,6 +127,15 @@ fun MyBookingsScreen(
                         }
                     )
                 }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = MaterialTheme.spacing.md, vertical = MaterialTheme.spacing.xs),
+                horizontalArrangement = Arrangement.End
+            ) {
+                com.peakconnect.app.core.ui.LastUpdatedIndicator(lastUpdatedMillis = lastUpdated)
             }
 
             // Pull-to-refresh container

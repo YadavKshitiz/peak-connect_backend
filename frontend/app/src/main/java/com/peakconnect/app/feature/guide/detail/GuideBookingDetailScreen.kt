@@ -277,6 +277,9 @@ fun GuideBookingDetailScreen(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
                                 }
+
+                                Spacer(modifier = Modifier.height(4.dp))
+                                com.peakconnect.app.core.ui.LastUpdatedIndicator(lastUpdatedMillis = booking.lastSyncMillis)
                             }
                         }
                     }

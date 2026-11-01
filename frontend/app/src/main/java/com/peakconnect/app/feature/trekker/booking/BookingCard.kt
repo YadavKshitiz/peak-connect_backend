@@ -163,20 +163,30 @@ fun BookingCard(
             ) {
                 StatusChip(bookingStatus = booking.status)
 
+                val isOnline = com.peakconnect.app.core.util.LocalIsOnline.current
+
                 if (booking.status == BookingStatus.PENDING_GUIDE_RESPONSE) {
-                    val countdownState by rememberBookingCountdown(
-                        statusSinceMillis = booking.statusSinceMillis,
-                        windowDurationMillis = BookingCountdownCalculator.GUIDE_RESPONSE_WINDOW_MILLIS
-                    )
-                    if (!countdownState.isExpired) {
+                    if (!isOnline) {
                         Text(
-                            text = stringResource(
-                                id = R.string.booking_card_approx_left,
-                                countdownState.formattedTime
-                            ),
+                            text = stringResource(id = R.string.booking_status_offline_may_have_changed),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    } else {
+                        val countdownState by rememberBookingCountdown(
+                            statusSinceMillis = booking.statusSinceMillis,
+                            windowDurationMillis = BookingCountdownCalculator.GUIDE_RESPONSE_WINDOW_MILLIS
+                        )
+                        if (!countdownState.isExpired) {
+                            Text(
+                                text = stringResource(
+                                    id = R.string.booking_card_approx_left,
+                                    countdownState.formattedTime
+                                ),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }
@@ -184,36 +194,46 @@ fun BookingCard(
             // Pay deposit button with approximate countdown for AWAITING_PAYMENT
             if (booking.status == BookingStatus.AWAITING_PAYMENT) {
                 Spacer(modifier = Modifier.height(MaterialTheme.spacing.md))
-                val countdownState by rememberBookingCountdown(
-                    statusSinceMillis = booking.statusSinceMillis,
-                    windowDurationMillis = BookingCountdownCalculator.PAYMENT_WINDOW_MILLIS
-                )
+                val isOnline = com.peakconnect.app.core.util.LocalIsOnline.current
 
-                val payButtonText = if (countdownState.isExpired) {
-                    stringResource(id = R.string.booking_card_pay_deposit)
-                } else {
-                    stringResource(
-                        id = R.string.booking_card_pay_deposit
-                    ) + " • " + stringResource(
-                        id = R.string.booking_card_approx_left,
-                        countdownState.formattedTime
-                    )
-                }
-
-                OnlineOnlyButton(
-                    text = payButtonText,
-                    actionLabel = stringResource(id = R.string.booking_card_pay_action_label),
-                    onClick = { onPayClick(booking.id) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                if (countdownState.isExpired) {
-                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.xs))
+                if (!isOnline) {
                     Text(
-                        text = stringResource(id = R.string.booking_status_window_ended),
+                        text = stringResource(id = R.string.booking_status_offline_may_have_changed),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                } else {
+                    val countdownState by rememberBookingCountdown(
+                        statusSinceMillis = booking.statusSinceMillis,
+                        windowDurationMillis = BookingCountdownCalculator.PAYMENT_WINDOW_MILLIS
+                    )
+
+                    val payButtonText = if (countdownState.isExpired) {
+                        stringResource(id = R.string.booking_card_pay_deposit)
+                    } else {
+                        stringResource(
+                            id = R.string.booking_card_pay_deposit
+                        ) + " • " + stringResource(
+                            id = R.string.booking_card_approx_left,
+                            countdownState.formattedTime
+                        )
+                    }
+
+                    OnlineOnlyButton(
+                        text = payButtonText,
+                        actionLabel = stringResource(id = R.string.booking_card_pay_action_label),
+                        onClick = { onPayClick(booking.id) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    if (countdownState.isExpired) {
+                        Spacer(modifier = Modifier.height(MaterialTheme.spacing.xs))
+                        Text(
+                            text = stringResource(id = R.string.booking_status_window_ended),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             }
         }

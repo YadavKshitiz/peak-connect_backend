@@ -63,6 +63,12 @@ class MainActivity : AppCompatActivity(), PaymentResultWithDataListener, Externa
     @Inject
     lateinit var notificationWorkScheduler: NotificationWorkScheduler
 
+    @Inject
+    lateinit var networkRefreshNotifier: com.peakconnect.app.core.network.NetworkRefreshNotifier
+
+    @Inject
+    lateinit var wakeUpRetryHelper: com.peakconnect.app.core.network.WakeUpRetryHelper
+
     private var isAppReady by mutableStateOf(false)
     private var pendingBookingId by mutableStateOf<String?>(null)
     private var pendingIsGuide by mutableStateOf(false)
@@ -107,6 +113,19 @@ class MainActivity : AppCompatActivity(), PaymentResultWithDataListener, Externa
         }
 
         enableEdgeToEdge()
+
+        // Debug-only slow frames logger (Requirement 8)
+        if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            window.addOnFrameMetricsAvailableListener(
+                { _, frameMetrics, _ ->
+                    val durationNs = frameMetrics.getMetric(android.view.FrameMetrics.TOTAL_DURATION)
+                    if (durationNs > 33_333_333L) { // > 33ms (dropped 2+ frames @ 60fps)
+                        Log.d("PeakConnect_Perf", "Slow frame detected: ${durationNs / 1_000_000}ms")
+                    }
+                },
+                android.os.Handler(android.os.Looper.getMainLooper())
+            )
+        }
 
         setContent {
             val isOnline by networkMonitor.isOnline.collectAsStateWithLifecycle(initialValue = true)
@@ -165,6 +184,8 @@ class MainActivity : AppCompatActivity(), PaymentResultWithDataListener, Externa
                     RootNavHost(
                         sessionManager = sessionManager,
                         resumeHealthChecker = resumeHealthChecker,
+                        networkRefreshNotifier = networkRefreshNotifier,
+                        wakeUpRetryHelper = wakeUpRetryHelper,
                         onExitApp = { finish() },
                         pendingBookingId = pendingBookingId,
                         pendingIsGuide = pendingIsGuide,

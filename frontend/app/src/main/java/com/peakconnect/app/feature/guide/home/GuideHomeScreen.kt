@@ -73,6 +73,8 @@ fun GuideHomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val unreadCount by viewModel.unreadNotificationCount.collectAsStateWithLifecycle()
+    val lastUpdated by viewModel.lastUpdated.collectAsStateWithLifecycle()
+
     val snackbarHostState = remember { SnackbarHostState() }
 
     LifecycleResumeEffect(Unit) {
@@ -174,6 +176,13 @@ fun GuideHomeScreen(
                         .padding(MaterialTheme.spacing.md),
                     verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.md)
                 ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        com.peakconnect.app.core.ui.LastUpdatedIndicator(lastUpdatedMillis = lastUpdated)
+                    }
+
                     // 1. Verification Section
                     if (uiState.isVerified) {
                         val verifiedColor = MaterialTheme.semanticColors.bookingStatusColor(com.peakconnect.app.domain.model.BookingStatus.CONFIRMED)

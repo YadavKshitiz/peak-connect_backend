@@ -255,6 +255,13 @@ fun BookingStatusScreen(
                         }
                     }
 
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        com.peakconnect.app.core.ui.LastUpdatedIndicator(lastUpdatedMillis = booking.lastSyncMillis)
+                    }
+
                     // Animated Status Panel
                     AnimatedContent(
                         targetState = booking.status,
@@ -378,47 +385,57 @@ private fun StatusActionPanel(
                 .padding(MaterialTheme.spacing.md),
             verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.md)
         ) {
+            val isOnline = com.peakconnect.app.core.util.LocalIsOnline.current
+
             when (status) {
                 BookingStatus.PENDING_GUIDE_RESPONSE -> {
-                    val countdownState by rememberBookingCountdown(
-                        statusSinceMillis = booking.statusSinceMillis,
-                        windowDurationMillis = BookingCountdownCalculator.GUIDE_RESPONSE_WINDOW_MILLIS
-                    )
-
-                    if (countdownState.isExpired) {
+                    if (!isOnline) {
                         Text(
-                            text = stringResource(id = R.string.booking_status_window_ended),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        SecondaryButton(
-                            text = stringResource(id = R.string.booking_status_action_refresh),
-                            onClick = onRefresh,
-                            leadingIcon = Icons.Outlined.Refresh
-                        )
-                    } else {
-                        val titleText = if (hasGuide) {
-                            stringResource(
-                                id = R.string.booking_status_pending_with_guide,
-                                guideName,
-                                countdownState.formattedTime
-                            )
-                        } else {
-                            stringResource(
-                                id = R.string.booking_status_pending_no_guide,
-                                countdownState.formattedTime
-                            )
-                        }
-                        Text(
-                            text = titleText,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = stringResource(id = R.string.booking_status_pending_note),
+                            text = stringResource(id = R.string.booking_status_offline_may_have_changed),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                    } else {
+                        val countdownState by rememberBookingCountdown(
+                            statusSinceMillis = booking.statusSinceMillis,
+                            windowDurationMillis = BookingCountdownCalculator.GUIDE_RESPONSE_WINDOW_MILLIS
+                        )
+
+                        if (countdownState.isExpired) {
+                            Text(
+                                text = stringResource(id = R.string.booking_status_window_ended),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            SecondaryButton(
+                                text = stringResource(id = R.string.booking_status_action_refresh),
+                                onClick = onRefresh,
+                                leadingIcon = Icons.Outlined.Refresh
+                            )
+                        } else {
+                            val titleText = if (hasGuide) {
+                                stringResource(
+                                    id = R.string.booking_status_pending_with_guide,
+                                    guideName,
+                                    countdownState.formattedTime
+                                )
+                            } else {
+                                stringResource(
+                                    id = R.string.booking_status_pending_no_guide,
+                                    countdownState.formattedTime
+                                )
+                            }
+                            Text(
+                                text = titleText,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = stringResource(id = R.string.booking_status_pending_note),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(MaterialTheme.spacing.xs))
@@ -436,52 +453,69 @@ private fun StatusActionPanel(
                         ?: BigDecimal.ZERO
                     val formattedDeposit = formatRupees(depositAmount)
 
-                    val countdownState by rememberBookingCountdown(
-                        statusSinceMillis = booking.statusSinceMillis,
-                        windowDurationMillis = BookingCountdownCalculator.PAYMENT_WINDOW_MILLIS
-                    )
-
-                    if (countdownState.isExpired) {
+                    if (!isOnline) {
                         Text(
-                            text = stringResource(id = R.string.booking_status_window_ended),
+                            text = stringResource(id = R.string.booking_status_offline_may_have_changed),
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        SecondaryButton(
-                            text = stringResource(id = R.string.booking_status_action_refresh),
-                            onClick = onRefresh,
-                            leadingIcon = Icons.Outlined.Refresh
+                        Spacer(modifier = Modifier.height(MaterialTheme.spacing.xs))
+                        OnlineOnlyButton(
+                            text = stringResource(id = R.string.booking_status_action_cancel_booking),
+                            actionLabel = stringResource(id = R.string.booking_card_cancel_action_label),
+                            onClick = onCancelBooking,
+                            style = OnlineOnlyButtonStyle.SECONDARY
                         )
                     } else {
-                        Text(
+                        val countdownState by rememberBookingCountdown(
+                            statusSinceMillis = booking.statusSinceMillis,
+                            windowDurationMillis = BookingCountdownCalculator.PAYMENT_WINDOW_MILLIS
+                        )
+
+                        if (countdownState.isExpired) {
+                            Text(
+                                text = stringResource(id = R.string.booking_status_window_ended),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            SecondaryButton(
+                                text = stringResource(id = R.string.booking_status_action_refresh),
+                                onClick = onRefresh,
+                                leadingIcon = Icons.Outlined.Refresh
+                            )
+                        } else {
+                            Text(
+                                text = stringResource(
+                                    id = R.string.booking_status_awaiting_payment_title,
+                                    formattedDeposit
+                                ) + " (" + stringResource(
+                                    id = R.string.booking_card_approx_left,
+                                    countdownState.formattedTime
+                                ) + ")",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(MaterialTheme.spacing.xs))
+
+                        OnlineOnlyButton(
                             text = stringResource(
-                                id = R.string.booking_status_awaiting_payment_title,
+                                id = R.string.booking_status_action_pay_now,
                                 formattedDeposit
-                            ) + " (" + stringResource(
-                                id = R.string.booking_card_approx_left,
-                                countdownState.formattedTime
-                            ) + ")",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
+                            ),
+                            actionLabel = stringResource(id = R.string.booking_card_pay_action_label),
+                            onClick = onPayNow,
+                            style = OnlineOnlyButtonStyle.PRIMARY
+                        )
+
+                        OnlineOnlyButton(
+                            text = stringResource(id = R.string.booking_status_action_cancel_booking),
+                            actionLabel = stringResource(id = R.string.booking_card_cancel_action_label),
+                            onClick = onCancelBooking,
+                            style = OnlineOnlyButtonStyle.SECONDARY
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(MaterialTheme.spacing.xs))
-
-                    OnlineOnlyButton(
-                        text = stringResource(
-                            id = R.string.booking_status_action_pay_now,
-                            formattedDeposit
-                        ),
-                        actionLabel = stringResource(id = R.string.booking_card_pay_action_label),
-                        onClick = onPayNow,
-                        style = OnlineOnlyButtonStyle.PRIMARY
-                    )
-
-                    SecondaryButton(
-                        text = stringResource(id = R.string.booking_status_action_cancel_booking),
-                        onClick = onCancelBooking
-                    )
                 }
 
                 BookingStatus.CONFIRMED -> {

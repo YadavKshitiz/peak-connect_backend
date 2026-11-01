@@ -11,9 +11,13 @@ import com.peakconnect.app.domain.model.BookingStatus
 import com.peakconnect.app.domain.model.CancellationPolicyType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -69,13 +73,17 @@ data class BookingListUiState(
 class BookingListViewModel @Inject constructor(
     private val bookingRepository: BookingRepository,
     private val activityDao: ActivityDao,
-    private val userContentDao: UserContentDao
+    private val userContentDao: UserContentDao,
+    private val networkRefreshNotifier: com.peakconnect.app.core.network.NetworkRefreshNotifier? = null
 ) : ViewModel() {
 
     // Clock supplier for deterministic unit testing
     var nowSupplier: () -> LocalDateTime = { LocalDateTime.now() }
 
     private val dismissedBannerBookingIds = mutableSetOf<String>()
+
+    val lastUpdated: StateFlow<Long?> = bookingRepository.lastUpdatedFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     private val _uiState = MutableStateFlow(BookingListUiState())
     val uiState: StateFlow<BookingListUiState> = _uiState.asStateFlow()
@@ -84,6 +92,11 @@ class BookingListViewModel @Inject constructor(
         observeBookings()
         observeWaitlist()
         refresh()
+
+        // Auto-refresh when app comes back online (Requirement 1 & 2)
+        networkRefreshNotifier?.refreshEvents?.onEach {
+            refresh()
+        }?.launchIn(viewModelScope)
     }
 
     private fun observeWaitlist() {

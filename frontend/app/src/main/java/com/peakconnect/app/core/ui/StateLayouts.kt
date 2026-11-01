@@ -59,9 +59,11 @@ fun ErrorState(
             )
             if (onRetry != null) {
                 Spacer(modifier = Modifier.height(MaterialTheme.spacing.lg))
-                PrimaryButton(
+                OnlineOnlyButton(
                     text = stringResource(id = R.string.common_retry),
-                    onClick = onRetry
+                    actionLabel = stringResource(id = R.string.common_retry),
+                    onClick = onRetry,
+                    style = OnlineOnlyButtonStyle.PRIMARY
                 )
             }
         }

@@ -13,6 +13,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -35,7 +37,8 @@ class GuideBookingDetailViewModel @Inject constructor(
     private val guideRepository: GuideRepository,
     private val bookingRepository: BookingRepository,
     private val activityDao: ActivityDao,
-    private val activeScreenTracker: com.peakconnect.app.core.notifications.ActiveScreenTracker = com.peakconnect.app.core.notifications.ActiveScreenTracker()
+    private val activeScreenTracker: com.peakconnect.app.core.notifications.ActiveScreenTracker = com.peakconnect.app.core.notifications.ActiveScreenTracker(),
+    private val networkRefreshNotifier: com.peakconnect.app.core.network.NetworkRefreshNotifier? = null
 ) : ViewModel() {
 
     val bookingId: String = checkNotNull(savedStateHandle["bookingId"])
@@ -49,6 +52,11 @@ class GuideBookingDetailViewModel @Inject constructor(
         activeScreenTracker.onBookingScreenEntered(bookingId)
         observeBooking()
         refresh()
+
+        // Auto-refresh when back online (Requirement 1 & 2)
+        networkRefreshNotifier?.refreshEvents?.onEach {
+            refresh()
+        }?.launchIn(viewModelScope)
     }
 
     private fun observeBooking() {

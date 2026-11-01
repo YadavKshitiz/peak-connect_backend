@@ -23,7 +23,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -34,7 +36,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ActivityDetailViewModel @Inject constructor(
     private val activityRepository: ActivityRepository,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val networkRefreshNotifier: com.peakconnect.app.core.network.NetworkRefreshNotifier? = null
 ) : ViewModel() {
 
     val activityId: String = checkNotNull(savedStateHandle["activityId"]) {
@@ -83,6 +86,11 @@ class ActivityDetailViewModel @Inject constructor(
 
         // Initial background refresh
         refresh(isManual = false)
+
+        // Auto-refresh when app comes back online (Requirement 1 & 2)
+        networkRefreshNotifier?.refreshEvents?.onEach {
+            refresh(isManual = false)
+        }?.launchIn(viewModelScope)
 
         // Initialize default checklist if none exist once activity loads
         viewModelScope.launch {

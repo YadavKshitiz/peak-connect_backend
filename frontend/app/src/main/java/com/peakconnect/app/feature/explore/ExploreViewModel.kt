@@ -41,14 +41,19 @@ import javax.inject.Inject
 class ExploreViewModel @Inject constructor(
     private val activityRepository: ActivityRepository,
     private val sessionManager: SessionManager,
-    private val userContentDao: com.peakconnect.app.data.local.dao.UserContentDao? = null
+    private val userContentDao: com.peakconnect.app.data.local.dao.UserContentDao? = null,
+    private val networkRefreshNotifier: com.peakconnect.app.core.network.NetworkRefreshNotifier? = null,
+    private val savedStateHandle: androidx.lifecycle.SavedStateHandle? = null
 ) : ViewModel() {
+
+    val lastUpdated: StateFlow<Long?> = activityRepository.lastUpdatedFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val unreadNotificationCount: StateFlow<Int> = (userContentDao?.getUnreadNotificationCountFlow()
         ?: kotlinx.coroutines.flow.flowOf(0))
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
-    private val _searchQuery = MutableStateFlow("")
+    private val _searchQuery = MutableStateFlow(savedStateHandle?.get<String>("searchQuery") ?: "")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
     private val _isSearchFocused = MutableStateFlow(false)
@@ -131,10 +136,16 @@ class ExploreViewModel @Inject constructor(
             refreshActivities(isManual = false)
             _isFirstLoading.value = false
         }
+
+        // Auto-refresh when app comes back online (Requirement 1 & 2)
+        networkRefreshNotifier?.refreshEvents?.onEach {
+            refreshActivities(isManual = false)
+        }?.launchIn(viewModelScope)
     }
 
     fun onSearchQueryChanged(newQuery: String) {
         _searchQuery.value = newQuery
+        savedStateHandle?.set("searchQuery", newQuery)
     }
 
     fun onSearchFocusChanged(focused: Boolean) {
@@ -144,6 +155,7 @@ class ExploreViewModel @Inject constructor(
     fun onSearchSubmitted(term: String) {
         if (term.isNotBlank()) {
             _searchQuery.value = term
+            savedStateHandle?.set("searchQuery", term)
             _filter.value = _filter.value.copy(query = term.trim())
             viewModelScope.launch {
                 activityRepository.saveSearchTerm(term)
@@ -153,6 +165,7 @@ class ExploreViewModel @Inject constructor(
 
     fun onSearchTermClicked(term: String) {
         _searchQuery.value = term
+        savedStateHandle?.set("searchQuery", term)
         _filter.value = _filter.value.copy(query = term.trim())
         viewModelScope.launch {
             activityRepository.saveSearchTerm(term)

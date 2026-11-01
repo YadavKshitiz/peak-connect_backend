@@ -59,6 +59,7 @@ fun GuideBookingsScreen(
     viewModel: GuideBookingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val lastUpdated by viewModel.lastUpdated.collectAsStateWithLifecycle()
 
     LifecycleResumeEffect(Unit) {
         viewModel.refresh()
@@ -117,6 +118,15 @@ fun GuideBookingsScreen(
                     selected = uiState.selectedFilter == GuideBookingFilter.CANCELLED,
                     onClick = { viewModel.setFilter(GuideBookingFilter.CANCELLED) }
                 )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = MaterialTheme.spacing.md, vertical = MaterialTheme.spacing.xs),
+                horizontalArrangement = Arrangement.End
+            ) {
+                com.peakconnect.app.core.ui.LastUpdatedIndicator(lastUpdatedMillis = lastUpdated)
             }
 
             AppPullToRefreshBox(

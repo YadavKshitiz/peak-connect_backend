@@ -61,6 +61,17 @@
     <string name="banner_offline_message">You are offline. Showing cached information.</string>
     <string name="banner_server_waking_message">Connecting to server. This may take a few seconds…</string>
     <string name="banner_server_waking_retry">Server is waking up. Retrying…</string>
+    <string name="global_offline_banner">You’re offline. Showing saved data.</string>
+    <string name="global_back_online_banner">Back online</string>
+    <string name="booking_status_offline_may_have_changed">Status may have changed. Refresh when online.</string>
+    <string name="error_server_taking_while">Server is taking a while…</string>
+    <string name="last_updated_format">Updated %1$s</string>
+    <string name="last_updated_prominent">Saved data • Updated %1$s</string>
+    <string name="last_updated_just_now">just now</string>
+    <string name="last_updated_minutes_ago">%1$d min ago</string>
+    <string name="last_updated_hours_ago">%1$d hours ago</string>
+    <string name="last_updated_yesterday">yesterday</string>
+    <string name="last_updated_days_ago">%1$d days ago</string>
 
     <!-- Auth and Error strings -->
     <string name="auth_error_bad_credentials">Incorrect email or password</string>

@@ -97,29 +97,39 @@ fun GuideRequestCard(
                     )
                 }
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Timer,
-                        contentDescription = null,
-                        tint = if (countdownState.isExpired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(16.dp)
-                    )
+                val isOnline = com.peakconnect.app.core.util.LocalIsOnline.current
+
+                if (!isOnline) {
                     Text(
-                        text = if (countdownState.isExpired) {
-                            stringResource(id = R.string.guide_countdown_expired)
-                        } else {
-                            stringResource(
-                                id = R.string.booking_card_approx_left,
-                                "${countdownState.minutesRemaining} min"
-                            )
-                        },
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = if (countdownState.isExpired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                        text = stringResource(id = R.string.booking_status_offline_may_have_changed),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                } else {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Timer,
+                            contentDescription = null,
+                            tint = if (countdownState.isExpired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = if (countdownState.isExpired) {
+                                stringResource(id = R.string.guide_countdown_expired)
+                            } else {
+                                stringResource(
+                                    id = R.string.booking_card_approx_left,
+                                    "${countdownState.minutesRemaining} min"
+                                )
+                            },
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = if (countdownState.isExpired) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
 

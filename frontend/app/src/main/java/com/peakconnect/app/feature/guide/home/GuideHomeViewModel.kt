@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -46,10 +48,14 @@ data class GuideHomeUiState(
 class GuideHomeViewModel @Inject constructor(
     private val guideRepository: GuideRepository,
     private val bookingRepository: BookingRepository,
-    private val userContentDao: com.peakconnect.app.data.local.dao.UserContentDao? = null
+    private val userContentDao: com.peakconnect.app.data.local.dao.UserContentDao? = null,
+    private val networkRefreshNotifier: com.peakconnect.app.core.network.NetworkRefreshNotifier? = null
 ) : ViewModel() {
 
     var nowSupplier: () -> LocalDateTime = { LocalDateTime.now() }
+
+    val lastUpdated: StateFlow<Long?> = guideRepository.lastUpdatedBookingsFlow
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000), null)
 
     val unreadNotificationCount: StateFlow<Int> = (userContentDao?.getUnreadNotificationCountFlow()
         ?: kotlinx.coroutines.flow.flowOf(0))
@@ -61,6 +67,11 @@ class GuideHomeViewModel @Inject constructor(
     init {
         observeData()
         refresh()
+
+        // Auto-refresh when back online (Requirement 1 & 2)
+        networkRefreshNotifier?.refreshEvents?.onEach {
+            refresh()
+        }?.launchIn(viewModelScope)
     }
 
     private fun observeData() {

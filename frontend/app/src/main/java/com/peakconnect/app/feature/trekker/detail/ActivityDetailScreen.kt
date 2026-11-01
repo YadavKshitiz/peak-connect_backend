@@ -151,17 +151,6 @@ fun ActivityDetailScreen(
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    // Offline InfoBanner
-                    if (!isOnline) {
-                        InfoBanner(
-                            type = BannerType.INFO,
-                            text = stringResource(id = R.string.explore_offline_banner),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 4.dp)
-                        )
-                    }
-
                     // Collapsing Hero Area (16:10 aspect ratio with gradient scrim)
                     Box(
                         modifier = Modifier
@@ -317,6 +306,9 @@ fun ActivityDetailScreen(
                                 contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                        com.peakconnect.app.core.ui.LastUpdatedIndicator(lastUpdatedMillis = activity.lastUpdated)
 
                         Spacer(modifier = Modifier.height(16.dp))
 
