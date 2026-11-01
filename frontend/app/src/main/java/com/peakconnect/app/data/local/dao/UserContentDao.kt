@@ -74,6 +74,18 @@ interface UserContentDao {
     @Query("SELECT * FROM waitlist_entries ORDER BY joinedAt DESC")
     fun getWaitlistEntriesFlow(): Flow<List<WaitlistEntryEntity>>
 
+    @Query("SELECT * FROM waitlist_entries WHERE slotId = :slotId LIMIT 1")
+    suspend fun getWaitlistEntry(slotId: String): WaitlistEntryEntity?
+
+    @Query("SELECT * FROM waitlist_entries")
+    suspend fun getAllWaitlistEntries(): List<WaitlistEntryEntity>
+
+    @Query("SELECT * FROM waitlist_entries WHERE bookingId = :bookingId LIMIT 1")
+    suspend fun getWaitlistEntryByBookingId(bookingId: String): WaitlistEntryEntity?
+
+    @Query("SELECT * FROM waitlist_entries WHERE bookingId = :bookingId LIMIT 1")
+    fun getWaitlistEntryByBookingIdFlow(bookingId: String): Flow<WaitlistEntryEntity?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWaitlistEntry(entry: WaitlistEntryEntity): Long
 

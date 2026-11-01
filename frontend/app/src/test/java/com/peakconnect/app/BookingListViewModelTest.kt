@@ -2,12 +2,15 @@ package com.peakconnect.app
 
 import com.peakconnect.app.core.network.ApiResult
 import com.peakconnect.app.data.local.dao.ActivityDao
+import com.peakconnect.app.data.local.dao.UserContentDao
 import com.peakconnect.app.data.local.entity.ActivityEntity
 import com.peakconnect.app.data.local.entity.BookingEntity
+import com.peakconnect.app.data.local.entity.WaitlistEntryEntity
 import com.peakconnect.app.data.repository.BookingRepository
 import com.peakconnect.app.domain.model.BookingStatus
 import com.peakconnect.app.domain.model.CancellationPolicyType
 import com.peakconnect.app.domain.model.DifficultyLevel
+import com.peakconnect.app.domain.model.WaitlistStatus
 import com.peakconnect.app.feature.trekker.booking.BookingListViewModel
 import com.peakconnect.app.feature.trekker.booking.BookingTab
 import io.mockk.coEvery
@@ -24,6 +27,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -42,9 +46,11 @@ class BookingListViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private val bookingRepository: BookingRepository = mockk(relaxed = true)
     private val activityDao: ActivityDao = mockk(relaxed = true)
+    private val userContentDao: UserContentDao = mockk(relaxed = true)
 
     private val bookingsFlow = MutableStateFlow<List<BookingEntity>>(emptyList())
     private val activitiesFlow = MutableStateFlow<List<ActivityEntity>>(emptyList())
+    private val waitlistFlow = MutableStateFlow<List<WaitlistEntryEntity>>(emptyList())
 
     private val fixedNow = LocalDateTime.of(2026, 11, 1, 12, 0)
 
@@ -53,6 +59,7 @@ class BookingListViewModelTest {
         Dispatchers.setMain(testDispatcher)
         every { bookingRepository.getMyBookingsFlow() } returns bookingsFlow
         every { activityDao.getAllActivitiesFlow() } returns activitiesFlow
+        every { userContentDao.getWaitlistEntriesFlow() } returns waitlistFlow
         coEvery { bookingRepository.refreshMyBookings() } returns ApiResult.Success(Unit)
     }
 
@@ -105,7 +112,7 @@ class BookingListViewModelTest {
             createBooking("b8", BookingStatus.REMATCH_FAILED, fixedNow.plusDays(7), guideId = null, guideName = null)
         )
 
-        val viewModel = BookingListViewModel(bookingRepository, activityDao)
+        val viewModel = BookingListViewModel(bookingRepository, activityDao, userContentDao)
         viewModel.nowSupplier = { fixedNow }
 
         bookingsFlow.value = testBookings
@@ -145,7 +152,7 @@ class BookingListViewModelTest {
             guideName = null
         )
 
-        val viewModel = BookingListViewModel(bookingRepository, activityDao)
+        val viewModel = BookingListViewModel(bookingRepository, activityDao, userContentDao)
         viewModel.nowSupplier = { fixedNow }
 
         bookingsFlow.value = listOf(nullGuideBooking)
@@ -163,7 +170,7 @@ class BookingListViewModelTest {
             createBooking("b2", BookingStatus.CONFIRMED, fixedNow.plusDays(2))
         )
 
-        val viewModel = BookingListViewModel(bookingRepository, activityDao)
+        val viewModel = BookingListViewModel(bookingRepository, activityDao, userContentDao)
         viewModel.nowSupplier = { fixedNow }
 
         bookingsFlow.value = testBookings
@@ -183,12 +190,72 @@ class BookingListViewModelTest {
 
     @Test
     fun `refresh triggers booking repository refresh`() = runTest {
-        val viewModel = BookingListViewModel(bookingRepository, activityDao)
+        val viewModel = BookingListViewModel(bookingRepository, activityDao, userContentDao)
         advanceUntilIdle()
 
         viewModel.refresh()
         advanceUntilIdle()
 
         coVerify(atLeast = 1) { bookingRepository.refreshMyBookings() }
+    }
+
+    @Test
+    fun `waitlist entries are loaded into state and tab exposes them`() = runTest {
+        val viewModel = BookingListViewModel(bookingRepository, activityDao, userContentDao)
+        advanceUntilIdle()
+
+        val waitlistEntry = WaitlistEntryEntity(
+            slotId = "slot-w1",
+            activityTitle = "Kedarkantha Trek",
+            slotDate = fixedNow.plusDays(10),
+            joinedAt = 1000L,
+            status = WaitlistStatus.WAITING,
+            guideName = "Nawang"
+        )
+        waitlistFlow.value = listOf(waitlistEntry)
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertEquals(1, state.waitlistEntries.size)
+        assertEquals("slot-w1", state.waitlistEntries[0].slotId)
+        assertEquals(WaitlistStatus.WAITING, state.waitlistEntries[0].status)
+    }
+
+    @Test
+    fun `promoted waitlist entry triggers promoted banner with view and dismiss actions`() = runTest {
+        val viewModel = BookingListViewModel(bookingRepository, activityDao, userContentDao)
+        advanceUntilIdle()
+
+        val promotedEntry = WaitlistEntryEntity(
+            slotId = "slot-w2",
+            activityTitle = "Kedarkantha Trek",
+            slotDate = fixedNow.plusDays(10),
+            joinedAt = 1000L,
+            status = WaitlistStatus.PROMOTED,
+            bookingId = "booking-promo-1",
+            guideName = "Dorje"
+        )
+        waitlistFlow.value = listOf(promotedEntry)
+        advanceUntilIdle()
+
+        val banner = viewModel.uiState.value.promotedBanner
+        assertNotNull(banner)
+        assertEquals("booking-promo-1", banner?.bookingId)
+        assertEquals("Dorje", banner?.guideName)
+
+        // Dismiss banner
+        viewModel.dismissPromotedBanner("booking-promo-1")
+        assertNull(viewModel.uiState.value.promotedBanner)
+    }
+
+    @Test
+    fun `removeFromWaitlist calls userContentDao deleteWaitlistEntry`() = runTest {
+        val viewModel = BookingListViewModel(bookingRepository, activityDao, userContentDao)
+        advanceUntilIdle()
+
+        viewModel.removeFromWaitlist("slot-to-delete")
+        advanceUntilIdle()
+
+        coVerify { userContentDao.deleteWaitlistEntry("slot-to-delete") }
     }
 }

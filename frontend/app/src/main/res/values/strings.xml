@@ -346,8 +346,8 @@
     <string name="bookings_empty_past_message">Completed treks and past bookings will appear here.</string>
     <string name="bookings_empty_cancelled_title">No cancelled bookings</string>
     <string name="bookings_empty_cancelled_message">Cancelled and declined bookings will appear here.</string>
-    <string name="bookings_empty_waitlist_title">Waitlist</string>
-    <string name="bookings_empty_waitlist_message">Waitlist entries will appear here in Task 11.</string>
+    <string name="bookings_empty_waitlist_title">No waitlist entries</string>
+    <string name="bookings_empty_waitlist_message">When you join a waitlist for a full slot, it will appear here.</string>
     <string name="bookings_empty_explore_action">Explore treks</string>
 
     <!-- Task 9: Booking Status Screen -->
@@ -430,4 +430,29 @@
     <string name="payment_result_delayed_action_check_again">Check again</string>
     <string name="payment_result_delayed_action_my_bookings">Go to my bookings</string>
     <string name="payment_result_cancelled_by_backend">Booking was cancelled.</string>
+
+    <!-- Task 11: Waitlist -->
+    <string name="waitlist_local_tracking_note">Waitlist entries are tracked on this device. They are lost on reinstall or on another device.</string>
+    <string name="waitlist_banner_spot_opened">A spot opened up! Your request was sent to %1$s. You\'ll be asked to pay after they accept.</string>
+    <string name="waitlist_banner_guide_fallback">a guide</string>
+    <string name="waitlist_banner_view_booking">View booking</string>
+    <string name="waitlist_banner_dismiss">Dismiss</string>
+    <string name="booking_status_from_waitlist">You got this spot from the waitlist.</string>
+    <string name="waitlist_chip_waiting">Waiting</string>
+    <string name="waitlist_chip_promoted">Spot opened</string>
+    <string name="waitlist_chip_closed">Closed</string>
+    <string name="waitlist_joined_on">Joined on %1$s</string>
+    <string name="waitlist_guide_label">Guide: %1$s</string>
+    <string name="waitlist_guide_none">No guide preferred</string>
+    <string name="waitlist_action_remove">Remove from list</string>
+    <string name="waitlist_action_view_booking">View booking</string>
+    <string name="waitlist_remove_dialog_title">Remove from waitlist?</string>
+    <string name="waitlist_remove_dialog_message">This only removes it from this device. If a spot opens, a booking request may still be created for you, and you can cancel it.</string>
+    <string name="waitlist_remove_dialog_confirm">Remove</string>
+    <string name="waitlist_remove_dialog_cancel">Cancel</string>
+    <string name="waitlist_reason_booked">Booked</string>
+    <string name="waitlist_reason_cancelled">Cancelled</string>
+    <string name="waitlist_reason_no_guide">No guide available</string>
+    <string name="waitlist_reason_no_show">No-show</string>
+    <string name="waitlist_reason_date_passed">Slot date passed</string>
 </resources>

@@ -60,7 +60,9 @@ import com.peakconnect.app.core.theme.AppShapes
 import com.peakconnect.app.core.theme.semanticColors
 import com.peakconnect.app.core.theme.spacing
 import com.peakconnect.app.core.ui.AppTopBar
+import com.peakconnect.app.core.ui.BannerType
 import com.peakconnect.app.core.ui.CancellationPolicySummaryCard
+import com.peakconnect.app.core.ui.InfoBanner
 import com.peakconnect.app.core.ui.OnlineOnlyButton
 import com.peakconnect.app.core.ui.OnlineOnlyButtonStyle
 import com.peakconnect.app.core.ui.PrimaryButton
@@ -156,6 +158,14 @@ fun BookingStatusScreen(
                         .padding(MaterialTheme.spacing.md),
                     verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.lg)
                 ) {
+                    if (uiState.isFromWaitlist) {
+                        InfoBanner(
+                            type = BannerType.INFO,
+                            text = stringResource(id = R.string.booking_status_from_waitlist),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
                     // Top Section: Title, StatusChip, Date/Time, Guide
                     Card(
                         modifier = Modifier.fillMaxWidth(),

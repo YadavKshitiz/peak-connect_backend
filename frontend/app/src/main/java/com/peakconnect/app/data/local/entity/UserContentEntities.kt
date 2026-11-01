@@ -42,7 +42,12 @@ data class WaitlistEntryEntity(
     val activityTitle: String,
     val slotDate: LocalDateTime,
     val joinedAt: Long = System.currentTimeMillis(),
-    val status: WaitlistStatus = WaitlistStatus.WAITING
+    val status: WaitlistStatus = WaitlistStatus.WAITING,
+    val guideId: String? = null,
+    val guideName: String? = null,
+    val activityId: String? = null,
+    val bookingId: String? = null,
+    val closureReason: String? = null
 )
 
 fun WaitlistEntryEntity.toDomain(): WaitlistEntry = WaitlistEntry(
@@ -50,7 +55,25 @@ fun WaitlistEntryEntity.toDomain(): WaitlistEntry = WaitlistEntry(
     activityTitle = activityTitle,
     slotDate = slotDate,
     joinedAt = joinedAt,
-    status = status
+    status = status,
+    guideId = guideId,
+    guideName = guideName,
+    activityId = activityId,
+    bookingId = bookingId,
+    closureReason = closureReason
+)
+
+fun WaitlistEntry.toEntity(): WaitlistEntryEntity = WaitlistEntryEntity(
+    slotId = slotId,
+    activityTitle = activityTitle,
+    slotDate = slotDate,
+    joinedAt = joinedAt,
+    status = status,
+    guideId = guideId,
+    guideName = guideName,
+    activityId = activityId,
+    bookingId = bookingId,
+    closureReason = closureReason
 )
 
 @Entity(tableName = "checklist_items")

@@ -76,5 +76,15 @@ data class WaitlistEntry(
     val activityTitle: String,
     val slotDate: LocalDateTime,
     val joinedAt: Long,
-    val status: WaitlistStatus
+    val status: WaitlistStatus,
+    val guideId: String? = null,
+    val guideName: String? = null,
+    val activityId: String? = null,
+    val bookingId: String? = null,
+    val closureReason: String? = null
+)
+
+data class WaitlistPromoted(
+    val bookingId: String,
+    val slotId: String
 )

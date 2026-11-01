@@ -11,7 +11,7 @@
 - [x] Task 8: Matching/booking (Completed on 2026-10-27)
 - [x] Task 9: Booking status/cancel (Completed on 2026-11-01)
 - [x] Task 10: Payment (Completed on 2026-11-01)
-- [ ] Task 11: Waitlist
+- [x] Task 11: Waitlist (Completed on 2026-11-01)
 - [ ] Task 12: Guide experience
 - [ ] Task 13: Notifications
 - [ ] Task 14: Offline hardening

@@ -28,6 +28,9 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -42,6 +45,11 @@ import com.peakconnect.app.core.ui.AppPullToRefreshBox
 import com.peakconnect.app.core.ui.AppTopBar
 import com.peakconnect.app.core.ui.EmptyState
 import com.peakconnect.app.core.ui.ShimmerBox
+import com.peakconnect.app.data.local.entity.WaitlistEntryEntity
+import com.peakconnect.app.feature.trekker.waitlist.PromotedWaitlistBanner
+import com.peakconnect.app.feature.trekker.waitlist.RemoveWaitlistDialog
+import com.peakconnect.app.feature.trekker.waitlist.WaitlistCard
+import com.peakconnect.app.feature.trekker.waitlist.WaitlistTrackingNote
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,6 +61,7 @@ fun MyBookingsScreen(
     viewModel: BookingListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var entryToRemove by remember { mutableStateOf<WaitlistEntryEntity?>(null) }
 
     LifecycleResumeEffect(Unit) {
         viewModel.refresh()
@@ -72,6 +81,16 @@ fun MyBookingsScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+            // Dismissible Promotion Banner at top of My Bookings
+            uiState.promotedBanner?.let { banner ->
+                PromotedWaitlistBanner(
+                    guideName = banner.guideName,
+                    onViewBooking = { onNavigateToBookingStatus(banner.bookingId) },
+                    onDismiss = { viewModel.dismissPromotedBanner(banner.bookingId) },
+                    modifier = Modifier.padding(horizontal = MaterialTheme.spacing.md, vertical = MaterialTheme.spacing.xs)
+                )
+            }
+
             // Scrollable Tab Row
             ScrollableTabRow(
                 selectedTabIndex = uiState.selectedTab.ordinal,
@@ -116,7 +135,7 @@ fun MyBookingsScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 when {
-                    uiState.isLoading && uiState.currentList.isEmpty() -> {
+                    uiState.isLoading && uiState.currentList.isEmpty() && uiState.waitlistEntries.isEmpty() -> {
                         // Skeleton loading
                         Column(
                             modifier = Modifier
@@ -136,11 +155,33 @@ fun MyBookingsScreen(
                     }
 
                     uiState.selectedTab == BookingTab.WAITLIST -> {
-                        EmptyState(
-                            icon = Icons.Outlined.HourglassEmpty,
-                            title = stringResource(id = R.string.bookings_empty_waitlist_title),
-                            message = stringResource(id = R.string.bookings_empty_waitlist_message)
-                        )
+                        if (uiState.waitlistEntries.isEmpty()) {
+                            EmptyState(
+                                icon = Icons.Outlined.HourglassEmpty,
+                                title = stringResource(id = R.string.bookings_empty_waitlist_title),
+                                message = stringResource(id = R.string.bookings_empty_waitlist_message)
+                            )
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                contentPadding = PaddingValues(MaterialTheme.spacing.md),
+                                verticalArrangement = Arrangement.spacedBy(MaterialTheme.spacing.md)
+                            ) {
+                                item(key = "waitlist_tracking_note") {
+                                    WaitlistTrackingNote(modifier = Modifier.fillMaxWidth())
+                                }
+                                items(
+                                    items = uiState.waitlistEntries,
+                                    key = { it.slotId }
+                                ) { entry ->
+                                    WaitlistCard(
+                                        entry = entry,
+                                        onRemoveClick = { entryToRemove = it },
+                                        onViewBookingClick = onNavigateToBookingStatus
+                                    )
+                                }
+                            }
+                        }
                     }
 
                     uiState.currentList.isEmpty() -> {
@@ -201,4 +242,14 @@ fun MyBookingsScreen(
             }
         }
     }
+
+    RemoveWaitlistDialog(
+        entry = entryToRemove,
+        onConfirm = { entry ->
+            viewModel.removeFromWaitlist(entry.slotId)
+            entryToRemove = null
+        },
+        onDismiss = { entryToRemove = null }
+    )
 }
+

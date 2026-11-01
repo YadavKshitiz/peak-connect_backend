@@ -20,6 +20,7 @@ import com.peakconnect.app.domain.model.Booking
 import com.peakconnect.app.domain.model.MatchedGuide
 import com.peakconnect.app.domain.model.toDomain
 import com.peakconnect.app.domain.model.toLocalDateTimeOrNow
+import com.peakconnect.app.feature.trekker.waitlist.WaitlistPromotionDetector
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -61,6 +62,7 @@ class BookingRepositoryImpl @Inject constructor(
     private val bookingDao: BookingDao,
     private val guideDao: GuideDao,
     private val userContentDao: UserContentDao,
+    private val waitlistPromotionDetector: WaitlistPromotionDetector,
     private val wakeUpRetryHelper: WakeUpRetryHelper,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BookingRepository {
@@ -89,6 +91,7 @@ class BookingRepositoryImpl @Inject constructor(
                     val now = System.currentTimeMillis()
                     bookingDao.syncBookings(body, now)
                     _lastUpdatedFlow.value = now
+                    waitlistPromotionDetector.detectPromotions(bookingDao.getAllBookings())
                     ApiResult.Success(Unit)
                 } else {
                     ErrorMapper.mapHttpError(response.code(), response.errorBody()?.string())
@@ -327,17 +330,26 @@ class BookingRepositoryImpl @Inject constructor(
         activityTitle: String,
         slotDate: LocalDateTime
     ): ApiResult<String> = withContext(ioDispatcher) {
+        val existing = userContentDao.getWaitlistEntry(slotId)
+        if (existing != null && existing.status == com.peakconnect.app.domain.model.WaitlistStatus.WAITING) {
+            return@withContext ApiResult.Success("Already on waitlist")
+        }
+
         try {
             val response = api.joinWaitlist(BookingConfirmDto(slotId = slotId, guideId = guideId))
             if (response.isSuccessful) {
                 val body = response.body()
                 val message = body?.message ?: "Successfully joined waitlist"
+                val guideName = getCachedMatchedGuide(guideId)?.name
                 userContentDao.insertWaitlistEntry(
                     WaitlistEntryEntity(
                         slotId = slotId,
                         activityTitle = activityTitle,
                         slotDate = slotDate,
-                        joinedAt = System.currentTimeMillis()
+                        joinedAt = System.currentTimeMillis(),
+                        status = com.peakconnect.app.domain.model.WaitlistStatus.WAITING,
+                        guideId = guideId,
+                        guideName = guideName
                     )
                 )
                 ApiResult.Success(message)

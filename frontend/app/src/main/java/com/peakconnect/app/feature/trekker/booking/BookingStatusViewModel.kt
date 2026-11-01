@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.peakconnect.app.core.network.ApiResult
 import com.peakconnect.app.core.network.AppError
 import com.peakconnect.app.data.local.dao.ActivityDao
+import com.peakconnect.app.data.local.dao.UserContentDao
 import com.peakconnect.app.data.local.entity.ActivityEntity
 import com.peakconnect.app.data.local.entity.BookingEntity
 import com.peakconnect.app.data.local.entity.SlotEntity
@@ -40,7 +41,8 @@ data class BookingStatusUiState(
     val cancellationResult: ServerCancellationResult? = null,
     val cancellationError: String? = null,
     val showCancelDialog: Boolean = false,
-    val showCancelSheet: Boolean = false
+    val showCancelSheet: Boolean = false,
+    val isFromWaitlist: Boolean = false
 )
 
 sealed interface BookingStatusEvent {
@@ -51,7 +53,8 @@ sealed interface BookingStatusEvent {
 class BookingStatusViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val bookingRepository: BookingRepository,
-    private val activityDao: ActivityDao
+    private val activityDao: ActivityDao,
+    private val userContentDao: UserContentDao
 ) : ViewModel() {
 
     val bookingId: String = checkNotNull(savedStateHandle["bookingId"])
@@ -90,12 +93,17 @@ class BookingStatusViewModel @Inject constructor(
                     val activity = slot?.let { activityDao.getActivityById(it.activityId) }
                         ?: activityDao.getActivityForSlot(booking.slotId)
 
+                    val waitlistEntry = userContentDao.getWaitlistEntryByBookingId(booking.id)
+                        ?: userContentDao.getWaitlistEntry(booking.slotId)?.takeIf { it.bookingId == booking.id }
+                    val isFromWaitlist = waitlistEntry != null
+
                     _uiState.update { current ->
                         current.copy(
                             isLoading = false,
                             booking = booking,
                             slot = slot,
-                            activity = activity
+                            activity = activity,
+                            isFromWaitlist = isFromWaitlist
                         )
                     }
                 } else {

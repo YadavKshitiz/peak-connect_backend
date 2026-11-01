@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.peakconnect.app.core.network.ApiResult
 import com.peakconnect.app.core.network.AppError
 import com.peakconnect.app.data.local.dao.ActivityDao
+import com.peakconnect.app.data.local.dao.UserContentDao
 import com.peakconnect.app.data.local.entity.ActivityEntity
 import com.peakconnect.app.data.local.entity.BookingEntity
 import com.peakconnect.app.data.local.entity.SlotEntity
@@ -52,6 +53,7 @@ class BookingStatusViewModelTest {
     private val testDispatcher = StandardTestDispatcher()
     private val bookingRepository: BookingRepository = mockk(relaxed = true)
     private val activityDao: ActivityDao = mockk(relaxed = true)
+    private val userContentDao: UserContentDao = mockk(relaxed = true)
 
     private val bookingId = "test-booking-123"
     private val slotId = "test-slot-456"
@@ -122,7 +124,7 @@ class BookingStatusViewModelTest {
 
     private fun createViewModel(): BookingStatusViewModel {
         val savedStateHandle = SavedStateHandle(mapOf("bookingId" to bookingId))
-        val vm = BookingStatusViewModel(savedStateHandle, bookingRepository, activityDao)
+        val vm = BookingStatusViewModel(savedStateHandle, bookingRepository, activityDao, userContentDao)
         currentViewModel = vm
         return vm
     }
@@ -254,5 +256,16 @@ class BookingStatusViewModelTest {
         val state = viewModel.uiState.value
         assertFalse(state.isCancelling)
         assertEquals("This booking is already cancelled.", state.cancellationError)
+    }
+
+    @Test
+    fun `booking linked to waitlist entry sets isFromWaitlist to true`() = runTest {
+        coEvery { userContentDao.getWaitlistEntryByBookingId(bookingId) } returns mockk(relaxed = true)
+        val viewModel = createViewModel()
+        bookingFlow.value = sampleBooking
+        advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.isFromWaitlist)
     }
 }

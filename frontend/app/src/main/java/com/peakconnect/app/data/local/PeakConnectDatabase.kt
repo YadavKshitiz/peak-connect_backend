@@ -36,7 +36,7 @@ import com.peakconnect.app.data.local.entity.WaitlistEntryEntity
         ChecklistItemEntity::class,
         NotifiedEventEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

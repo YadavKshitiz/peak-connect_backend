@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 enum class WaitlistStatus {
     WAITING,
     PROMOTED,
+    CLOSED,
     EXPIRED,
     CONFIRMED
 }
