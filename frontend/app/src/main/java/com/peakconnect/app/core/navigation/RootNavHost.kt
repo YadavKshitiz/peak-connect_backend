@@ -185,7 +185,7 @@ fun RootNavHost(
                                 navController.navigate(BookingStatusRoute(bookingId))
                             },
                             onNavigateToPayment = { bookingId ->
-                                navController.navigate(PaymentResultRoute(bookingId = bookingId))
+                                navController.navigate(PaymentRoute(bookingId = bookingId))
                             }
                         )
                     }
@@ -263,7 +263,7 @@ fun RootNavHost(
                         com.peakconnect.app.feature.trekker.booking.BookingStatusScreen(
                             onBack = { navController.popBackStack() },
                             onNavigateToPayment = { bookingId ->
-                                navController.navigate(PaymentResultRoute(bookingId = bookingId))
+                                navController.navigate(PaymentRoute(bookingId = bookingId))
                             },
                             onNavigateToMatches = { slotId ->
                                 navController.navigate(GuideMatchesRoute(slotId = slotId))
@@ -276,9 +276,36 @@ fun RootNavHost(
                         PlaceholderScreen(title = "Cancel Booking (${route.bookingId})")
                     }
 
-                    composable<PaymentResultRoute> { backStackEntry ->
-                        val route = backStackEntry.toRoute<PaymentResultRoute>()
-                        PlaceholderScreen(title = "Payment Result (${route.bookingId})")
+                    composable<PaymentRoute> {
+                        com.peakconnect.app.feature.payment.PaymentScreen(
+                            onBack = { navController.popBackStack() },
+                            onViewBooking = { bookingId ->
+                                navController.navigate(BookingStatusRoute(bookingId = bookingId)) {
+                                    popUpTo<PaymentRoute> { inclusive = true }
+                                }
+                            },
+                            onExplore = {
+                                navController.navigate(TrekkerGraphRoute) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+
+                    composable<PaymentResultRoute> {
+                        com.peakconnect.app.feature.payment.PaymentScreen(
+                            onBack = { navController.popBackStack() },
+                            onViewBooking = { bookingId ->
+                                navController.navigate(BookingStatusRoute(bookingId = bookingId)) {
+                                    popUpTo<PaymentResultRoute> { inclusive = true }
+                                }
+                            },
+                            onExplore = {
+                                navController.navigate(TrekkerGraphRoute) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        )
                     }
 
                     composable<WaitlistRoute> {

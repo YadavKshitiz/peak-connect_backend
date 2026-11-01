@@ -69,6 +69,9 @@ data class BookingStatusRoute(val bookingId: String)
 data class CancelBookingRoute(val bookingId: String)
 
 @Serializable
+data class PaymentRoute(val bookingId: String)
+
+@Serializable
 data class PaymentResultRoute(val bookingId: String)
 
 @Serializable

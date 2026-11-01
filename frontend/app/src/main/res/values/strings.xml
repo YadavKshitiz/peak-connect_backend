@@ -399,4 +399,35 @@
     <string name="cancel_booking_done">Done</string>
     <string name="cancel_booking_error_already_cancelled">This booking is already cancelled.</string>
     <string name="cancel_booking_error_generic">Could not cancel booking. Please try again.</string>
+
+    <!-- Task 10: Razorpay Payment -->
+    <string name="payment_title">Payment</string>
+    <string name="payment_deposit_summary_title">Deposit Summary</string>
+    <string name="payment_activity_label">Activity</string>
+    <string name="payment_date_label">Date</string>
+    <string name="payment_guide_label">Guide</string>
+    <string name="payment_guide_unassigned">Guide will be assigned</string>
+    <string name="payment_deposit_amount_label">Deposit amount</string>
+    <string name="payment_deposit_non_refundable">This deposit is non-refundable</string>
+    <string name="payment_test_mode_banner">Test mode — no real money is charged. Use Razorpay\'s test card or test UPI id.</string>
+    <string name="payment_pay_button">Pay %1$s</string>
+    <string name="payment_action_label">pay</string>
+    <string name="payment_status_not_payable">This booking is no longer awaiting payment (%1$s).</string>
+    <string name="payment_order_missing">Payment order could not be found for this booking.</string>
+    <string name="payment_back_to_booking">Back to booking</string>
+
+    <!-- Task 10: Payment Result Screen -->
+    <string name="payment_result_processing_title">Confirming your payment…</string>
+    <string name="payment_result_processing_subtitle">Please don\'t close the app</string>
+    <string name="payment_result_success_title">Booking confirmed!</string>
+    <string name="payment_result_success_action_view_booking">View booking</string>
+    <string name="payment_result_success_action_explore">Back to explore</string>
+    <string name="payment_result_failed_title">Payment didn\'t go through</string>
+    <string name="payment_result_failed_action_retry">Try again</string>
+    <string name="payment_result_failed_action_back">Back to booking</string>
+    <string name="payment_result_delayed_title">Confirmation taking longer</string>
+    <string name="payment_result_delayed_message">We\'ve received your payment details but confirmation is taking longer than usual. This can take a few minutes.</string>
+    <string name="payment_result_delayed_action_check_again">Check again</string>
+    <string name="payment_result_delayed_action_my_bookings">Go to my bookings</string>
+    <string name="payment_result_cancelled_by_backend">Booking was cancelled.</string>
 </resources>

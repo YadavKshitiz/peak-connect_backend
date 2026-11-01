@@ -19,11 +19,17 @@ import com.peakconnect.app.core.theme.PeakConnectTheme
 import com.peakconnect.app.core.theme.ThemeMode
 import com.peakconnect.app.core.util.LocalIsOnline
 import com.peakconnect.app.core.util.NetworkMonitor
+import com.peakconnect.app.feature.payment.PaymentEvent
+import com.peakconnect.app.feature.payment.PaymentEventBus
+import com.razorpay.ExternalWalletListener
+import com.razorpay.PaymentData
+import com.razorpay.PaymentResultWithDataListener
 import dagger.hilt.android.AndroidEntryPoint
+import android.util.Log
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), PaymentResultWithDataListener, ExternalWalletListener {
 
     @Inject
     lateinit var networkMonitor: NetworkMonitor
@@ -36,6 +42,32 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var themePreferences: com.peakconnect.app.core.preferences.ThemePreferences
+
+    @Inject
+    lateinit var paymentEventBus: PaymentEventBus
+
+    override fun onPaymentSuccess(razorpayPaymentId: String?, paymentData: PaymentData?) {
+        val paymentId = razorpayPaymentId ?: paymentData?.paymentId.orEmpty()
+        val orderId = paymentData?.orderId
+        if (BuildConfig.DEBUG) {
+            Log.d("MainActivity", "Razorpay payment success: paymentId=$paymentId, orderId=$orderId")
+        }
+        paymentEventBus.post(PaymentEvent.Success(paymentId = paymentId, orderId = orderId))
+    }
+
+    override fun onPaymentError(errorCode: Int, response: String?, paymentData: PaymentData?) {
+        if (BuildConfig.DEBUG) {
+            Log.d("MainActivity", "Razorpay payment error: code=$errorCode, response=$response")
+        }
+        paymentEventBus.post(PaymentEvent.Failure(code = errorCode, message = response))
+    }
+
+    override fun onExternalWalletSelected(walletName: String?, paymentData: PaymentData?) {
+        if (BuildConfig.DEBUG) {
+            Log.d("MainActivity", "Razorpay external wallet selected: $walletName")
+        }
+        paymentEventBus.post(PaymentEvent.ExternalWallet(walletName = walletName))
+    }
 
     private var isAppReady by mutableStateOf(false)
 

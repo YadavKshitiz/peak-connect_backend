@@ -10,7 +10,7 @@
 - [x] Task 7: Activity detail (Completed on 2026-10-27)
 - [x] Task 8: Matching/booking (Completed on 2026-10-27)
 - [x] Task 9: Booking status/cancel (Completed on 2026-11-01)
-- [ ] Task 10: Payment
+- [x] Task 10: Payment (Completed on 2026-11-01)
 - [ ] Task 11: Waitlist
 - [ ] Task 12: Guide experience
 - [ ] Task 13: Notifications
