@@ -171,7 +171,7 @@ fun SuccessStateContent(
     )
 
     val dateFormatter = remember {
-        DateTimeFormatter.ofPattern("EEE, d MMM yyyy · h:mm a", Locale.ENGLISH)
+        DateTimeFormatter.ofPattern("EEE, d MMM yyyy · h:mm a", Locale.getDefault())
     }
 
     Column(
@@ -190,23 +190,10 @@ fun SuccessStateContent(
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.xl))
 
             // Big animated check
-            Box(
-                modifier = Modifier
-                    .size(96.dp)
-                    .scale(checkScale)
-                    .background(
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Check,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(54.dp)
-                )
-            }
+            com.peakconnect.app.core.ui.AnimatedSuccessCheck(
+                size = 96.dp,
+                iconSize = 54.dp
+            )
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.lg))
 

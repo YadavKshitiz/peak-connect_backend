@@ -101,7 +101,8 @@ fun ActivityDetailScreen(
     onBack: () -> Unit,
     onNavigateToMatches: (slotId: String, isWaitlist: Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ActivityDetailViewModel = hiltViewModel()
+    viewModel: ActivityDetailViewModel = hiltViewModel(),
+    onNavigateToSafetyTips: (() -> Unit)? = null
 ) {
     val activityWithSlots by viewModel.activityWithSlots.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
@@ -604,7 +605,8 @@ fun ActivityDetailScreen(
     selectedRiskForExplanation?.let { riskLevel ->
         RiskExplanationBottomSheet(
             riskLevel = riskLevel,
-            onDismiss = { selectedRiskForExplanation = null }
+            onDismiss = { selectedRiskForExplanation = null },
+            onNavigateToSafetyTips = onNavigateToSafetyTips
         )
     }
 

@@ -79,7 +79,9 @@ fun TrekkerNavShell(
     onNavigateToActivityDetail: (String) -> Unit = {},
     onNavigateToBookingStatus: (String) -> Unit = {},
     onNavigateToPayment: (String) -> Unit = {},
-    onNotificationClick: () -> Unit = {}
+    onNotificationClick: () -> Unit = {},
+    onNavigateToAbout: () -> Unit = {},
+    onNavigateToSafetyTips: () -> Unit = {}
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -156,7 +158,9 @@ fun TrekkerNavShell(
             composable<ProfileTabRoute> {
                 com.peakconnect.app.feature.profile.ProfileScreen(
                     viewModel = androidx.hilt.navigation.compose.hiltViewModel(),
-                    onNavigateToLogin = onNavigateToLogin
+                    onNavigateToLogin = onNavigateToLogin,
+                    onNavigateToAbout = onNavigateToAbout,
+                    onNavigateToSafetyTips = onNavigateToSafetyTips
                 )
             }
         }

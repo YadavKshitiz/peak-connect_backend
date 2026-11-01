@@ -28,7 +28,8 @@ data class GuideBookingDetailUiState(
     val errorMessage: String? = null,
     val successMessage: String? = null,
     val showDeclineDialog: Boolean = false,
-    val showNoShowDialog: Boolean = false
+    val showNoShowDialog: Boolean = false,
+    val showAcceptedSuccessDialog: Boolean = false
 )
 
 @HiltViewModel
@@ -99,6 +100,10 @@ class GuideBookingDetailViewModel @Inject constructor(
         _uiState.update { it.copy(errorMessage = null, successMessage = null) }
     }
 
+    fun dismissAcceptedSuccessDialog() {
+        _uiState.update { it.copy(showAcceptedSuccessDialog = false) }
+    }
+
     fun acceptBooking() {
         if (_uiState.value.isActing) return
         viewModelScope.launch {
@@ -110,7 +115,8 @@ class GuideBookingDetailViewModel @Inject constructor(
                     _uiState.update {
                         it.copy(
                             isActing = false,
-                            successMessage = "Booking request accepted"
+                            successMessage = "Booking request accepted",
+                            showAcceptedSuccessDialog = true
                         )
                     }
                 }

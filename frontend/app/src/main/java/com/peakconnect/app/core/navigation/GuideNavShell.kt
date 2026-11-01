@@ -68,7 +68,9 @@ fun GuideNavShell(
     onNavigateToProfileEdit: () -> Unit,
     modifier: Modifier = Modifier,
     onNavigateToLogin: () -> Unit = {},
-    onNotificationClick: () -> Unit = {}
+    onNotificationClick: () -> Unit = {},
+    onNavigateToAbout: () -> Unit = {},
+    onNavigateToSafetyTips: () -> Unit = {}
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -132,7 +134,9 @@ fun GuideNavShell(
                 com.peakconnect.app.feature.profile.ProfileScreen(
                     viewModel = androidx.hilt.navigation.compose.hiltViewModel(),
                     onNavigateToLogin = onNavigateToLogin,
-                    onNavigateToGuideProfileEdit = onNavigateToProfileEdit
+                    onNavigateToGuideProfileEdit = onNavigateToProfileEdit,
+                    onNavigateToAbout = onNavigateToAbout,
+                    onNavigateToSafetyTips = onNavigateToSafetyTips
                 )
             }
         }

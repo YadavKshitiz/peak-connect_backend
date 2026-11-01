@@ -38,9 +38,13 @@ fun AppCard(
     }
 
     if (onClick != null) {
+        val interactionSource = androidx.compose.runtime.remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
         Card(
             onClick = onClick,
-            modifier = modifier.fillMaxWidth(),
+            interactionSource = interactionSource,
+            modifier = modifier
+                .fillMaxWidth()
+                .pressScale(interactionSource),
             shape = AppShapes.medium,
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             border = border,

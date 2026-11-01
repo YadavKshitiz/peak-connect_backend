@@ -15,5 +15,5 @@
 - [x] Task 12: Guide experience (Completed on 2026-11-01)
 - [x] Task 13: Notifications (Completed on 2026-11-01)
 - [x] Task 14: Offline hardening (Completed on 2026-11-01)
-- [ ] Task 15: Extras/localization
+- [x] Task 15: Extras/localization (Completed on 2026-11-01)
 - [ ] Task 16: Quality/release

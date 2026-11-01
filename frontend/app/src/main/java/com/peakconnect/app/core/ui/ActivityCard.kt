@@ -59,10 +59,13 @@ fun ActivityCard(
         ImageUrlResolver.resolve(activity.title, activity.location)
     }
 
+    val cardInteractionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     Card(
         onClick = { onCardClick(activity.id) },
+        interactionSource = cardInteractionSource,
         modifier = modifier
             .fillMaxWidth()
+            .pressScale(cardInteractionSource)
             .aspectRatio(1f)
             .clip(RoundedCornerShape(16.dp)),
         shape = RoundedCornerShape(16.dp),

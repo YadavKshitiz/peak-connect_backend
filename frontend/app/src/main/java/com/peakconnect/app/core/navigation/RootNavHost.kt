@@ -217,6 +217,12 @@ fun RootNavHost(
                             },
                             onNotificationClick = {
                                 navController.navigate(NotificationsRoute)
+                            },
+                            onNavigateToAbout = {
+                                navController.navigate(AboutRoute)
+                            },
+                            onNavigateToSafetyTips = {
+                                navController.navigate(SafetyTipsRoute)
                             }
                         )
                     }
@@ -236,6 +242,12 @@ fun RootNavHost(
                             },
                             onNotificationClick = {
                                 navController.navigate(NotificationsRoute)
+                            },
+                            onNavigateToAbout = {
+                                navController.navigate(AboutRoute)
+                            },
+                            onNavigateToSafetyTips = {
+                                navController.navigate(SafetyTipsRoute)
                             }
                         )
                     }
@@ -259,6 +271,9 @@ fun RootNavHost(
                             onBack = { navController.popBackStack() },
                             onNavigateToMatches = { slotId, isWaitlist ->
                                 navController.navigate(GuideMatchesRoute(slotId = slotId, isWaitlist = isWaitlist))
+                            },
+                            onNavigateToSafetyTips = {
+                                navController.navigate(SafetyTipsRoute)
                             }
                         )
                     }
@@ -372,7 +387,25 @@ fun RootNavHost(
                                 navController.navigate(LoginRoute) {
                                     popUpTo(0) { inclusive = true }
                                 }
+                            },
+                            onNavigateToAbout = {
+                                navController.navigate(AboutRoute)
+                            },
+                            onNavigateToSafetyTips = {
+                                navController.navigate(SafetyTipsRoute)
                             }
+                        )
+                    }
+
+                    composable<AboutRoute> {
+                        com.peakconnect.app.feature.about.AboutScreen(
+                            onBack = { navController.popBackStack() }
+                        )
+                    }
+
+                    composable<SafetyTipsRoute> {
+                        com.peakconnect.app.feature.safety.SafetyTipsScreen(
+                            onBack = { navController.popBackStack() }
                         )
                     }
 

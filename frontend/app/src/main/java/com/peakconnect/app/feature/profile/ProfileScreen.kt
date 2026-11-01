@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.Emergency
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Language
 import androidx.compose.material.icons.outlined.Notifications
@@ -66,7 +67,9 @@ fun ProfileScreen(
     viewModel: ProfileViewModel,
     onNavigateToLogin: () -> Unit,
     modifier: Modifier = Modifier,
-    onNavigateToGuideProfileEdit: (() -> Unit)? = null
+    onNavigateToGuideProfileEdit: (() -> Unit)? = null,
+    onNavigateToAbout: () -> Unit = {},
+    onNavigateToSafetyTips: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -262,7 +265,12 @@ fun ProfileScreen(
                     .clickable { viewModel.onNotificationsClicked() }
             )
 
-            // 3. Language (placeholder row)
+            // 3. Language
+            val languageLabel = when (state.selectedLanguage) {
+                com.peakconnect.app.core.locale.AppLanguage.SYSTEM_DEFAULT -> stringResource(id = R.string.language_current_system)
+                com.peakconnect.app.core.locale.AppLanguage.ENGLISH -> stringResource(id = R.string.language_current_english)
+                com.peakconnect.app.core.locale.AppLanguage.HINDI -> stringResource(id = R.string.language_current_hindi)
+            }
             ListItem(
                 headlineContent = {
                     Text(
@@ -272,7 +280,7 @@ fun ProfileScreen(
                 },
                 supportingContent = {
                     Text(
-                        text = stringResource(id = R.string.profile_language_desc),
+                        text = languageLabel,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -292,10 +300,47 @@ fun ProfileScreen(
                     )
                 },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { viewModel.onLanguageClicked() }
             )
 
-            // 4. About (placeholder row)
+            // 4. Trek Safety Tips
+            ListItem(
+                headlineContent = {
+                    Text(
+                        text = stringResource(id = R.string.profile_menu_safety_tips),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                },
+                supportingContent = {
+                    Text(
+                        text = stringResource(id = R.string.profile_safety_tips_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                leadingContent = {
+                    Icon(
+                        imageVector = Icons.Outlined.Emergency,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                },
+                trailingContent = {
+                    Icon(
+                        imageVector = Icons.Outlined.ChevronRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onNavigateToSafetyTips() }
+            )
+
+            // 5. About
             ListItem(
                 headlineContent = {
                     Text(
@@ -305,7 +350,11 @@ fun ProfileScreen(
                 },
                 supportingContent = {
                     Text(
-                        text = stringResource(id = R.string.profile_about_version),
+                        text = stringResource(
+                            id = R.string.about_version_label,
+                            com.peakconnect.app.BuildConfig.VERSION_NAME,
+                            com.peakconnect.app.BuildConfig.VERSION_CODE
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -325,7 +374,9 @@ fun ProfileScreen(
                     )
                 },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onNavigateToAbout() }
             )
 
             HorizontalDivider(color = DividerDefaults.color.copy(alpha = 0.5f))
@@ -362,6 +413,15 @@ fun ProfileScreen(
             currentThemeMode = state.themeMode,
             onThemeSelected = { viewModel.onThemeSelected(it) },
             onDismiss = { viewModel.onDismissAppearanceDialog() }
+        )
+    }
+
+    // Language Selection Dialog
+    if (state.showLanguageDialog) {
+        com.peakconnect.app.feature.settings.LanguageSelectionDialog(
+            currentLanguage = state.selectedLanguage,
+            onLanguageSelected = { viewModel.onLanguageSelected(it) },
+            onDismiss = { viewModel.onDismissLanguageDialog() }
         )
     }
 

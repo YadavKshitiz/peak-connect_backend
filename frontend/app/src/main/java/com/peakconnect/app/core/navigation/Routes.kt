@@ -91,3 +91,9 @@ data class MapPickerRoute(val initialLat: Double? = null, val initialLng: Double
 
 @Serializable
 data class GuideBookingDetailRoute(val bookingId: String)
+
+@Serializable
+data object AboutRoute
+
+@Serializable
+data object SafetyTipsRoute

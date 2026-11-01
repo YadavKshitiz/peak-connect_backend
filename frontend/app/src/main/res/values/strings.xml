@@ -615,4 +615,61 @@
     <string name="notification_settings_sync_success">Synced successfully</string>
     <string name="notification_settings_note">Note: Background sync runs at a 15-minute minimum interval and may be delayed by battery savers. Background updates stop about 24 hours after you last opened the app (when your login expires), so you need to open the app again.</string>
     <string name="common_calendar_app_unavailable">No calendar app available</string>
+
+    <!-- Task 15: Language Switcher -->
+    <string name="language_dialog_title">Select language</string>
+    <string name="language_system_default">System default</string>
+    <string name="language_english">English</string>
+    <string name="language_hindi">हिन्दी</string>
+    <string name="language_server_data_note">Activity names and descriptions come from the server and stay in English.</string>
+    <string name="language_current_system">System default</string>
+    <string name="language_current_english">English</string>
+    <string name="language_current_hindi">हिन्दी</string>
+
+    <!-- Task 15: About Screen -->
+    <string name="about_title">About</string>
+    <string name="about_app_description">PeakConnect connects passionate trekkers with certified mountain guides for high-altitude adventures across the Himalayas and beyond.</string>
+    <string name="about_version_label">Version %1$s (%2$d)</string>
+    <string name="about_map_attribution">Map data © OpenStreetMap contributors</string>
+    <string name="about_payments_note">Payments by Razorpay (test mode)</string>
+    <string name="about_oss_libraries_title">Open Source Libraries</string>
+    <string name="about_github_label">GitHub</string>
+    <string name="about_feedback_label">Send feedback</string>
+    <string name="about_feedback_subject">PeakConnect Feedback</string>
+    <string name="about_oss_libraries_list">• AndroidX Jetpack Compose (Apache 2.0)&#10;• Kotlin Coroutines &amp; Serialization (Apache 2.0)&#10;• AndroidX Lifecycle &amp; ViewModel (Apache 2.0)&#10;• AndroidX Navigation Compose (Apache 2.0)&#10;• Dagger Hilt (Apache 2.0)&#10;• AndroidX Room (Apache 2.0)&#10;• AndroidX DataStore (Apache 2.0)&#10;• AndroidX WorkManager (Apache 2.0)&#10;• Retrofit &amp; OkHttp (Apache 2.0)&#10;• Coil Image Loading (Apache 2.0)&#10;• osmdroid OpenStreetMap (Apache 2.0)&#10;• Razorpay Android SDK (Commercial / Razorpay Terms)&#10;• Material Components for Android (Apache 2.0)</string>
+
+    <!-- Task 15: Trek Safety Tips -->
+    <string name="safety_tips_title">Trek safety tips</string>
+    <string name="safety_tips_subtitle">Essential guidelines for a safe mountain adventure</string>
+    <string name="safety_tips_emergency_section">Emergency Assistance (India)</string>
+    <string name="safety_tips_emergency_number">112</string>
+    <string name="safety_tips_emergency_desc">National Emergency Number in India. Connects to police, fire, and medical rescue services.</string>
+    <string name="safety_tips_emergency_button">Call 112 (Emergency)</string>
+    <string name="safety_tips_emergency_action_label">open dialer for 112</string>
+    <string name="safety_tip_1_title">1. Monitor Mountain Weather</string>
+    <string name="safety_tip_1_desc">Mountain conditions change in minutes. Check updated forecasts before starting and be prepared to turn back if severe weather approaches.</string>
+    <string name="safety_tip_2_title">2. Stay Hydrated &amp; Purify Water</string>
+    <string name="safety_tip_2_desc">Drink 3 to 4 liters of water each day. Always filter or use purification tablets on natural mountain streams to prevent illness.</string>
+    <string name="safety_tip_3_title">3. Acclimatise Gradually</string>
+    <string name="safety_tip_3_desc">Ascend slowly above 2,500 meters (climb high, sleep low). Never push through acute mountain sickness (AMS) symptoms such as dizziness or headaches.</string>
+    <string name="safety_tip_4_title">4. Share Your Trek Plan</string>
+    <string name="safety_tip_4_desc">Always share your exact route, planned campsites, return schedule, and your guide\'s contact info with family or trusted friends.</string>
+    <string name="safety_tip_5_title">5. Dress in Technical Layers</string>
+    <string name="safety_tip_5_desc">Wear a moisture-wicking base layer, an insulating fleece mid-layer, and a wind/waterproof outer shell. Avoid cotton fabrics.</string>
+    <string name="safety_tip_6_title">6. Stay on Marked Trails</string>
+    <string name="safety_tip_6_desc">Never take unofficial shortcuts or wander off designated trails. Mountain terrain is steep and trails can quickly become disorienting in mist.</string>
+    <string name="safety_tip_7_title">7. Carry Essential Safety Gear</string>
+    <string name="safety_tip_7_desc">Keep a reliable headlamp with extra batteries, whistle, emergency thermal blanket, basic first-aid kit, and personal medications in your pack.</string>
+    <string name="safety_tip_8_title">8. Respect Your Certified Guide</string>
+    <string name="safety_tip_8_desc">Your guide is trained in mountain safety and local geography. Always heed their advice on pacing, rest breaks, and weather turnarounds.</string>
+    <string name="safety_tip_9_title">9. Set a Strict Turnaround Time</string>
+    <string name="safety_tip_9_desc">Agree on a firm turnaround time before embarking on summit pushes, and stick to it regardless of how close you are to the top.</string>
+    <string name="safety_tip_10_title">10. Leave No Trace</string>
+    <string name="safety_tip_10_desc">Carry all waste back down, respect mountain wildlife and alpine flora, and keep trail water sources unpolluted for other trekkers.</string>
+
+    <string name="risk_sheet_safety_tips_action">Trek safety tips</string>
+    <string name="profile_menu_safety_tips">Trek safety tips</string>
+    <string name="profile_safety_tips_desc">Mountain safety, guidelines &amp; emergency 112</string>
+    <string name="booking_accepted_success_title">Booking request accepted</string>
+    <string name="booking_accepted_success_desc">You have confirmed availability. The trekker has been requested to pay the deposit.</string>
 </resources>

@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.peakconnect.app.core.locale.AppLanguage
+import com.peakconnect.app.core.locale.AppLocaleManager
 import java.util.Locale
 import javax.inject.Inject
 
@@ -28,8 +30,10 @@ data class ProfileUiState(
     val notificationsEnabled: Boolean = true,
     val remindersEnabled: Boolean = true,
     val lastSyncTimestamp: Long? = null,
+    val selectedLanguage: AppLanguage = AppLanguage.SYSTEM_DEFAULT,
     val showAppearanceDialog: Boolean = false,
     val showNotificationSettingsDialog: Boolean = false,
+    val showLanguageDialog: Boolean = false,
     val showLogoutDialog: Boolean = false,
     val isLoggingOut: Boolean = false
 )
@@ -48,6 +52,7 @@ class ProfileViewModel @Inject constructor(
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
 
     init {
+        _uiState.update { it.copy(selectedLanguage = AppLocaleManager.getCurrentLanguage()) }
         observeSession()
         observeTheme()
         observeNotifications()
@@ -138,6 +143,29 @@ class ProfileViewModel @Inject constructor(
 
     fun onDismissNotificationSettingsDialog() {
         _uiState.update { it.copy(showNotificationSettingsDialog = false) }
+    }
+
+    fun onLanguageClicked() {
+        _uiState.update {
+            it.copy(
+                showLanguageDialog = true,
+                selectedLanguage = AppLocaleManager.getCurrentLanguage()
+            )
+        }
+    }
+
+    fun onDismissLanguageDialog() {
+        _uiState.update { it.copy(showLanguageDialog = false) }
+    }
+
+    fun onLanguageSelected(language: AppLanguage) {
+        AppLocaleManager.setLanguage(language)
+        _uiState.update {
+            it.copy(
+                selectedLanguage = language,
+                showLanguageDialog = false
+            )
+        }
     }
 
     fun onNotificationsToggled(enabled: Boolean) {

@@ -31,7 +31,8 @@ import com.peakconnect.app.domain.model.RiskLevel
 fun RiskExplanationBottomSheet(
     riskLevel: RiskLevel,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavigateToSafetyTips: (() -> Unit)? = null
 ) {
     AppModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -79,7 +80,18 @@ fun RiskExplanationBottomSheet(
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (onNavigateToSafetyTips != null) {
+                com.peakconnect.app.core.ui.SecondaryButton(
+                    text = stringResource(id = R.string.risk_sheet_safety_tips_action),
+                    onClick = {
+                        onDismiss()
+                        onNavigateToSafetyTips()
+                    }
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+            }
 
             PrimaryButton(
                 text = stringResource(id = R.string.common_close),

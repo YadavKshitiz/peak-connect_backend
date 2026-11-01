@@ -84,6 +84,37 @@ fun GuideBookingDetailScreen(
         }
     }
 
+    if (uiState.showAcceptedSuccessDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissAcceptedSuccessDialog() },
+            icon = {
+                com.peakconnect.app.core.ui.AnimatedSuccessCheck(
+                    size = 72.dp,
+                    iconSize = 42.dp
+                )
+            },
+            title = {
+                Text(
+                    text = stringResource(id = R.string.booking_accepted_success_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(id = R.string.booking_accepted_success_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { viewModel.dismissAcceptedSuccessDialog() }) {
+                    Text(stringResource(id = R.string.common_confirm))
+                }
+            }
+        )
+    }
+
     if (uiState.showDeclineDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.showDeclineDialog(false) },
