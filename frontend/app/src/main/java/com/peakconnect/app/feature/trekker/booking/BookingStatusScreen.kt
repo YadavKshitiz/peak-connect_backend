@@ -2,7 +2,9 @@ package com.peakconnect.app.feature.trekker.booking
 
 import android.content.Intent
 import android.net.Uri
+import android.provider.CalendarContract
 import android.widget.Toast
+import java.time.ZoneId
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -284,9 +286,38 @@ fun BookingStatusScreen(
                                 }
                             },
                             onAddToCalendar = {
-                                val toastMsg = context.getString(R.string.booking_status_action_calendar_toast)
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(toastMsg)
+                                val calTitle = if (!booking.guideName.isNullOrBlank()) {
+                                    "${booking.activityTitle} with ${booking.guideName}"
+                                } else {
+                                    booking.activityTitle
+                                }
+                                val startMillis = try {
+                                    booking.date.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                                } catch (_: Exception) {
+                                    System.currentTimeMillis()
+                                }
+                                val endMillis = startMillis + 6 * 3600 * 1000L
+
+                                val calIntent = Intent(Intent.ACTION_INSERT).apply {
+                                    data = CalendarContract.Events.CONTENT_URI
+                                    putExtra(CalendarContract.Events.TITLE, calTitle)
+                                    putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, startMillis)
+                                    putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endMillis)
+                                    uiState.activity?.location?.takeIf { it.isNotBlank() }?.let { loc ->
+                                        putExtra(CalendarContract.Events.EVENT_LOCATION, loc)
+                                    }
+                                    uiState.activity?.description?.takeIf { it.isNotBlank() }?.let { desc ->
+                                        putExtra(CalendarContract.Events.DESCRIPTION, desc)
+                                    }
+                                }
+                                try {
+                                    context.startActivity(calIntent)
+                                } catch (_: Exception) {
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.common_calendar_app_unavailable),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
                         )

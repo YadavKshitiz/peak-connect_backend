@@ -37,6 +37,10 @@ abstract class StorageBindingsModule {
     @Binds
     @Singleton
     abstract fun bindThemePreferences(impl: DataStoreThemePreferences): ThemePreferences
+
+    @Binds
+    @Singleton
+    abstract fun bindNotificationPreferences(impl: com.peakconnect.app.core.preferences.DataStoreNotificationPreferences): com.peakconnect.app.core.preferences.NotificationPreferences
 }
 
 @Module

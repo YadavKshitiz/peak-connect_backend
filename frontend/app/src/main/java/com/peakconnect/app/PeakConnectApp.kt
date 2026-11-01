@@ -12,12 +12,26 @@ import com.razorpay.Checkout
 import dagger.hilt.android.HiltAndroidApp
 import okio.Path.Companion.toPath
 
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
+import com.peakconnect.app.core.notifications.NotificationChannels
+import javax.inject.Inject
+
 @HiltAndroidApp
-class PeakConnectApp : Application(), SingletonImageLoader.Factory {
+class PeakConnectApp : Application(), SingletonImageLoader.Factory, Configuration.Provider {
+
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 
     override fun onCreate() {
         super.onCreate()
         Checkout.preload(applicationContext)
+        NotificationChannels.createChannels(this)
     }
 
     override fun newImageLoader(context: PlatformContext): ImageLoader {

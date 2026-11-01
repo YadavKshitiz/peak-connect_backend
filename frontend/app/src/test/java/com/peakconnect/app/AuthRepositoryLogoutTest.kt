@@ -50,6 +50,7 @@ class AuthRepositoryLogoutTest {
     private lateinit var repository: AuthRepositoryImpl
     private val api: PeakConnectApi = mockk(relaxed = true)
     private val wakeUpRetryHelper: WakeUpRetryHelper = mockk(relaxed = true)
+    private val notificationWorkScheduler: com.peakconnect.app.feature.notifications.sync.NotificationWorkScheduler = mockk(relaxed = true)
 
     @Before
     fun setUp() {
@@ -69,6 +70,7 @@ class AuthRepositoryLogoutTest {
             guideDao = db.guideDao(),
             notifiedEventDao = db.notifiedEventDao(),
             wakeUpRetryHelper = wakeUpRetryHelper,
+            notificationWorkScheduler = notificationWorkScheduler,
             ioDispatcher = testDispatcher
         )
     }
@@ -200,6 +202,9 @@ class AuthRepositoryLogoutTest {
         // 5. Verify token cleared and session LoggedOut
         assertNull(tokenStore.getToken())
         assertEquals(SessionState.LoggedOut, sessionManager.sessionState.value)
+
+        // 6. Verify scheduled work was cancelled
+        io.mockk.verify { notificationWorkScheduler.cancelAllWork() }
     }
 
     private class FakeTokenStore(private var token: String? = null) : TokenStore {

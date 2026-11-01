@@ -32,6 +32,8 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.SearchOff
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -65,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
@@ -91,6 +94,7 @@ import kotlinx.coroutines.launch
 fun ExploreScreen(
     onNavigateToActivityDetail: (String) -> Unit,
     modifier: Modifier = Modifier,
+    onNotificationClick: () -> Unit = {},
     viewModel: ExploreViewModel = hiltViewModel()
 ) {
     val searchQuery by viewModel.searchQuery.collectAsState()
@@ -104,6 +108,7 @@ fun ExploreScreen(
     val recentlyViewed by viewModel.recentlyViewed.collectAsState()
     val searchHistory by viewModel.searchHistory.collectAsState()
     val favourites by viewModel.favouritesSet.collectAsState()
+    val unreadCount by viewModel.unreadNotificationCount.collectAsStateWithLifecycle()
 
     val pagedActivities = viewModel.pagedActivities.collectAsLazyPagingItems()
     val isOnline = LocalIsOnline.current
@@ -166,13 +171,23 @@ fun ExploreScreen(
                     )
 
                     IconButton(
-                        onClick = { /* Notification bell wired in Task 13 */ }
+                        onClick = onNotificationClick
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Notifications,
-                            contentDescription = stringResource(id = R.string.nav_tab_explore),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        BadgedBox(
+                            badge = {
+                                if (unreadCount > 0) {
+                                    Badge {
+                                        Text(text = if (unreadCount > 99) "99+" else unreadCount.toString())
+                                    }
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = stringResource(id = R.string.notifications_inbox_title),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
 

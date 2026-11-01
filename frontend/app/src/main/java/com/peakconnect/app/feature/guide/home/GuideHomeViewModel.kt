@@ -11,9 +11,11 @@ import com.peakconnect.app.data.repository.GuideRepository
 import com.peakconnect.app.domain.model.BookingStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -43,10 +45,15 @@ data class GuideHomeUiState(
 @HiltViewModel
 class GuideHomeViewModel @Inject constructor(
     private val guideRepository: GuideRepository,
-    private val bookingRepository: BookingRepository
+    private val bookingRepository: BookingRepository,
+    private val userContentDao: com.peakconnect.app.data.local.dao.UserContentDao? = null
 ) : ViewModel() {
 
     var nowSupplier: () -> LocalDateTime = { LocalDateTime.now() }
+
+    val unreadNotificationCount: StateFlow<Int> = (userContentDao?.getUnreadNotificationCountFlow()
+        ?: kotlinx.coroutines.flow.flowOf(0))
+        .stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000), 0)
 
     private val _uiState = MutableStateFlow(GuideHomeUiState())
     val uiState: StateFlow<GuideHomeUiState> = _uiState.asStateFlow()

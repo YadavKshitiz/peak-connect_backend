@@ -37,6 +37,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val guideDao: GuideDao,
     private val notifiedEventDao: NotifiedEventDao,
     private val wakeUpRetryHelper: WakeUpRetryHelper,
+    private val notificationWorkScheduler: com.peakconnect.app.feature.notifications.sync.NotificationWorkScheduler,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AuthRepository {
 
@@ -56,6 +57,7 @@ class AuthRepositoryImpl @Inject constructor(
                     val body = response.body()
                     if (body != null && body.token.isNotBlank()) {
                         sessionManager.onLoginSuccess(body.token)
+                        notificationWorkScheduler.schedulePeriodicSync()
                         ApiResult.Success(Unit)
                     } else {
                         ErrorMapper.mapHttpError(response.code(), "Empty authentication token returned")
@@ -105,7 +107,7 @@ class AuthRepositoryImpl @Inject constructor(
             guideDao.clearGuideProfile()
             notifiedEventDao.clearAll()
             userContentDao.clearUserSpecificData()
-            // TODO: Cancel any scheduled WorkManager periodic sync jobs (Task 13/14)
+            notificationWorkScheduler.cancelAllWork()
         } catch (_: Exception) {
         }
     }

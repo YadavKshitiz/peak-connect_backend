@@ -1,31 +1,45 @@
 package com.peakconnect.app
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.peakconnect.app.core.navigation.RootNavHost
 import com.peakconnect.app.core.network.ResumeHealthChecker
+import com.peakconnect.app.core.notifications.LocalNotificationPoster
+import com.peakconnect.app.core.notifications.NotificationPermissionState
+import com.peakconnect.app.core.notifications.NotificationRationaleDialog
 import com.peakconnect.app.core.session.SessionManager
+import com.peakconnect.app.core.session.SessionState
 import com.peakconnect.app.core.theme.PeakConnectTheme
 import com.peakconnect.app.core.theme.ThemeMode
 import com.peakconnect.app.core.util.LocalIsOnline
 import com.peakconnect.app.core.util.NetworkMonitor
+import com.peakconnect.app.feature.notifications.sync.NotificationWorkScheduler
 import com.peakconnect.app.feature.payment.PaymentEvent
 import com.peakconnect.app.feature.payment.PaymentEventBus
 import com.razorpay.ExternalWalletListener
 import com.razorpay.PaymentData
 import com.razorpay.PaymentResultWithDataListener
 import dagger.hilt.android.AndroidEntryPoint
-import android.util.Log
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -45,6 +59,13 @@ class MainActivity : AppCompatActivity(), PaymentResultWithDataListener, Externa
 
     @Inject
     lateinit var paymentEventBus: PaymentEventBus
+
+    @Inject
+    lateinit var notificationWorkScheduler: NotificationWorkScheduler
+
+    private var isAppReady by mutableStateOf(false)
+    private var pendingBookingId by mutableStateOf<String?>(null)
+    private var pendingIsGuide by mutableStateOf(false)
 
     override fun onPaymentSuccess(razorpayPaymentId: String?, paymentData: PaymentData?) {
         val paymentId = razorpayPaymentId ?: paymentData?.paymentId.orEmpty()
@@ -69,13 +90,15 @@ class MainActivity : AppCompatActivity(), PaymentResultWithDataListener, Externa
         paymentEventBus.post(PaymentEvent.ExternalWallet(walletName = walletName))
     }
 
-    private var isAppReady by mutableStateOf(false)
-
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         val splashStartTime = System.currentTimeMillis()
 
         super.onCreate(savedInstanceState)
+
+        // Read intent extras from notification deep links
+        pendingBookingId = intent?.getStringExtra(LocalNotificationPoster.EXTRA_BOOKING_ID)
+        pendingIsGuide = intent?.getBooleanExtra(LocalNotificationPoster.EXTRA_IS_GUIDE, false) ?: false
 
         // Keep system splash until first frame & session check ready, max 1 second
         splashScreen.setKeepOnScreenCondition {
@@ -88,6 +111,50 @@ class MainActivity : AppCompatActivity(), PaymentResultWithDataListener, Externa
         setContent {
             val isOnline by networkMonitor.isOnline.collectAsStateWithLifecycle(initialValue = true)
             val themeMode by themePreferences.themeMode.collectAsStateWithLifecycle(initialValue = ThemeMode.SYSTEM)
+            val sessionState by sessionManager.sessionState.collectAsStateWithLifecycle()
+            val context = LocalContext.current
+
+            var showRationaleDialog by remember { mutableStateOf(false) }
+
+            val permissionLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.RequestPermission(),
+                onResult = { isGranted ->
+                    if (isGranted) {
+                        notificationWorkScheduler.schedulePeriodicSync()
+                    }
+                }
+            )
+
+            // Contextual notification permission prompt after login (Android 13+)
+            LaunchedEffect(sessionState) {
+                if (sessionState is SessionState.LoggedIn && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    if (!NotificationPermissionState.hasPromptedThisLaunch) {
+                        val isGranted = ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                        if (!isGranted) {
+                            showRationaleDialog = true
+                        }
+                    }
+                }
+            }
+
+            if (showRationaleDialog) {
+                NotificationRationaleDialog(
+                    onAllow = {
+                        showRationaleDialog = false
+                        NotificationPermissionState.hasPromptedThisLaunch = true
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    },
+                    onDismiss = {
+                        showRationaleDialog = false
+                        NotificationPermissionState.hasPromptedThisLaunch = true
+                    }
+                )
+            }
 
             LaunchedEffect(Unit) {
                 isAppReady = true
@@ -98,16 +165,27 @@ class MainActivity : AppCompatActivity(), PaymentResultWithDataListener, Externa
                     RootNavHost(
                         sessionManager = sessionManager,
                         resumeHealthChecker = resumeHealthChecker,
-                        onExitApp = { finish() }
+                        onExitApp = { finish() },
+                        pendingBookingId = pendingBookingId,
+                        pendingIsGuide = pendingIsGuide,
+                        onClearPendingBooking = { pendingBookingId = null }
                     )
                 }
             }
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        pendingBookingId = intent.getStringExtra(LocalNotificationPoster.EXTRA_BOOKING_ID)
+        pendingIsGuide = intent.getBooleanExtra(LocalNotificationPoster.EXTRA_IS_GUIDE, false)
+    }
+
     override fun onStart() {
         super.onStart()
         resumeHealthChecker.onAppForegrounded(lifecycleScope)
+        notificationWorkScheduler.scheduleOneTimeSync()
     }
 
     override fun onStop() {

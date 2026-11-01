@@ -40,8 +40,13 @@ import javax.inject.Inject
 @HiltViewModel
 class ExploreViewModel @Inject constructor(
     private val activityRepository: ActivityRepository,
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    private val userContentDao: com.peakconnect.app.data.local.dao.UserContentDao? = null
 ) : ViewModel() {
+
+    val unreadNotificationCount: StateFlow<Int> = (userContentDao?.getUnreadNotificationCountFlow()
+        ?: kotlinx.coroutines.flow.flowOf(0))
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()

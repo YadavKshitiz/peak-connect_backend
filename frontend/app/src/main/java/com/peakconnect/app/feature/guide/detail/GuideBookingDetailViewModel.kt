@@ -34,7 +34,8 @@ class GuideBookingDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val guideRepository: GuideRepository,
     private val bookingRepository: BookingRepository,
-    private val activityDao: ActivityDao
+    private val activityDao: ActivityDao,
+    private val activeScreenTracker: com.peakconnect.app.core.notifications.ActiveScreenTracker = com.peakconnect.app.core.notifications.ActiveScreenTracker()
 ) : ViewModel() {
 
     val bookingId: String = checkNotNull(savedStateHandle["bookingId"])
@@ -45,6 +46,7 @@ class GuideBookingDetailViewModel @Inject constructor(
     val uiState: StateFlow<GuideBookingDetailUiState> = _uiState.asStateFlow()
 
     init {
+        activeScreenTracker.onBookingScreenEntered(bookingId)
         observeBooking()
         refresh()
     }
@@ -204,5 +206,10 @@ class GuideBookingDetailViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        activeScreenTracker.onBookingScreenExited(bookingId)
     }
 }

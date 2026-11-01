@@ -27,5 +27,5 @@ abstract class PaymentModule {
 
     @Binds
     @Singleton
-    abstract fun bindPaymentReminderScheduler(impl: NoOpPaymentReminderScheduler): PaymentReminderScheduler
+    abstract fun bindPaymentReminderScheduler(impl: com.peakconnect.app.feature.notifications.reminders.WorkManagerReminderScheduler): PaymentReminderScheduler
 }

@@ -20,6 +20,8 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -70,6 +72,7 @@ fun GuideHomeScreen(
     viewModel: GuideHomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val unreadCount by viewModel.unreadNotificationCount.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LifecycleResumeEffect(Unit) {
@@ -131,10 +134,20 @@ fun GuideHomeScreen(
                 title = stringResource(id = R.string.guide_home_title),
                 actions = {
                     IconButton(onClick = onNotificationClick) {
-                        Icon(
-                            imageVector = Icons.Outlined.Notifications,
-                            contentDescription = stringResource(id = R.string.profile_menu_notifications)
-                        )
+                        BadgedBox(
+                            badge = {
+                                if (unreadCount > 0) {
+                                    Badge {
+                                        Text(text = if (unreadCount > 99) "99+" else unreadCount.toString())
+                                    }
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Notifications,
+                                contentDescription = stringResource(id = R.string.profile_menu_notifications)
+                            )
+                        }
                     }
                 }
             )

@@ -2,6 +2,7 @@ package com.peakconnect.app.feature.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.peakconnect.app.core.preferences.NotificationPreferences
 import com.peakconnect.app.core.preferences.ThemePreferences
 import com.peakconnect.app.core.session.SessionManager
 import com.peakconnect.app.core.session.SessionState
@@ -9,6 +10,7 @@ import com.peakconnect.app.core.theme.ThemeMode
 import com.peakconnect.app.data.repository.AuthRepository
 import com.peakconnect.app.data.repository.GuideRepository
 import com.peakconnect.app.domain.model.Role
+import com.peakconnect.app.feature.notifications.sync.NotificationWorkScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +26,10 @@ data class ProfileUiState(
     val role: Role = Role.TREKKER,
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val notificationsEnabled: Boolean = true,
+    val remindersEnabled: Boolean = true,
+    val lastSyncTimestamp: Long? = null,
     val showAppearanceDialog: Boolean = false,
+    val showNotificationSettingsDialog: Boolean = false,
     val showLogoutDialog: Boolean = false,
     val isLoggingOut: Boolean = false
 )
@@ -34,7 +39,9 @@ class ProfileViewModel @Inject constructor(
     private val sessionManager: SessionManager,
     private val guideRepository: GuideRepository,
     private val authRepository: AuthRepository,
-    private val themePreferences: ThemePreferences
+    private val themePreferences: ThemePreferences,
+    private val notificationPreferences: NotificationPreferences,
+    private val notificationWorkScheduler: NotificationWorkScheduler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUiState())
@@ -43,6 +50,7 @@ class ProfileViewModel @Inject constructor(
     init {
         observeSession()
         observeTheme()
+        observeNotifications()
     }
 
     private fun observeSession() {
@@ -91,6 +99,24 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    private fun observeNotifications() {
+        viewModelScope.launch {
+            notificationPreferences.masterEnabled.collect { enabled ->
+                _uiState.update { it.copy(notificationsEnabled = enabled) }
+            }
+        }
+        viewModelScope.launch {
+            notificationPreferences.remindersEnabled.collect { enabled ->
+                _uiState.update { it.copy(remindersEnabled = enabled) }
+            }
+        }
+        viewModelScope.launch {
+            notificationPreferences.lastSyncTimestamp.collect { ts ->
+                _uiState.update { it.copy(lastSyncTimestamp = ts) }
+            }
+        }
+    }
+
     fun onAppearanceClicked() {
         _uiState.update { it.copy(showAppearanceDialog = true) }
     }
@@ -106,8 +132,33 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    fun onNotificationsClicked() {
+        _uiState.update { it.copy(showNotificationSettingsDialog = true) }
+    }
+
+    fun onDismissNotificationSettingsDialog() {
+        _uiState.update { it.copy(showNotificationSettingsDialog = false) }
+    }
+
     fun onNotificationsToggled(enabled: Boolean) {
-        _uiState.update { it.copy(notificationsEnabled = enabled) }
+        viewModelScope.launch {
+            notificationPreferences.setMasterEnabled(enabled)
+            if (enabled) {
+                notificationWorkScheduler.schedulePeriodicSync()
+            } else {
+                notificationWorkScheduler.cancelAllWork()
+            }
+        }
+    }
+
+    fun onRemindersToggled(enabled: Boolean) {
+        viewModelScope.launch {
+            notificationPreferences.setRemindersEnabled(enabled)
+        }
+    }
+
+    fun onSyncNow() {
+        notificationWorkScheduler.scheduleOneTimeSync()
     }
 
     fun onLogoutClicked() {

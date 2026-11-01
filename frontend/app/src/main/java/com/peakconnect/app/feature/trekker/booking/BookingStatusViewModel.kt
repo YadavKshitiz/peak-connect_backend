@@ -54,7 +54,8 @@ class BookingStatusViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val bookingRepository: BookingRepository,
     private val activityDao: ActivityDao,
-    private val userContentDao: UserContentDao
+    private val userContentDao: UserContentDao,
+    private val activeScreenTracker: com.peakconnect.app.core.notifications.ActiveScreenTracker = com.peakconnect.app.core.notifications.ActiveScreenTracker()
 ) : ViewModel() {
 
     val bookingId: String = checkNotNull(savedStateHandle["bookingId"])
@@ -69,6 +70,7 @@ class BookingStatusViewModel @Inject constructor(
     private var lastKnownStatus: BookingStatus? = null
 
     init {
+        activeScreenTracker.onBookingScreenEntered(bookingId)
         observeBooking()
         refresh()
     }
@@ -218,5 +220,10 @@ class BookingStatusViewModel @Inject constructor(
                 status == BookingStatus.CANCELLED ||
                 status == BookingStatus.NO_SHOW ||
                 status == BookingStatus.REMATCH_FAILED
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        activeScreenTracker.onBookingScreenExited(bookingId)
     }
 }

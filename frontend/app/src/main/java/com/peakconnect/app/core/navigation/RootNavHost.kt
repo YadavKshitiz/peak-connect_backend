@@ -29,6 +29,7 @@ import com.peakconnect.app.core.network.ResumeHealthChecker
 import com.peakconnect.app.core.session.SessionEvent
 import com.peakconnect.app.core.session.SessionEvents
 import com.peakconnect.app.core.session.SessionManager
+import com.peakconnect.app.core.session.SessionState
 import com.peakconnect.app.core.ui.BannerType
 import com.peakconnect.app.core.ui.InfoBanner
 import com.peakconnect.app.feature.admin.AdminUnsupportedScreen
@@ -43,13 +44,29 @@ fun RootNavHost(
     resumeHealthChecker: ResumeHealthChecker,
     onExitApp: () -> Unit,
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    pendingBookingId: String? = null,
+    pendingIsGuide: Boolean = false,
+    onClearPendingBooking: () -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val isServerWakingUp by resumeHealthChecker.isServerWakingUp.collectAsStateWithLifecycle()
     val sessionExpiredMsg = stringResource(id = R.string.session_expired_message)
     var showSessionExpiredOnLogin by remember { androidx.compose.runtime.mutableStateOf(false) }
+
+    // Deep link navigation from local notification
+    LaunchedEffect(pendingBookingId) {
+        val bId = pendingBookingId
+        if (bId != null && sessionManager.sessionState.value is SessionState.LoggedIn) {
+            if (pendingIsGuide) {
+                navController.navigate(GuideBookingDetailRoute(bookingId = bId))
+            } else {
+                navController.navigate(BookingStatusRoute(bookingId = bId))
+            }
+            onClearPendingBooking()
+        }
+    }
 
     // Global listener for SessionExpired events
     LaunchedEffect(Unit) {
@@ -186,6 +203,9 @@ fun RootNavHost(
                             },
                             onNavigateToPayment = { bookingId ->
                                 navController.navigate(PaymentRoute(bookingId = bookingId))
+                            },
+                            onNotificationClick = {
+                                navController.navigate(NotificationsRoute)
                             }
                         )
                     }
@@ -322,7 +342,16 @@ fun RootNavHost(
                     }
 
                     composable<NotificationsRoute> {
-                        PlaceholderScreen(title = "Notifications")
+                        com.peakconnect.app.feature.notifications.NotificationsScreen(
+                            onBack = { navController.popBackStack() },
+                            onNavigateToBooking = { bookingId, isGuide ->
+                                if (isGuide) {
+                                    navController.navigate(GuideBookingDetailRoute(bookingId = bookingId))
+                                } else {
+                                    navController.navigate(BookingStatusRoute(bookingId = bookingId))
+                                }
+                            }
+                        )
                     }
 
                     composable<SettingsRoute> {

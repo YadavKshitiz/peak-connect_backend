@@ -53,7 +53,11 @@ import com.peakconnect.app.core.theme.AppShapes
 import com.peakconnect.app.core.theme.ThemeMode
 import com.peakconnect.app.core.theme.spacing
 import com.peakconnect.app.domain.model.Role
+import androidx.core.app.NotificationManagerCompat
+import androidx.compose.ui.platform.LocalContext
+import com.peakconnect.app.core.notifications.NotificationPermissionState
 import com.peakconnect.app.feature.settings.AppearanceDialog
+import com.peakconnect.app.feature.settings.NotificationSettingsDialog
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,6 +69,7 @@ fun ProfileScreen(
     onNavigateToGuideProfileEdit: (() -> Unit)? = null
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -217,7 +222,7 @@ fun ProfileScreen(
                     .clickable { viewModel.onAppearanceClicked() }
             )
 
-            // 2. Notifications (placeholder switch row)
+            // 2. Notifications settings row
             ListItem(
                 headlineContent = {
                     Text(
@@ -242,11 +247,19 @@ fun ProfileScreen(
                 trailingContent = {
                     Switch(
                         checked = state.notificationsEnabled,
-                        onCheckedChange = { viewModel.onNotificationsToggled(it) }
+                        onCheckedChange = { enabled ->
+                            if (enabled && !NotificationManagerCompat.from(context).areNotificationsEnabled()) {
+                                NotificationPermissionState.openAppNotificationSettings(context)
+                            } else {
+                                viewModel.onNotificationsToggled(enabled)
+                            }
+                        }
                     )
                 },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { viewModel.onNotificationsClicked() }
             )
 
             // 3. Language (placeholder row)
@@ -349,6 +362,25 @@ fun ProfileScreen(
             currentThemeMode = state.themeMode,
             onThemeSelected = { viewModel.onThemeSelected(it) },
             onDismiss = { viewModel.onDismissAppearanceDialog() }
+        )
+    }
+
+    // Notification Settings Dialog
+    if (state.showNotificationSettingsDialog) {
+        NotificationSettingsDialog(
+            masterEnabled = state.notificationsEnabled,
+            remindersEnabled = state.remindersEnabled,
+            lastSyncTimestamp = state.lastSyncTimestamp,
+            onMasterToggled = { enabled ->
+                if (enabled && !NotificationManagerCompat.from(context).areNotificationsEnabled()) {
+                    NotificationPermissionState.openAppNotificationSettings(context)
+                } else {
+                    viewModel.onNotificationsToggled(enabled)
+                }
+            },
+            onRemindersToggled = { viewModel.onRemindersToggled(it) },
+            onSyncNow = { viewModel.onSyncNow() },
+            onDismiss = { viewModel.onDismissNotificationSettingsDialog() }
         )
     }
 

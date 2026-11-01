@@ -78,7 +78,8 @@ fun TrekkerNavShell(
     onNavigateToLogin: () -> Unit = {},
     onNavigateToActivityDetail: (String) -> Unit = {},
     onNavigateToBookingStatus: (String) -> Unit = {},
-    onNavigateToPayment: (String) -> Unit = {}
+    onNavigateToPayment: (String) -> Unit = {},
+    onNotificationClick: () -> Unit = {}
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -128,7 +129,8 @@ fun TrekkerNavShell(
         ) {
             composable<ExploreTabRoute> {
                 com.peakconnect.app.feature.explore.ExploreScreen(
-                    onNavigateToActivityDetail = onNavigateToActivityDetail
+                    onNavigateToActivityDetail = onNavigateToActivityDetail,
+                    onNotificationClick = onNotificationClick
                 )
             }
             composable<SavedTabRoute> {

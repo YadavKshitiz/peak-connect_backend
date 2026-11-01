@@ -70,6 +70,9 @@ interface UserContentDao {
     @Query("UPDATE notifications SET isRead = 1")
     suspend fun markAllNotificationsAsRead(): Int
 
+    @Query("DELETE FROM notifications WHERE id = :id")
+    suspend fun deleteNotification(id: String): Int
+
     // Waitlist
     @Query("SELECT * FROM waitlist_entries ORDER BY joinedAt DESC")
     fun getWaitlistEntriesFlow(): Flow<List<WaitlistEntryEntity>>
