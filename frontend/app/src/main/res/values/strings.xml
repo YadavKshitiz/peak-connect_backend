@@ -323,4 +323,80 @@
     <string name="review_booking_error_title">Booking request</string>
     <string name="booking_offline_blocked">You’re offline. Connect to the internet to book.</string>
     <string name="common_skills_more">+%1$d</string>
+
+    <!-- Task 9: My Bookings & Tabs -->
+    <string name="bookings_tab_active">Active</string>
+    <string name="bookings_tab_upcoming">Upcoming</string>
+    <string name="bookings_tab_past">Past</string>
+    <string name="bookings_tab_cancelled">Cancelled</string>
+    <string name="bookings_tab_waitlist">Waitlist</string>
+    <string name="guide_assigned_placeholder">Guide will be assigned</string>
+    <string name="booking_card_pay_deposit">Pay deposit</string>
+    <string name="booking_card_pay_action_label">pay</string>
+    <string name="booking_card_cancel_action_label">cancel</string>
+    <string name="booking_card_approx_left">about %1$s left</string>
+    <string name="booking_card_approx_min_left">about %1$d min left</string>
+
+    <!-- Task 9: Empty States -->
+    <string name="bookings_empty_active_title">No active bookings</string>
+    <string name="bookings_empty_active_message">You don’t have any bookings waiting for guide response or deposit payment.</string>
+    <string name="bookings_empty_upcoming_title">No upcoming treks</string>
+    <string name="bookings_empty_upcoming_message">You don’t have any confirmed future bookings yet. Find a trek to explore!</string>
+    <string name="bookings_empty_past_title">No past treks</string>
+    <string name="bookings_empty_past_message">Completed treks and past bookings will appear here.</string>
+    <string name="bookings_empty_cancelled_title">No cancelled bookings</string>
+    <string name="bookings_empty_cancelled_message">Cancelled and declined bookings will appear here.</string>
+    <string name="bookings_empty_waitlist_title">Waitlist</string>
+    <string name="bookings_empty_waitlist_message">Waitlist entries will appear here in Task 11.</string>
+    <string name="bookings_empty_explore_action">Explore treks</string>
+
+    <!-- Task 9: Booking Status Screen -->
+    <string name="booking_status_title">Booking Status</string>
+    <string name="booking_status_step_request_sent">Request sent</string>
+    <string name="booking_status_step_guide_accepted">Guide accepted</string>
+    <string name="booking_status_step_deposit_paid">Deposit paid</string>
+    <string name="booking_status_step_confirmed">Confirmed</string>
+    <string name="booking_status_step_cancelled">Cancelled</string>
+    <string name="booking_status_step_no_show">No-show</string>
+    <string name="booking_status_step_rematch_failed">No guide available</string>
+    <string name="booking_status_window_ended">The window may have ended. Refresh to check.</string>
+    <string name="booking_status_action_refresh">Refresh</string>
+    <string name="booking_status_pending_with_guide">Waiting for %1$s to accept (about %2$s left)</string>
+    <string name="booking_status_pending_no_guide">Waiting for a guide to accept (about %1$s left)</string>
+    <string name="booking_status_pending_note">You’ll be asked to pay only after the guide accepts.</string>
+    <string name="booking_status_action_cancel_request">Cancel request</string>
+    <string name="booking_status_awaiting_payment_title">Your guide accepted! Pay the deposit of %1$s to confirm</string>
+    <string name="booking_status_action_pay_now">Pay %1$s now</string>
+    <string name="booking_status_action_cancel_booking">Cancel booking</string>
+    <string name="booking_status_confirmed_title">Your trek is confirmed!</string>
+    <string name="booking_status_confirmed_deposit_paid">Deposit paid: %1$s</string>
+    <string name="booking_status_action_calendar">Add to calendar</string>
+    <string name="booking_status_action_calendar_toast">Calendar integration coming in Task 13</string>
+    <string name="booking_status_action_directions">Get directions</string>
+    <string name="booking_status_cancellation_policy_reminder">Cancellation policy (estimates)</string>
+    <string name="booking_status_terminal_cancelled_summary">This booking was cancelled.</string>
+    <string name="booking_status_terminal_no_show_summary">Marked as no-show.</string>
+    <string name="booking_status_terminal_refund_details">Refund: %1$s (%2$s%%)</string>
+    <string name="booking_status_terminal_deposit_non_refundable">Deposit is non-refundable.</string>
+    <string name="booking_status_rematch_failed_title">No other guide was available.</string>
+    <string name="booking_status_action_choose_guide">Choose another guide</string>
+
+    <!-- Task 9: Cancellation Flow -->
+    <string name="cancel_booking_title">Cancel this booking?</string>
+    <string name="cancel_booking_no_payment">No payment was taken</string>
+    <string name="cancel_booking_estimate_refund">If you cancel now: about %1$d%% of %2$s is refunded</string>
+    <string name="cancel_booking_deposit_non_refundable">Your deposit of %1$s is non-refundable</string>
+    <string name="cancel_booking_disclaimer">Estimate. The final refund is calculated by the server.</string>
+    <string name="cancel_booking_action_keep">Keep booking</string>
+    <string name="cancel_booking_action_cancel">Yes, cancel booking</string>
+    <string name="cancel_booking_dialog_title">Confirm cancellation</string>
+    <string name="cancel_booking_dialog_message">Are you sure you want to cancel this booking? This action cannot be undone.</string>
+    <string name="cancel_booking_dialog_confirm">Cancel booking</string>
+    <string name="cancel_booking_dialog_dismiss">Go back</string>
+    <string name="cancel_booking_action_label">cancel</string>
+    <string name="cancel_booking_success_title">Booking cancelled</string>
+    <string name="cancel_booking_authoritative_refund">Refund: %1$s (%2$s%%)</string>
+    <string name="cancel_booking_done">Done</string>
+    <string name="cancel_booking_error_already_cancelled">This booking is already cancelled.</string>
+    <string name="cancel_booking_error_generic">Could not cancel booking. Please try again.</string>
 </resources>

@@ -26,6 +26,7 @@ This document serves as the single source of truth for the PeakConnect REST API 
 - When capacity opens, `WaitlistService.promoteNext` assigns that selected guide and sets status to `PENDING_GUIDE_RESPONSE`.
 - If that guide declines or times out, the backend attempts to auto-rematch. If no matching verified guide is available, the backend sets `booking.guide = null` and status to `REMATCH_FAILED`.
 - **CRITICAL**: In DTOs, domain models, and Room entities, `guideId` and `guideName` **MUST be nullable**.
+- **REMATCH_FAILED Slot Re-booking**: When `rematchGuide()` fails in backend `BookingService.kt`, it decrements `slot.currentOccupancy` to free capacity and sets status to `REMATCH_FAILED`. The backend `POST /api/bookings/confirm` verifies slot capacity but does not enforce a unique constraint on `(slot_id, trekker_id)`. Therefore, the backend permits a trekker whose booking reached `REMATCH_FAILED` to choose another guide and initiate a new booking for the same slot.
 
 ### (d) Capabilities Required by App but Missing in Backend
 1. **Booking Created-at Timestamp**: Backend `BookingResponse` does not include `createdAt` (only the slot's activity `date`). The app will record local timestamp `statusSinceMillis` and `lastSyncMillis` in Room.

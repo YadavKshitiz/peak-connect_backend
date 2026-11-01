@@ -76,7 +76,9 @@ private val trekkerTabs = listOf(
 fun TrekkerNavShell(
     modifier: Modifier = Modifier,
     onNavigateToLogin: () -> Unit = {},
-    onNavigateToActivityDetail: (String) -> Unit = {}
+    onNavigateToActivityDetail: (String) -> Unit = {},
+    onNavigateToBookingStatus: (String) -> Unit = {},
+    onNavigateToPayment: (String) -> Unit = {}
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -135,7 +137,19 @@ fun TrekkerNavShell(
                 )
             }
             composable<BookingsTabRoute> {
-                PlaceholderScreen(title = stringResource(id = R.string.nav_tab_bookings))
+                com.peakconnect.app.feature.trekker.booking.MyBookingsScreen(
+                    onNavigateToBookingStatus = onNavigateToBookingStatus,
+                    onNavigateToPayment = onNavigateToPayment,
+                    onNavigateToExplore = {
+                        navController.navigate(ExploreTabRoute) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                )
             }
             composable<ProfileTabRoute> {
                 com.peakconnect.app.feature.profile.ProfileScreen(

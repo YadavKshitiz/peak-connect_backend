@@ -180,6 +180,12 @@ fun RootNavHost(
                             },
                             onNavigateToActivityDetail = { activityId ->
                                 navController.navigate(ActivityDetailRoute(activityId))
+                            },
+                            onNavigateToBookingStatus = { bookingId ->
+                                navController.navigate(BookingStatusRoute(bookingId))
+                            },
+                            onNavigateToPayment = { bookingId ->
+                                navController.navigate(PaymentResultRoute(bookingId = bookingId))
                             }
                         )
                     }
@@ -253,9 +259,16 @@ fun RootNavHost(
                         )
                     }
 
-                    composable<BookingStatusRoute> { backStackEntry ->
-                        val route = backStackEntry.toRoute<BookingStatusRoute>()
-                        PlaceholderScreen(title = "Booking Status (${route.bookingId})")
+                    composable<BookingStatusRoute> {
+                        com.peakconnect.app.feature.trekker.booking.BookingStatusScreen(
+                            onBack = { navController.popBackStack() },
+                            onNavigateToPayment = { bookingId ->
+                                navController.navigate(PaymentResultRoute(bookingId = bookingId))
+                            },
+                            onNavigateToMatches = { slotId ->
+                                navController.navigate(GuideMatchesRoute(slotId = slotId))
+                            }
+                        )
                     }
 
                     composable<CancelBookingRoute> { backStackEntry ->
