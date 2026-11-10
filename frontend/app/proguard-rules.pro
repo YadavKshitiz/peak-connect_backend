@@ -77,3 +77,6 @@
 -keep class * extends androidx.work.Worker { *; }
 -keep class androidx.work.WorkerParameters { *; }
 
+# Room generates *_Impl database classes that are created by reflection
+-keep class * extends androidx.room.RoomDatabase { <init>(); }
+-keep class androidx.work.impl.WorkDatabase_Impl { <init>(); }
