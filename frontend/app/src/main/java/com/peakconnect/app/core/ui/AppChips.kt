@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -52,7 +53,9 @@ fun AppChip(
     onClick: (() -> Unit)? = null
 ) {
     val clickableModifier = if (onClick != null) {
-        modifier.clickable(onClick = onClick)
+        modifier
+            .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+            .clickable(onClick = onClick)
     } else {
         modifier
     }
@@ -92,8 +95,15 @@ fun StatusChip(
     modifier: Modifier = Modifier
 ) {
     val colorPair = MaterialTheme.semanticColors.bookingStatusColor(bookingStatus)
+    val icon = when (bookingStatus) {
+        BookingStatus.CONFIRMED -> Icons.Default.Check
+        BookingStatus.AWAITING_PAYMENT -> Icons.Default.Warning
+        BookingStatus.PENDING, BookingStatus.PENDING_GUIDE_RESPONSE -> Icons.AutoMirrored.Filled.HelpOutline
+        BookingStatus.CANCELLED, BookingStatus.NO_SHOW, BookingStatus.REMATCH_FAILED -> Icons.Default.Dangerous
+    }
     AppChip(
         text = stringResource(id = bookingStatus.labelRes()),
+        icon = icon,
         modifier = modifier,
         containerColor = colorPair.container,
         contentColor = colorPair.content

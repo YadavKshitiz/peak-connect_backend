@@ -11,6 +11,7 @@
     <string name="common_password_toggle">Toggle password visibility</string>
     <string name="common_clear_text">Clear text</string>
     <string name="common_approx">approx. %1$s</string>
+    <string name="common_remove">Remove</string>
 
     <!-- Booking Status strings -->
     <string name="status_pending_guide_response">Waiting for guide</string>
@@ -322,7 +323,7 @@
     <string name="review_step_1_title">1 Guide accepts your request</string>
     <string name="review_step_1_desc">Your guide reviews and confirms availability for this slot.</string>
     <string name="review_step_2_title">2 You pay the deposit</string>
-    <string name="review_step_2_desc">Pay the estimated 20% deposit to confirm your spot.</string>
+    <string name="review_step_2_desc" formatted="false">Pay the estimated 20% deposit to confirm your spot.</string>
     <string name="review_step_3_title">3 You’re confirmed</string>
     <string name="review_step_3_desc">You receive your booking confirmation and details.</string>
     <string name="review_action_send_request">Send booking request</string>
@@ -344,7 +345,7 @@
     <string name="guide_assigned_placeholder">Guide will be assigned</string>
     <string name="booking_card_pay_deposit">Pay deposit</string>
     <string name="booking_card_pay_action_label">pay</string>
-    <string name="booking_card_cancel_action_label">cancel</string>
+    <string name="booking_card_cancel_action_label">Cancel</string>
     <string name="booking_card_approx_left">about %1$s left</string>
     <string name="booking_card_approx_min_left">about %1$d min left</string>
 
@@ -404,7 +405,7 @@
     <string name="cancel_booking_dialog_message">Are you sure you want to cancel this booking? This action cannot be undone.</string>
     <string name="cancel_booking_dialog_confirm">Cancel booking</string>
     <string name="cancel_booking_dialog_dismiss">Go back</string>
-    <string name="cancel_booking_action_label">cancel</string>
+    <string name="cancel_booking_action_label">Cancel</string>
     <string name="cancel_booking_success_title">Booking cancelled</string>
     <string name="cancel_booking_authoritative_refund">Refund: %1$s (%2$s%%)</string>
     <string name="cancel_booking_done">Done</string>

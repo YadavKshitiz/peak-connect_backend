@@ -67,8 +67,8 @@ import java.util.Locale
 fun GuideHomeScreen(
     onNavigateToBookingDetail: (String) -> Unit,
     onNavigateToProfileEdit: () -> Unit,
-    onNotificationClick: () -> Unit = {},
     modifier: Modifier = Modifier,
+    onNotificationClick: () -> Unit = {},
     viewModel: GuideHomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

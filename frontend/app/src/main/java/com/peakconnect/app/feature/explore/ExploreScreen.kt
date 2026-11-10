@@ -61,6 +61,8 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -158,7 +160,8 @@ fun ExploreScreen(
                             text = stringResource(id = R.string.explore_greeting, userFirstName),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.semantics { heading() }
                         )
                         com.peakconnect.app.core.ui.LastUpdatedIndicator(lastUpdatedMillis = lastUpdated)
                     }
@@ -459,7 +462,7 @@ fun ExploreScreen(
                                         text = stringResource(id = R.string.explore_recently_viewed),
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.SemiBold,
-                                        modifier = Modifier.padding(bottom = 8.dp)
+                                        modifier = Modifier.padding(bottom = 8.dp).semantics { heading() }
                                     )
                                     LazyRow(
                                         horizontalArrangement = Arrangement.spacedBy(12.dp),

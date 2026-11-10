@@ -37,6 +37,21 @@ val apiBaseUrl = if (!apiBaseUrlProp.isNullOrBlank()) {
     "https://peak-connect-backend.onrender.com/"
 }
 
+val releaseStoreFile = localProperties.getProperty("RELEASE_STORE_FILE")
+    ?: localProperties.getProperty("RELEASE_KEYSTORE_PATH")
+val releaseStorePassword = localProperties.getProperty("RELEASE_STORE_PASSWORD")
+val releaseKeyAlias = localProperties.getProperty("RELEASE_KEY_ALIAS")
+val releaseKeyPassword = localProperties.getProperty("RELEASE_KEY_PASSWORD")
+
+val hasReleaseSigning = !releaseStoreFile.isNullOrBlank() &&
+        !releaseStorePassword.isNullOrBlank() &&
+        !releaseKeyAlias.isNullOrBlank() &&
+        !releaseKeyPassword.isNullOrBlank()
+
+if (!hasReleaseSigning) {
+    logger.warn("WARNING: RELEASE_* properties not found in local.properties. Falling back to debug keystore for release build.")
+}
+
 android {
     namespace = "com.peakconnect.app"
     compileSdk {
@@ -57,14 +72,43 @@ android {
         buildConfigField("String", "GITHUB_ASSETS_BASE_URL", "\"https://raw.githubusercontent.com/YadavKshitiz/peak-connect_backend/main/assets/activity_images/\"")
     }
 
+    signingConfigs {
+        if (hasReleaseSigning) {
+            create("release") {
+                storeFile = rootProject.file(releaseStoreFile!!)
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = if (hasReleaseSigning) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
+    }
+
+    lint {
+        abortOnError = true
+        checkReleaseBuilds = false
+        warningsAsErrors = false
+        disable += setOf(
+            "GradleDependency",
+            "AndroidGradlePluginVersion",
+            "NewerVersionAvailable",
+            "UnusedAttribute"
+        )
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

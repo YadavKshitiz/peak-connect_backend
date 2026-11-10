@@ -2,6 +2,7 @@ package com.peakconnect.app.feature.guide.profile
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -145,7 +148,8 @@ fun GuideProfileEditScreen(
                 Text(
                     text = stringResource(id = R.string.guide_profile_skills_label),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.semantics { heading() }
                 )
 
                 // Input field
@@ -198,13 +202,18 @@ fun GuideProfileEditScreen(
                                 onClick = {},
                                 label = { Text(skill) },
                                 trailingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = "Remove $skill",
+                                    Box(
                                         modifier = Modifier
-                                            .size(16.dp)
-                                            .clickable { viewModel.removeSkill(skill) }
-                                    )
+                                            .size(24.dp)
+                                            .clickable { viewModel.removeSkill(skill) },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = "${stringResource(id = R.string.common_remove)} $skill",
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
                                 },
                                 shape = AppShapes.small,
                                 modifier = Modifier.testTag("selected_skill_$skill")
@@ -239,7 +248,8 @@ fun GuideProfileEditScreen(
                 Text(
                     text = stringResource(id = R.string.guide_profile_languages_label),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.semantics { heading() }
                 )
 
                 // Input field
@@ -292,13 +302,18 @@ fun GuideProfileEditScreen(
                                 onClick = {},
                                 label = { Text(lang) },
                                 trailingIcon = {
-                                    Icon(
-                                        imageVector = Icons.Default.Close,
-                                        contentDescription = "Remove $lang",
+                                    Box(
                                         modifier = Modifier
-                                            .size(16.dp)
-                                            .clickable { viewModel.removeLanguage(lang) }
-                                    )
+                                            .size(24.dp)
+                                            .clickable { viewModel.removeLanguage(lang) },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = "${stringResource(id = R.string.common_remove)} $lang",
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                    }
                                 },
                                 shape = AppShapes.small,
                                 modifier = Modifier.testTag("selected_lang_$lang")
@@ -368,7 +383,8 @@ fun GuideProfileEditScreen(
                 Text(
                     text = stringResource(id = R.string.guide_profile_location_label),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.semantics { heading() }
                 )
                 OutlinedTextField(
                     value = uiState.location,

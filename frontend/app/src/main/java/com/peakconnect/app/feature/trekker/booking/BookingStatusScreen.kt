@@ -54,6 +54,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -93,6 +94,8 @@ fun BookingStatusScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
+    val calendarUnavailableMsg = stringResource(id = R.string.common_calendar_app_unavailable)
+    val mapUnavailableMsg = stringResource(id = R.string.activity_detail_no_map_app)
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -283,12 +286,12 @@ fun BookingStatusScreen(
                                 val lat = uiState.activity?.latitude
                                 val lng = uiState.activity?.longitude
                                 if (lat != null && lng != null) {
-                                    val geoUri = Uri.parse("geo:$lat,$lng?q=${Uri.encode(booking.activityTitle)}")
+                                    val geoUri = "geo:$lat,$lng?q=${Uri.encode(booking.activityTitle)}".toUri()
                                     val mapIntent = Intent(Intent.ACTION_VIEW, geoUri)
                                     try {
                                         context.startActivity(mapIntent)
                                     } catch (e: Exception) {
-                                        Toast.makeText(context, "No map application available", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, mapUnavailableMsg, Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             },
@@ -322,7 +325,7 @@ fun BookingStatusScreen(
                                 } catch (_: Exception) {
                                     Toast.makeText(
                                         context,
-                                        context.getString(R.string.common_calendar_app_unavailable),
+                                        calendarUnavailableMsg,
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }

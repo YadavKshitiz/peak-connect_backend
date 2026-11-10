@@ -52,8 +52,9 @@ fun OsmMapView(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     // Initialize osmdroid configuration once per application
-    remember(context) {
+    DisposableEffect(context) {
         initOsmdroidConfiguration(context)
+        onDispose { }
     }
 
     val mapView = remember {
@@ -64,7 +65,12 @@ fun OsmMapView(
 
             if (!interactive) {
                 // Non-interactive display: disable scrolling and zooming touches
-                setOnTouchListener { _, _ -> true }
+                setOnTouchListener { v, event ->
+                    if (event.action == android.view.MotionEvent.ACTION_UP) {
+                        v.performClick()
+                    }
+                    true
+                }
             }
         }
     }

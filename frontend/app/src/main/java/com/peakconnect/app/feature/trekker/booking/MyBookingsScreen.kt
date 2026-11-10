@@ -22,8 +22,8 @@ import androidx.compose.material.icons.outlined.HourglassEmpty
 import androidx.compose.material3.Badge
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,8 +56,8 @@ import com.peakconnect.app.feature.trekker.waitlist.WaitlistTrackingNote
 fun MyBookingsScreen(
     onNavigateToBookingStatus: (String) -> Unit,
     onNavigateToPayment: (String) -> Unit,
-    onNavigateToExplore: () -> Unit = {},
     modifier: Modifier = Modifier,
+    onNavigateToExplore: () -> Unit = {},
     viewModel: BookingListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -93,7 +93,7 @@ fun MyBookingsScreen(
             }
 
             // Scrollable Tab Row
-            ScrollableTabRow(
+            PrimaryScrollableTabRow(
                 selectedTabIndex = uiState.selectedTab.ordinal,
                 edgePadding = MaterialTheme.spacing.md,
                 containerColor = MaterialTheme.colorScheme.surface,

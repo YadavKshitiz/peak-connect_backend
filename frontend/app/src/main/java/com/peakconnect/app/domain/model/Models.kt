@@ -1,8 +1,10 @@
 package com.peakconnect.app.domain.model
 
+import androidx.compose.runtime.Immutable
 import java.math.BigDecimal
 import java.time.LocalDateTime
 
+@Immutable
 data class Activity(
     val id: String,
     val title: String,
@@ -18,6 +20,7 @@ data class Activity(
     val lastUpdated: Long = System.currentTimeMillis()
 )
 
+@Immutable
 data class Slot(
     val id: String,
     val activityId: String,
@@ -29,6 +32,7 @@ data class Slot(
     val riskLevel: RiskLevel
 )
 
+@Immutable
 data class Booking(
     val id: String,
     val slotId: String,
@@ -47,6 +51,7 @@ data class Booking(
     val lastSyncMillis: Long = System.currentTimeMillis()
 )
 
+@Immutable
 data class MatchedGuide(
     val guideId: String,
     val name: String,
@@ -57,6 +62,7 @@ data class MatchedGuide(
     val score: Double
 )
 
+@Immutable
 data class GuideProfile(
     val id: String,
     val name: String,
@@ -71,6 +77,7 @@ data class GuideProfile(
     val lastUpdated: Long = System.currentTimeMillis()
 )
 
+@Immutable
 data class WaitlistEntry(
     val slotId: String,
     val activityTitle: String,
@@ -84,6 +91,7 @@ data class WaitlistEntry(
     val closureReason: String? = null
 )
 
+@Immutable
 data class WaitlistPromoted(
     val bookingId: String,
     val slotId: String

@@ -79,6 +79,8 @@ fun MapPickerScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isOnline = LocalIsOnline.current
     val context = LocalContext.current
+    val permissionRationaleMsg = stringResource(id = R.string.map_picker_location_permission_rationale)
+    val locationErrorMsg = stringResource(id = R.string.map_picker_search_error)
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -88,11 +90,11 @@ fun MapPickerScreen(
                 if (loc != null) {
                     viewModel.onMyLocationObtained(loc.latitude, loc.longitude)
                 } else {
-                    Toast.makeText(context, "Could not determine location", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, locationErrorMsg, Toast.LENGTH_SHORT).show()
                 }
             }
         } else {
-            Toast.makeText(context, context.getString(R.string.map_picker_location_permission_rationale), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, permissionRationaleMsg, Toast.LENGTH_SHORT).show()
         }
     }
 

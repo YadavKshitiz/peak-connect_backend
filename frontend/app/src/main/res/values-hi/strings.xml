@@ -10,6 +10,7 @@
     <string name="common_password_toggle">पासवर्ड दृश्यता बदलें</string>
     <string name="common_clear_text">टेक्स्ट साफ़ करें</string>
     <string name="common_approx">लगभग %1$s</string>
+    <string name="common_remove">हटाएं</string>
     <string name="status_pending_guide_response">गाइड की प्रतीक्षा में</string>
     <string name="status_awaiting_payment">भुगतान बाकी है</string>
     <string name="status_confirmed">पुष्ट</string>
@@ -268,7 +269,7 @@
     <string name="review_step_1_title">1 गाइड आपके अनुरोध को स्वीकार करता है</string>
     <string name="review_step_1_desc">आपका गाइड इस स्लॉट के लिए समीक्षा करता है और उपलब्धता की पुष्टि करता है।</string>
     <string name="review_step_2_title">2 आप डिपॉजिट का भुगतान करते हैं</string>
-    <string name="review_step_2_desc">अपना स्थान पक्का करने के लिए अनुमानित 20% डिपॉजिट का भुगतान करें।</string>
+    <string name="review_step_2_desc" formatted="false">अपना स्थान पक्का करने के लिए अनुमानित 20% डिपॉजिट का भुगतान करें।</string>
     <string name="review_step_3_title">3 आपकी बुकिंग पुष्ट हो गई है</string>
     <string name="review_step_3_desc">आपको अपनी बुकिंग की पुष्टि और विवरण प्राप्त होते हैं।</string>
     <string name="review_action_send_request">बुकिंग अनुरोध भेजें</string>

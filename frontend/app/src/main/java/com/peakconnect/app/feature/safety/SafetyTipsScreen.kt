@@ -2,6 +2,9 @@ package com.peakconnect.app.feature.safety
 
 import android.content.Intent
 import android.net.Uri
+import androidx.core.net.toUri
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -69,7 +72,7 @@ fun SafetyTipsScreen(
 
     val onCall112 = {
         val dialIntent = Intent(Intent.ACTION_DIAL).apply {
-            data = Uri.parse("tel:112")
+            data = "tel:112".toUri()
         }
         try {
             context.startActivity(dialIntent)
@@ -97,7 +100,8 @@ fun SafetyTipsScreen(
                 title = {
                     Text(
                         text = stringResource(id = R.string.safety_tips_title),
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.semantics { heading() }
                     )
                 },
                 navigationIcon = {

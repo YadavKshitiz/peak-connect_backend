@@ -110,7 +110,7 @@ private fun WakingContent(
 ) {
     val minutes = elapsedSeconds / 60
     val seconds = elapsedSeconds % 60
-    val timeFormatted = String.format("%d:%02d", minutes, seconds)
+    val timeFormatted = String.format(java.util.Locale.ROOT, "%d:%02d", minutes, seconds)
 
     Box(
         modifier = modifier

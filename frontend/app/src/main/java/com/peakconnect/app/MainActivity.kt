@@ -115,7 +115,7 @@ class MainActivity : AppCompatActivity(), PaymentResultWithDataListener, Externa
         enableEdgeToEdge()
 
         // Debug-only slow frames logger (Requirement 8)
-        if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        if (BuildConfig.DEBUG) {
             window.addOnFrameMetricsAvailableListener(
                 { _, frameMetrics, _ ->
                     val durationNs = frameMetrics.getMetric(android.view.FrameMetrics.TOTAL_DURATION)

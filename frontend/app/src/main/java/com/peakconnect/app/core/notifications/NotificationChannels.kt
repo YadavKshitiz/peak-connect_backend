@@ -11,31 +11,29 @@ object NotificationChannels {
     const val CHANNEL_REMINDERS = "reminders"
 
     fun createChannels(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
-                ?: return
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
+            ?: return
 
-            val bookingChannel = NotificationChannel(
-                CHANNEL_BOOKING_UPDATES,
-                context.getString(R.string.channel_booking_updates_name),
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = context.getString(R.string.channel_booking_updates_desc)
-                enableLights(true)
-                enableVibration(true)
-            }
-
-            val remindersChannel = NotificationChannel(
-                CHANNEL_REMINDERS,
-                context.getString(R.string.channel_reminders_name),
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = context.getString(R.string.channel_reminders_desc)
-                enableLights(true)
-                enableVibration(true)
-            }
-
-            notificationManager.createNotificationChannels(listOf(bookingChannel, remindersChannel))
+        val bookingChannel = NotificationChannel(
+            CHANNEL_BOOKING_UPDATES,
+            context.getString(R.string.channel_booking_updates_name),
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = context.getString(R.string.channel_booking_updates_desc)
+            enableLights(true)
+            enableVibration(true)
         }
+
+        val remindersChannel = NotificationChannel(
+            CHANNEL_REMINDERS,
+            context.getString(R.string.channel_reminders_name),
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = context.getString(R.string.channel_reminders_desc)
+            enableLights(true)
+            enableVibration(true)
+        }
+
+        notificationManager.createNotificationChannels(listOf(bookingChannel, remindersChannel))
     }
 }

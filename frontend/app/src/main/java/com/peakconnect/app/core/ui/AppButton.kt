@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -51,7 +52,7 @@ fun PrimaryButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(52.dp),
+            .heightIn(min = 52.dp),
         enabled = enabled && !isLoading,
         shape = AppShapes.small,
         colors = ButtonDefaults.buttonColors(
@@ -102,7 +103,7 @@ fun SecondaryButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(52.dp),
+            .heightIn(min = 52.dp),
         enabled = enabled && !isLoading,
         shape = AppShapes.small,
         colors = ButtonDefaults.outlinedButtonColors(
@@ -148,7 +149,7 @@ fun TertiaryTextButton(
 ) {
     TextButton(
         onClick = onClick,
-        modifier = modifier.height(MaterialTheme.spacing.minTouchTarget),
+        modifier = modifier.heightIn(min = MaterialTheme.spacing.minTouchTarget),
         enabled = enabled,
         shape = AppShapes.small,
         colors = ButtonDefaults.textButtonColors(
@@ -189,7 +190,7 @@ fun DestructiveButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(52.dp),
+            .heightIn(min = 52.dp),
         enabled = enabled && !isLoading,
         shape = AppShapes.small,
         colors = ButtonDefaults.buttonColors(

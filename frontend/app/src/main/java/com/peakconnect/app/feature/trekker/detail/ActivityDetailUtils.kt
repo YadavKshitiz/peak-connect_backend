@@ -3,6 +3,7 @@ package com.peakconnect.app.feature.trekker.detail
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.core.net.toUri
 import com.peakconnect.app.core.ui.formatRupees
 import java.math.BigDecimal
 
@@ -17,7 +18,7 @@ object ActivityDetailUtils {
 
     fun buildGeoIntentUri(latitude: Double, longitude: Double, title: String): Uri {
         val encodedTitle = Uri.encode(title)
-        return Uri.parse("geo:$latitude,$longitude?q=$latitude,$longitude($encodedTitle)")
+        return "geo:$latitude,$longitude?q=$latitude,$longitude($encodedTitle)".toUri()
     }
 
     fun openMapDirections(context: Context, latitude: Double, longitude: Double, title: String): Boolean {

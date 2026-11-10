@@ -1,7 +1,6 @@
 package com.peakconnect.app.feature.about
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,9 +41,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import com.peakconnect.app.BuildConfig
 import com.peakconnect.app.R
 import com.peakconnect.app.core.theme.spacing
@@ -57,21 +60,22 @@ fun AboutScreen(
 ) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
+    val feedbackSubject = stringResource(id = R.string.about_feedback_subject)
+    val feedbackLabel = stringResource(id = R.string.about_feedback_label)
 
     val openUrl: (String) -> Unit = { url ->
         try {
             uriHandler.openUri(url)
         } catch (_: Exception) {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             context.startActivity(intent)
         }
     }
 
     val sendFeedback: () -> Unit = {
         val email = "itskshitizyadav@gmail.com"
-        val subject = context.getString(R.string.about_feedback_subject)
         val body = "\n\n---\nApp Version: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})\nAndroid Version: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})\nDevice: ${Build.MANUFACTURER} ${Build.MODEL}"
-        val mailtoUri = Uri.parse("mailto:$email?subject=${Uri.encode(subject)}&body=${Uri.encode(body)}")
+        val mailtoUri = "mailto:$email?subject=${android.net.Uri.encode(feedbackSubject)}&body=${android.net.Uri.encode(body)}".toUri()
         val intent = Intent(Intent.ACTION_SENDTO, mailtoUri)
         try {
             context.startActivity(intent)
@@ -79,11 +83,11 @@ fun AboutScreen(
             val fallback = Intent(Intent.ACTION_SEND).apply {
                 type = "message/rfc822"
                 putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
-                putExtra(Intent.EXTRA_SUBJECT, subject)
+                putExtra(Intent.EXTRA_SUBJECT, feedbackSubject)
                 putExtra(Intent.EXTRA_TEXT, body)
             }
             try {
-                context.startActivity(Intent.createChooser(fallback, context.getString(R.string.about_feedback_label)))
+                context.startActivity(Intent.createChooser(fallback, feedbackLabel))
             } catch (_: Exception) {
                 // Ignore if no intent handler available
             }
@@ -96,7 +100,8 @@ fun AboutScreen(
                 title = {
                     Text(
                         text = stringResource(id = R.string.about_title),
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier.semantics { heading() }
                     )
                 },
                 navigationIcon = {
@@ -146,7 +151,8 @@ fun AboutScreen(
                 text = stringResource(id = R.string.app_name),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.semantics { heading() }
             )
 
             Spacer(modifier = Modifier.height(MaterialTheme.spacing.xs))
@@ -182,6 +188,7 @@ fun AboutScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .defaultMinSize(minHeight = 48.dp)
                             .clickable { openUrl("https://www.openstreetmap.org/copyright") }
                             .padding(vertical = MaterialTheme.spacing.xs),
                         verticalAlignment = Alignment.CenterVertically
@@ -216,6 +223,7 @@ fun AboutScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .defaultMinSize(minHeight = 48.dp)
                             .padding(vertical = MaterialTheme.spacing.xs),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -244,6 +252,7 @@ fun AboutScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .defaultMinSize(minHeight = 48.dp)
                             .clickable { openUrl("https://github.com/YadavKshitiz") }
                             .padding(vertical = MaterialTheme.spacing.xs),
                         verticalAlignment = Alignment.CenterVertically
@@ -278,6 +287,7 @@ fun AboutScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .defaultMinSize(minHeight = 48.dp)
                             .clickable(onClick = sendFeedback)
                             .padding(vertical = MaterialTheme.spacing.xs),
                         verticalAlignment = Alignment.CenterVertically
@@ -307,7 +317,8 @@ fun AboutScreen(
                         text = stringResource(id = R.string.about_oss_libraries_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.semantics { heading() }
                     )
                     Spacer(modifier = Modifier.height(MaterialTheme.spacing.sm))
                     Text(

@@ -16,4 +16,4 @@
 - [x] Task 13: Notifications (Completed on 2026-11-01)
 - [x] Task 14: Offline hardening (Completed on 2026-11-01)
 - [x] Task 15: Extras/localization (Completed on 2026-11-01)
-- [ ] Task 16: Quality/release
+- [x] Task 16: Quality/release (Completed on 2026-11-10)
