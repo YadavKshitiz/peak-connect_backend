@@ -398,9 +398,3 @@ The Android app's exact request and response shapes are documented in [`frontend
 **Kshitiz Yadav**
 - GitHub: [YadavKshitiz](https://github.com/YadavKshitiz)
 - LinkedIn: [yadavkshitiz94](https://linkedin.com/in/yadavkshitiz94)
-
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).
